@@ -1,0 +1,19 @@
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    background: url('../img/body-main-bg.noise05.gif') repeat;
+}
+
+header {
+    background-color: rgb(0, 0, 0);
+    box-shadow: 0 3px 4px #2f681e85;
+    .main-logo {
+        padding: 15px;
+        display: inline-block;
+        width: 100px;
+        color: white;
+    }
+}
