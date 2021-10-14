@@ -1,0 +1,39 @@
+// форма для создания нового элемента ассортимента
+
+#form-create-item {
+    padding: 25px;
+    width: 500px;
+}
+
+.radio-set {
+    display: inline-block;
+    label {
+        &:hover {
+            cursor: pointer;
+        }
+    }
+}
+
+.input-set {
+    display: inline-block;
+    label {
+        display: block;
+    }
+    input {
+        display: block;
+    }
+    &:nth-child(1) {
+        input {
+            width: 300px;
+        }
+    }
+    &:nth-child(2), &:nth-child(3) {
+        label, input {
+            width: 75px;
+        }
+    }
+}
+
+#input-item-describe {
+    width: 475px;
+}

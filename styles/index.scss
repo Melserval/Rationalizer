@@ -17,3 +17,50 @@ header {
         color: white;
     }
 }
+
+.wrapper-item-list {
+    display: inline-block;
+    box-sizing: border-box;
+    padding: 25px;
+    width: 49%;
+    min-width: 550px;
+    vertical-align: top;
+
+    .header-item-list {
+        height: 25px;
+        background-color: #C9C5BD;
+    }
+
+    ul {
+        list-style: none;
+        padding: 1px;
+        background-color: #faf734;
+        li {
+            padding: 5px 10px  5px;
+            &:hover {
+                background-color: #fff;
+                cursor: pointer;
+            }
+        }
+        //TODO: Потом разобраться с размерами
+        span {
+            display: inline-block;
+            font-family: rubik;
+            font-size: 14px;
+            &:nth-child(1) {
+                color: #111;
+                width: 75%;
+            }
+            &:nth-child(2) {
+                color: rgb(48, 62, 252);
+                width: 10%;
+                text-align: right;
+            }
+            &:nth-child(3) {
+                color:rgb(189, 55, 3);
+                width: 10%;
+                text-align: right;
+            }
+        }
+    }
+}

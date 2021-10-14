@@ -12,5 +12,157 @@
     <header>
         <a href=""><div class="main-logo">Рационализатор</div></a>
     </header>
+    <!-- Форма создания единицы ассортимента -->
+    <div id="form-create-item">
+        <div class="radio-block">
+            <div class="radio-set">
+                <input id="radio-is-piece" type="radio" name="radio-type-packed">
+                <label for="radio-is-piece">Штучный</label>
+            </div>
+            <div class="radio-set">
+                <input id="radio-is-packed" type="radio" name="radio-type-packed">
+                <label for="radio-is-packed">Фасованный</label>
+            </div>
+            <div class="radio-set">
+                <input id="radio-is-weight" type="radio" name="radio-type-packed">
+                <label for="radio-is-weight">Весовой</label>
+            </div>
+        </div>
+        <hr/>
+        <div class="radio-block">
+            <div class="radio-set">
+                <input id="radio-volume-gramm" type="radio" name="radio-type-measure">
+                <label for="radio-volume-gramm">Грамм</label>
+            </div>
+            <div class="radio-set">
+                <input id="radio-volume-milliliter" type="radio" name="radio-type-measure">
+                <label for="radio-volume-milliliter" >Миллилитр</label>
+            </div>
+        </div>
+        <hr/>
+        <div class="input-block">
+            <div class="input-set">
+                <label for="input-item-name">название</label>
+                <input id="input-item-name" type="text" value="">
+            </div>
+            <div class="input-set">
+                <label for="input-item-amount">количество</label>
+                <input type="number" id="input-item-amount" value="">
+            </div>
+            <div class="input-set">
+                <label for="input-item-price">стоимость</label>
+                <input type="number" id="input-item-price" value="">
+            </div>
+        </div>
+        <div class="input-block">
+            <div class="input-set">
+                <label for="input-item-describe">Заметка</label>
+                <textarea name="" id="input-item-describe"></textarea>
+            </div>
+        </div>
+        <hr/>
+        <div class="set-category-block">
+            <div class="input-set">
+                <label for="input-item-category">категория</label>
+                <select name="" id="input-item-category">
+                    <option value="defaul">общая категория</option>
+                </select>
+            </div>
+        </div>
+        <hr/>
+        <div class="btn-block">
+            <button id="">Завершить</button>
+            <button id="">Сброс</button>
+            <button id="">Применить</button>
+        </div>
+    </div>
+    <!--  -->
+    <!-- Раздел составляемых списков -->
+    <div class="wrapper-item-list">
+    	<hr/>
+    	<div id="order-item-list">
+    		<div class="header-item-list">
+    			<span>01-05-2020</span>
+    			<span>05-05-2020</span>
+    			<span>[20]</span>
+    			<span>100500.50</span>
+    		</div>
+    		<ul>
+    			<li>
+    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
+    				<span class="item-amount">500</span>
+    				<span class="item-price">36.50</span>
+    			</li>
+    			<li>
+    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
+    				<span class="item-amount">500</span>
+    				<span class="item-price">36.50</span>
+    			</li>
+    			<li>
+    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
+    				<span class="item-amount">500</span>
+    				<span class="item-price">36.50</span>
+    			</li>
+    			<li>
+    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
+    				<span class="item-amount">500</span>
+    				<span class="item-price">36.50</span>
+    			</li>
+    			
+    		</ul>
+    	</div>
+    </div>
+    <!--  -->
+    <!-- Раздел списка ассортимента -->
+    <div class="wrapper-item-list">
+    	<hr/>
+    	<div id="main-item-list">
+    		<div class="header-item-list">
+    			<input id="input-item-search" type="text" value="">
+    			<button id="btn-crear-search">[X]</button>
+    			<button id="btn-run-search" >Поиск</button>
+    		</div>
+    		<ul id="items-set">
+    			<li>
+    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
+    				<span class="item-amount">500</span>
+    				<span class="item-price">36.50</span>
+    			</li>
+    			<li>
+    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
+    				<span class="item-amount">500</span>
+    				<span class="item-price">36.50</span>
+    			</li>
+    			<li>
+    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
+    				<span class="item-amount">500</span>
+    				<span class="item-price">36.50</span>
+    			</li>
+    			<li>
+    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
+    				<span class="item-amount">500</span>
+    				<span class="item-price">36.50</span>
+    			</li>
+    			<li>
+    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
+    				<span class="item-amount">500</span>
+    				<span class="item-price">36.50</span>
+    			</li>
+    		</ul>
+    	</div>
+    </div>
+    <div id="category-btn-list">
+        <button>Общая</button>
+        <button>Овощи</button>
+        <button>Фрукты</button>
+        <button>Мясные</button>
+        <button>Молочные</button>
+        <button>Бакалея</button>
+        <button>Кондитерские</button>
+        <button>Хозтовары</button>
+        <button>Услуги</button>
+        <button>Здоровье</button>
+    </div>
+    <!--  -->
 </body>
 </html>
