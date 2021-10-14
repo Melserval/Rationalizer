@@ -9,7 +9,6 @@ body {
 
 header {
     background-color: rgb(0, 0, 0);
-    box-shadow: 0 3px 4px #2f681e85;
     .main-logo {
         padding: 15px;
         display: inline-block;
@@ -22,7 +21,7 @@ header {
     display: inline-block;
     box-sizing: border-box;
     padding: 25px;
-    width: 49%;
+    width: 50%;
     min-width: 550px;
     vertical-align: top;
 
@@ -37,6 +36,7 @@ header {
         background-color: #faf734;
         li {
             padding: 5px 10px  5px;
+            border-bottom: 1px solid white;
             &:hover {
                 background-color: #fff;
                 cursor: pointer;

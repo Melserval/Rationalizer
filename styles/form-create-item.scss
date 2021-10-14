@@ -1,8 +1,19 @@
 // форма для создания нового элемента ассортимента
 
+.wrapper-form {
+    background-color: rgba(247, 227, 53, 0.349);
+    padding: 1px;
+    margin-left: 20px;
+    margin-right: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 3px rgba(51, 51, 51, 0.63);
+    overflow: hidden;
+}
+
 #form-create-item {
     padding: 25px;
     width: 500px;
+    margin: 5px auto;
 }
 
 .radio-set {
@@ -35,5 +46,55 @@
 }
 
 #input-item-describe {
-    width: 475px;
+    display: block;
+    min-width: 475px;
+    max-width: 475px;
+    min-height: 20px;
+    max-height: 300px;
+}
+// TODO: над названиями еще нужно поработать...
+#set-category-btn-list {
+    font-size: 0;
+    button {
+        font-size: 14px;
+        font-family: 'Anka/Coder';
+        margin: 3px;
+        cursor: pointer;
+    }
+    button.setted {
+        background-color: #42a9fd;
+    }
+}
+
+#btn-block {
+    text-align: center;
+
+    button {
+        display: inline-block;
+        width: 100px;
+        border-radius: 3px;
+        border: 1px solid #333;
+        padding: 3px;
+        cursor: pointer;
+
+        &:nth-child(1) {
+            background-color: rgb(235, 235, 235);
+            &:hover {
+                background-color: rgb(216, 216, 216);
+            }
+        }
+        &:nth-child(2) {
+            background-color: rgb(243, 191, 123);
+            &:hover {
+                background-color: rgb(218, 158, 79);
+            }
+        }
+        &:nth-child(3) {
+            background-color: rgb(169, 211, 160);
+            &:hover {
+                background-color: rgb(138, 196, 125);
+            }
+        }
+
+    }
 }
