@@ -45,7 +45,6 @@ class VendorType {
     static typeInfo = new Map();
 } 
 VendorType = new Proxy(VendorType, proxyTypeHandler);
-
 const vendorType_unit = VendorType("vendorType_unit", "штучный");
 const vendorType_packed = VendorType("vendorType_packed", "фасованный");
 const vendorType_weighed = VendorType("vendorType_weighed", "развесной");
@@ -72,10 +71,26 @@ class MeasureType {
     static typeInfo = new Map();
 }
 MeasureType = new Proxy( MeasureType, proxyTypeHandler);
-
 const measureType_unit = MeasureType("measureType_unit", "штука", "шт.");
 const measureType_milliliter = MeasureType("measureType_milliliter", "миллилитр", "ml.");
 const measureType_liter = MeasureType("MeasureType_liter", "литр", "l.");
 const measureType_gramm = MeasureType("measureType_gramm", "грамм", "gr.");
 const measureType_kilogramm =  MeasureType("measureType_kilogramm", "килограмм", "kg.");
 const measureType_kilowatt =  MeasureType("measureType_kilowatt", 'киловатт', 'kw.');
+
+
+// --- типы чисел (целый, с плавающей точкой) ---
+class NumberType {
+    constructor(numbertype, title, desc="") {
+        if (typeof numbertype !== 'symbol') {
+            throw new TypeError("number type должен быть Symbol! Передан тип " + (typeof numbertype));
+        }
+        this.type = numbertype;
+        this.title = title;
+        this.description = desc;
+    }
+    static typeInfo = new Map();
+} 
+NumberType = new Proxy(NumberType, proxyTypeHandler);
+const numberType_integer = NumberType("numberType_integer", "integer");
+const numberType_float = NumberType("numberType_float", "float");
