@@ -2,10 +2,10 @@
 "use strict";
 
 class RenderAssortimentUnit  {
-	_node_li = doucument.createElement('li');
-	_span_name = doucment.createElement('span');
-	_span_amount = doucment.createElement('span');
-	_span_price = doucment.createElement('span');
+	_node_li = document.createElement('li');
+	_span_name = document.createElement('span');
+	_span_amount = document.createElement('span');
+	_span_price = document.createElement('span');
 
 	constructor() {
 		this._node_li.append(
