@@ -5,7 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Рационализатор</title>
+    <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/master.css">
+    <script src="js/types.js" defer></script>
+    <script src="js/assortiment_unit.js" defer></script>
+    <script src="js/assortiment_list.js" defer></script>
+    <script src="js/assortiment_data.js" defer></script>
+    <script src="js/renders.js" defer></script>
     <script src="js/main.js" defer></script>
 </head>
 <body>
@@ -17,27 +23,27 @@
         <div id="form-create-item">
             <div class="radio-block">
                 <div class="radio-set">
-                    <input id="radio-is-piece" type="radio" name="radio-type-packed">
-                    <label for="radio-is-piece">Штучный</label>
-                </div>
-                <div class="radio-set">
-                    <input id="radio-is-packed" type="radio" name="radio-type-packed">
+                    <input id="radio-is-packed" type="radio" name="radio-type-vendor">
                     <label for="radio-is-packed">Фасованный</label>
                 </div>
                 <div class="radio-set">
-                    <input id="radio-is-weight" type="radio" name="radio-type-packed">
+                    <input id="radio-is-weight" type="radio" name="radio-type-vendor">
                     <label for="radio-is-weight">Весовой</label>
+                </div>
+                <div class="radio-set">
+                    <input id="radio-is-unit" type="radio" name="radio-type-vendor">
+                    <label for="radio-is-unit">Штучный</label>
                 </div>
             </div>
             <hr/>
             <div class="radio-block">
                 <div class="radio-set">
-                    <input id="radio-volume-gramm" type="radio" name="radio-type-measure">
-                    <label for="radio-volume-gramm">Грамм</label>
+                    <input id="radio-measure-gramm" type="radio" name="radio-type-measure" disabled="true">
+                    <label class="disabled" for="radio-measure-gramm">Грамм</label>
                 </div>
                 <div class="radio-set">
-                    <input id="radio-volume-milliliter" type="radio" name="radio-type-measure">
-                    <label for="radio-volume-milliliter" >Миллилитр</label>
+                    <input id="radio-measure-milliliter" type="radio" name="radio-type-measure" disabled="true">
+                    <label class="disabled" for="radio-measure-milliliter">Миллилитр</label>
                 </div>
             </div>
             <hr/>
@@ -86,52 +92,59 @@
         </div>
     </div>
     <!--  -->
-    <!-- Раздел составляемых списков -->
-    <div class="wrapper-item-list">
-    	<hr/>
-    	<div id="order-item-list">
-    		<div class="header-item-list">
-    			<span>01-05-2020</span>
-    			<span>05-05-2020</span>
-    			<span>[20]</span>
-    			<span>100500.50</span>
-    		</div>
-    		<ul>
-    			<li>
-    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
-    				<span class="item-amount">500</span>
-    				<span class="item-price">36.50</span>
-    			</li>
-    			<li>
-    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
-    				<span class="item-amount">500</span>
-    				<span class="item-price">36.50</span>
-    			</li>
-    			<li>
-    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
-    				<span class="item-amount">500</span>
-    				<span class="item-price">36.50</span>
-    			</li>
-    			<li>
-    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
-    				<span class="item-amount">500</span>
-    				<span class="item-price">36.50</span>
-    			</li>
-    			
-    		</ul>
-    	</div>
-    </div>
-    <!--  -->
-    <!-- Раздел списка ассортимента -->
-    <div class="wrapper-item-list">
-    	<hr/>
-    	<div id="main-item-list">
-    		<div class="header-item-list">
-    			<input id="input-item-search" type="text" value="">
-    			<button id="btn-crear-search">[X]</button>
-    			<button id="btn-run-search" >Поиск</button>
-    		</div>
+    <div class="items-list-area">
+        <!-- секция составляемых списков -->
+        <div class="section-orders-list">
+            <hr/>
+            <header id="order-create-control">
+                <div>
+                    <button>разовый</button>
+                    <button>сутки</button>
+                    <button>неделя</button>
+                    <button>месяц</button>
+                    <button><input id="order-custom-days" type="text"> Дней</button>
+                </div>
+            </header>
+            <hr/>
+            <!-- список заказов -->
+            <div class="order-items-list">
+                <div class="items-list-label">
+                    <span>[период]</span>
+                    <span>01-05-2020</span>
+                    <span>05-05-2020</span>
+                    <span>[20]</span>
+                    <span>100500.50</span>
+                </div>
+                <ul class="items-list">
+                    <li><span class="item-name">Вкусная колбаска "До пюрешки"</span><span class="item-amount">500</span><span class="item-price">36.50</span></li>
+                    <li>
+                        <span class="item-name">Вкусная колбаска "До пюрешки"</span>
+                        <span class="item-amount">500</span>
+                        <span class="item-price">36.50</span>
+                    </li>
+                    <li>
+                        <span class="item-name">Вкусная колбаска "До пюрешки"</span>
+                        <span class="item-amount">500</span>
+                        <span class="item-price">36.50</span>
+                    </li>
+                    <li>
+                        <span class="item-name">Вкусная колбаска "До пюрешки"</span>
+                        <span class="item-amount">500</span>
+                        <span class="item-price">36.50</span>
+                    </li>    
+                </ul>
+            </div>
+        </div><!-- секция списка ассортимента -->
+        <div class="section-assortiment-list">
+            <hr/>
+            <header>
+                <input id="input-item-search" type="text" value="">
+                <button id="btn-crear-search">[X]</button>
+                <button id="btn-run-search" >Поиск</button>
+            </header>
+            <hr/>
             <div id="category-btn-list">
+                <button>Сбросить</button>
                 <button>Общая</button>
                 <button>Овощи</button>
                 <button>Фрукты</button>
@@ -143,36 +156,24 @@
                 <button>Услуги</button>
                 <button>Здоровье</button>
             </div>
-    		<ul id="items-set">
-    			<li>
-    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
-    				<span class="item-amount">500</span>
-    				<span class="item-price">36.50</span>
-    			</li>
-    			<li>
-    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
-    				<span class="item-amount">500</span>
-    				<span class="item-price">36.50</span>
-    			</li>
-    			<li>
-    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
-    				<span class="item-amount">500</span>
-    				<span class="item-price">36.50</span>
-    			</li>
-    			<li>
-    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
-    				<span class="item-amount">500</span>
-    				<span class="item-price">36.50</span>
-    			</li>
-    			<li>
-    				<span class="item-name">Вкусная колбаска "До пюрешки"</span>
-    				<span class="item-amount">500</span>
-    				<span class="item-price">36.50</span>
-    			</li>
-    		</ul>
-    	</div>
+            <hr/>
+            <div class="assortiment-items-list">
+                <div class="items-list-label">
+                    фильтры: пюрешки колбаса | Мясные
+                </div>
+                <ul class="items-list" id="main-assortiment-list">
+                    <!-- <li>
+                        <span class="item-name">Вкусная колбаска "До пюрешки"</span>
+                        <span class="item-amount">500</span>
+                        <span class="item-price">36.50</span>
+                    </li> -->
+
+                </ul>
+            </div>
+        </div>
     </div>
     <!--  -->
+
     <script>
         Array.prototype.forEach.call(document.body.childNodes, function (e) { 
             if (e.nodeName == "#text" && !e.nodeValue.trim() ) {

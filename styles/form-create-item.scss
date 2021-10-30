@@ -1,10 +1,11 @@
 // форма для создания нового элемента ассортимента
 
 .wrapper-form {
-    background-color: rgba(247, 227, 53, 0.349);
+    background-color: rgb(209 197 99);
     padding: 1px;
     margin-left: 20px;
     margin-right: 20px;
+    margin-top: -10px;
     border-radius: 4px;
     box-shadow: 0 2px 3px rgba(51, 51, 51, 0.63);
     overflow: hidden;
@@ -14,15 +15,11 @@
     padding: 25px;
     width: 500px;
     margin: 5px auto;
+    transition-delay: 1;
 }
 
 .radio-set {
     display: inline-block;
-    label {
-        &:hover {
-            cursor: pointer;
-        }
-    }
 }
 
 .input-set {

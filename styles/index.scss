@@ -4,7 +4,7 @@ html {
 
 body {
     height: 100%;
-    background: url('../img/body-main-bg.noise05.gif') repeat;
+    background-image: url('../img/body_bg-noise-dark.gif');
 }
 
 header {
@@ -17,50 +17,24 @@ header {
     }
 }
 
-.wrapper-item-list {
-    display: inline-block;
-    box-sizing: border-box;
-    padding: 25px;
-    width: 50%;
-    min-width: 550px;
-    vertical-align: top;
-
-    .header-item-list {
-        height: 25px;
-        background-color: #C9C5BD;
+button {
+    font-family: 'Anka/Coder';
+    font-size: 14px;
+    &:hover {
+        cursor: pointer;
     }
+}
 
-    ul {
-        list-style: none;
-        padding: 1px;
-        background-color: #faf734;
-        li {
-            padding: 5px 10px  5px;
-            border-bottom: 1px solid white;
-            &:hover {
-                background-color: #fff;
-                cursor: pointer;
-            }
-        }
-        //TODO: Потом разобраться с размерами
-        span {
-            display: inline-block;
-            font-family: rubik;
-            font-size: 14px;
-            &:nth-child(1) {
-                color: #111;
-                width: 75%;
-            }
-            &:nth-child(2) {
-                color: rgb(48, 62, 252);
-                width: 10%;
-                text-align: right;
-            }
-            &:nth-child(3) {
-                color:rgb(189, 55, 3);
-                width: 10%;
-                text-align: right;
-            }
-        }
-    }
+label {
+    cursor: pointer;
+}
+
+.disabled {
+    color: #7A7A7AFF;
+    cursor: default;
+}
+
+.compact {
+    width: 100px;
+    height: 50px;
 }
