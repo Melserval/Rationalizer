@@ -1,25 +1,36 @@
 "use strict";
 // *** различные типы представляющее единицы измерения и выды ассортимента. ***
 
-/* 
- * Объект - проксимизатор, позволяет удобно определять новые типы, вызывая как: 
-
- * функцию - typeObject("typename", "title", "shorttitle", "desctiption")
- *  обязательны аргументы: 1 - название типа.
- * 
- * свойство-медод - typeObject.<typename>("title", "shorttitle", "desctiption") 
- */
+// проксимизатор.
 const proxyTypeHandler = {
     set(target, prop, value) {
         throw new TypeError(`Нельзя просто так добавлять свойства в сюда!`);
     },
     get(target, prop) {
         if (prop in target) return target[prop];
-        return function(...args) {
-            target.types[prop] = new target(...args);
+        // позволяет получать информацию о типе, передавая Symbol-идентификатор.
+        switch (prop) {
+            case "type": 
+            case "short": 
+            case "full":
+            case "description":
+                return (SymbolType) => target.typeInfo.get(SymbolType)[prop];
+            case "info": 
+                return (SymbolType) => target.typeInfo.get(SymbolType);
+            default:
+                return undefined;
         }
     },
+    /**
+     * Новый тип единицы измерения.
+     * @param {Symbol} symbolType глобальный символ для типа.
+     * @param {string} full полное обозначание
+     * @param {string} short краткое обозначение
+     * @param {string} [desc] полное описание.
+     */
     apply(target, thisArg, args) {
+        // позволяет удобно определять новые типы, вызывая  класс как функцию
+        // -  typeObject("typename", "full", "shorttitle", "desctiption").
         if (args.length >= 1 && typeof args[0] === 'string') 
         {
             let type = Symbol.for(args[0]);
@@ -32,16 +43,29 @@ const proxyTypeHandler = {
 };
 
 
-// --- типы распостранения ассортимента (упакован, фасованный, развес, штучный, etc...) ---
-class VendorType {
-    constructor(vendortype, title, desc="") {
-        if (typeof vendortype !== 'symbol') {
-            throw new TypeError("vendor type должен быть Symbol! Передан тип " + (typeof vendortype));
+// --- собственные типы для различных сущностей, замена enum и struct ---
+class UserType {
+    /**
+     * Новый тип единицы измерения.
+     * @param {Symbol|string} symbolType символ типа | название нового типа
+     * @param {string} full полное обозначание
+     * @param {string} short краткое обозначение
+     * @param {string} [desc] полное описание.
+     */
+    constructor(symbolType, full, short, desc) {
+        if (typeof symbolType !== 'symbol' && typeof symbolType !== 'string') {
+            throw new TypeError(`Первым аргументом должен быть Symbol или строка, но передан "${typeof symbolType}".`);
         }
-        this.type = vendortype;
-        this.title = title;
+        this.type = (typeof symbolType === 'symbol') ? symbolType : Symbol.for(symbolType);
+        this.full = full;
+        this.short = short;
         this.description = desc;
     }
+}
+
+
+// --- типы распостранения ассортимента (упакован, фасованный, развес, штучный, etc...) ---
+class VendorType extends UserType {
     static typeInfo = new Map();
 } 
 VendorType = new Proxy(VendorType, proxyTypeHandler);
@@ -51,23 +75,7 @@ const vendorType_weighed = VendorType("vendorType_weighed", "развесной"
 
 
 // --- типы единиц измерения (вес, обьем, etc...) ---
-class MeasureType {
-    /**
-     * Новый тип единицы измерения.
-     * @param {string} measuretype название для типа.
-     * @param {string} full полное обозначание
-     * @param {string} short краткое обозначение
-     * @param {string} [desc] полное описание.
-     */
-    constructor(measuretype, full, short, desc="") {
-        if (typeof measuretype !== 'symbol') {
-            throw new TypeError("measure type должен быть Symbol! Передан тип " + (typeof measuretype));
-        }
-        this.type = measuretype;
-        this.title = full;
-        this.short = short;
-        this.description = desc;
-    }
+class MeasureType extends UserType {
     static typeInfo = new Map();
 }
 MeasureType = new Proxy( MeasureType, proxyTypeHandler);
@@ -80,15 +88,7 @@ const measureType_kilowatt =  MeasureType("measureType_kilowatt", 'килова�
 
 
 // --- типы чисел (целый, с плавающей точкой) ---
-class NumberType {
-    constructor(numbertype, title, desc="") {
-        if (typeof numbertype !== 'symbol') {
-            throw new TypeError("number type должен быть Symbol! Передан тип " + (typeof numbertype));
-        }
-        this.type = numbertype;
-        this.title = title;
-        this.description = desc;
-    }
+class NumberType extends UserType {
     static typeInfo = new Map();
 } 
 NumberType = new Proxy(NumberType, proxyTypeHandler);
