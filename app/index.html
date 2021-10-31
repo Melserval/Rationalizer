@@ -107,33 +107,35 @@
                 </div>
             </header>
             <hr/>
-            <!-- список заказов -->
-            <div class="order-items-list">
-                <div class="items-list-label">
-                    <span>[период]</span>
-                    <span>01-05-2020</span>
-                    <span>05-05-2020</span>
-                    <span>[20]</span>
-                    <span>100500.50</span>
+            <div id="conteiner_order_lists">
+                <!-- список заказов -->
+                <div class="block-order-list">
+                    <header class="items-list-header">
+                        <span>[период]</span>
+                        <span>01-05-2020</span>
+                        <span>05-05-2020</span>
+                        <span>[20]</span>
+                        <span>100500.50</span>
+                    </header>
+                    <ul class="items-list">
+                        <li><span class="item-name">Вкусная колбаска "До пюрешки"</span><span class="item-amount">500</span><span class="item-price">36.50</span></li>
+                        <li>
+                            <span class="item-name">Вкусная колбаска "До пюрешки"</span>
+                            <span class="item-amount">500</span>
+                            <span class="item-price">36.50</span>
+                        </li>
+                        <li>
+                            <span class="item-name">Вкусная колбаска "До пюрешки"</span>
+                            <span class="item-amount">500</span>
+                            <span class="item-price">36.50</span>
+                        </li>
+                        <li>
+                            <span class="item-name">Вкусная колбаска "До пюрешки"</span>
+                            <span class="item-amount">500</span>
+                            <span class="item-price">36.50</span>
+                        </li>    
+                    </ul>
                 </div>
-                <ul class="items-list">
-                    <li><span class="item-name">Вкусная колбаска "До пюрешки"</span><span class="item-amount">500</span><span class="item-price">36.50</span></li>
-                    <li>
-                        <span class="item-name">Вкусная колбаска "До пюрешки"</span>
-                        <span class="item-amount">500</span>
-                        <span class="item-price">36.50</span>
-                    </li>
-                    <li>
-                        <span class="item-name">Вкусная колбаска "До пюрешки"</span>
-                        <span class="item-amount">500</span>
-                        <span class="item-price">36.50</span>
-                    </li>
-                    <li>
-                        <span class="item-name">Вкусная колбаска "До пюрешки"</span>
-                        <span class="item-amount">500</span>
-                        <span class="item-price">36.50</span>
-                    </li>    
-                </ul>
             </div>
         </div><!-- секция списка ассортимента -->
         <div class="section-assortiment-list">
@@ -158,10 +160,10 @@
                 <button>Здоровье</button>
             </div>
             <hr/>
-            <div class="assortiment-items-list">
-                <div class="items-list-label">
+            <div class="block-assortiment-list">
+                <header class="items-list-header">
                     фильтры: пюрешки колбаса | Мясные
-                </div>
+                </header>
                 <ul class="items-list" id="main-assortiment-list">
                     <!-- <li>
                         <span class="item-name">Вкусная колбаска "До пюрешки"</span>
