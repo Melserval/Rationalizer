@@ -59,6 +59,9 @@ class RenderOrderList {
 	remove() {
 		this._node_li.remove();
 	}
+	append(HTMLElementLi) {
+		this._ul.append(HTMLElementLi);
+	}
 	set label(label) { this._span_label.textContent = label; }
 	set term(term) { this._span_term.textContent = term; }
 	set quantity(quantity) { this._span_quantity.textContent = quantity; }

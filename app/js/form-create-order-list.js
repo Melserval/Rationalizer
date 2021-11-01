@@ -1,5 +1,9 @@
-// управление созданием списка-перечня необходимого ассортимента.
-"use strict";
+// === МОДУЛЬ === форма создания списка-перечня.
+
+var caller = null;
+export const callbacksetter = function(callback) {
+    caller = callback;
+};
 
 // --- создание списка на выборочное количество дней --- 
 const btn_CustomDaysList = document.getElementById("btn_custom_days_list");
@@ -33,6 +37,6 @@ btn_MonthList.addEventListener("click", createOrderList.bind(null, 30));
 const btn_OrderList = document.getElementById("btn_order_list");
 btn_OrderList.addEventListener("click", createOrderList.bind(null, 0));
 
-function createOrderList(arg) {
-    console.log("List created!", arg);
+function createOrderList(arg) { 
+    caller?.(arg);
 }

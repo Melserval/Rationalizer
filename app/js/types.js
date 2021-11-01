@@ -1,25 +1,11 @@
 "use strict";
 // *** различные типы представляющее единицы измерения и выды ассортимента. ***
 
+
 // проксимизатор.
 const proxyTypeHandler = {
     set(target, prop, value) {
         throw new TypeError(`Нельзя просто так добавлять свойства в сюда!`);
-    },
-    get(target, prop) {
-        if (prop in target) return target[prop];
-        // позволяет получать информацию о типе, передавая Symbol-идентификатор.
-        switch (prop) {
-            case "type": 
-            case "short": 
-            case "full":
-            case "description":
-                return (SymbolType) => target.typeInfo.get(SymbolType)[prop];
-            case "info": 
-                return (SymbolType) => target.typeInfo.get(SymbolType);
-            default:
-                return undefined;
-        }
     },
     /**
      * Новый тип единицы измерения.
@@ -43,6 +29,7 @@ const proxyTypeHandler = {
 };
 
 
+
 // --- собственные типы для различных сущностей, замена enum и struct ---
 class UserType {
     /**
@@ -61,13 +48,29 @@ class UserType {
         this.short = short;
         this.description = desc;
     }
+    
+    static typeInfo = new Map();
+    
+    static full(typeSymbol) {
+        return this.typeInfo.get(typeSymbol).full;
+    }
+    
+    static short(typeSymbol) {
+        return this.typeInfo.get(typeSymbol).short;
+    }
+    
+    static description(typeSymbol) {
+        return this.typeInfo.get(typeSymbol).description;
+    }
+    
+    static info(typeSymbol) {
+        return this.typeInfo.get(typeSymbol);
+    }
 }
 
 
 // --- типы распостранения ассортимента (упакован, фасованный, развес, штучный, etc...) ---
-class VendorType extends UserType {
-    static typeInfo = new Map();
-} 
+class VendorType extends UserType { } 
 VendorType = new Proxy(VendorType, proxyTypeHandler);
 const vendorType_unit = VendorType("vendorType_unit", "штучный");
 const vendorType_packed = VendorType("vendorType_packed", "фасованный");
@@ -75,9 +78,7 @@ const vendorType_weighed = VendorType("vendorType_weighed", "развесной"
 
 
 // --- типы единиц измерения (вес, обьем, etc...) ---
-class MeasureType extends UserType {
-    static typeInfo = new Map();
-}
+class MeasureType extends UserType { }
 MeasureType = new Proxy( MeasureType, proxyTypeHandler);
 const measureType_unit = MeasureType("measureType_unit", "штука", "шт.");
 const measureType_milliliter = MeasureType("measureType_milliliter", "миллилитр", "ml.");
@@ -88,9 +89,7 @@ const measureType_kilowatt =  MeasureType("measureType_kilowatt", 'килова�
 
 
 // --- типы чисел (целый, с плавающей точкой) ---
-class NumberType extends UserType {
-    static typeInfo = new Map();
-} 
+class NumberType extends UserType { } 
 NumberType = new Proxy(NumberType, proxyTypeHandler);
 const numberType_integer = NumberType("numberType_integer", "integer");
 const numberType_float = NumberType("numberType_float", "float");

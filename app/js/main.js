@@ -1,42 +1,51 @@
 "use strict";
 
 // === объект управления основной формой создания ассортимента.
-const mainFormUnitCreate = new class {
+const mainFormUnitCreate = new function () {
 
-	form = document.getElementById("form-create-item");
+	this.form = document.getElementById("form-create-item");
 	
-	radioBtnSet_TypePacked   = document.getElementsByName("radio-type-vendor");
-	radioBtnSet_TypeMeasure  = document.getElementsByName("radio-type-measure");
-	conteinerBtn_setCategory = document.getElementById("set-category-btn-list");
+	this.radioBtnSet_TypePacked   = document.getElementsByName("radio-type-vendor");
+	this.radioBtnSet_TypeMeasure  = document.getElementsByName("radio-type-measure");
+	this.conteinerBtn_setCategory = document.getElementById("set-category-btn-list");
 	
-	input_ItemName       = document.getElementById("input-item-name");
-	input_ItemAmount     = document.getElementById("input-item-amount");
-	input_ItemPrice      = document.getElementById("input-item-price");
-	input_ItemDescribe   = document.getElementById("input-item-describe");
+	this.input_ItemName       = document.getElementById("input-item-name");
+	this.input_ItemAmount     = document.getElementById("input-item-amount");
+	this.input_ItemPrice      = document.getElementById("input-item-price");
+	this.input_ItemDescribe   = document.getElementById("input-item-describe");
 	
-	btn_ItemCreateApply  = document.getElementById("item-create-apply");
-	btn_ItemCreateDone   = document.getElementById("item-create-done");
+	this.btn_ItemCreateApply  = document.getElementById("item-create-apply");
+	this.btn_ItemCreateDone   = document.getElementById("item-create-done");
 
-	selectedVendorType = null;
-	selectedMeasureType = null;
-	selectedUnitCategory = null;
+	this.amountType = null;
+	this.selectedVendorType = null;
+	this.selectedMeasureType = null;
+	this.selectedUnitCategory = null;
 
-	activateBlock(htmlCollection) {
+	this.parseAmount = function (amount) {
+		switch (this.amountType) {
+			case numberType_float: return parseFloat(amount);
+			case numberType_integer: return parseInt(amount);
+			default: throw new TypeError("Неопределенный amount type");
+		}
+	};
+	this.parsePrice = function (price) {
+		return parseFloat(price);
+	};
+	this.activateBlock = function(htmlCollection) {
 		Array.prototype.forEach.call(htmlCollection, element => {
 			element.disabled = false;
 			if (element.id) 
 				document.querySelector(`label[for="${element.id}"]`).classList.remove("disabled");
 		});
-	}
-	deactivateBlock(htmlCollection) {
+	};
+	this.deactivateBlock = function (htmlCollection) {
 		Array.prototype.forEach.call(htmlCollection, element => {
 			element.disabled = true;
 			if (element.id)
 				document.querySelector(`label[for="${element.id}"]`).classList.add("disabled");
 		});
-	}
-
-	constructor() { }
+	};
 };
 
 mainFormUnitCreate.form.addEventListener("change", function (e) {
@@ -48,7 +57,7 @@ mainFormUnitCreate.form.addEventListener("change", function (e) {
 	if (nodeName == "INPUT") {
 
 		switch(inputSetName) {
-		// радио кнопки определения типа распостранения.
+		// --- радио кнопки определения типа распостранения. ---
 			case "radio-type-vendor":
 				switch(id) {
 					case "radio-is-unit":
@@ -70,14 +79,16 @@ mainFormUnitCreate.form.addEventListener("change", function (e) {
 						break;
 				}
 				break;
-		// радио кнопки установки типа единиц измерения
+		// --- радио кнопки установки типа единиц измерения ---
 			case "radio-type-measure":
 				switch(id) {
 					case "radio-measure-milliliter":
 						self.selectedMeasureType = measureType_milliliter;
+						self.amountType = numberType_integer;
 						break;
 					case "radio-measure-gramm":
 						self.selectedMeasureType = measureType_gramm;
+						self.amountType = numberType_integer;
 						break;
 					default:
 						throw new Error("неизвестный тип единицы измерения");
@@ -92,20 +103,46 @@ mainFormUnitCreate.form.addEventListener("change", function (e) {
 
 mainFormUnitCreate.btn_ItemCreateApply.addEventListener("click", (e) => {
 	const self = mainFormUnitCreate;
-	const aunit = new AssortimentUnit(
-		self.selectedVendorType,
-		self.selectedMeasureType,
-		self.input_ItemName.value,
-		self.input_ItemAmount.value,
-		self.input_ItemPrice.value,
-		self.selectedUnitCategory,
-		self.input_ItemDescribe.value
-	);
-	console.log(aunit);
+	try {
+		const aunit = new AssortimentUnit(
+			self.input_ItemName.value,
+			self.parseAmount(self.input_ItemAmount.value),
+			self.parsePrice(self.input_ItemPrice.value),
+			self.selectedVendorType,
+			self.selectedMeasureType,
+			self.selectedUnitCategory,
+			self.input_ItemDescribe.value
+		);
+		// TODO: нужно событие для создаваемых в форме объектов.
+		dataFromStorage.push(aunit);
+		mainAssortimentList.add(aunit);
+		localStorage.setItem(
+			"dataset", 
+			JSON.stringify( dataFromStorage, function(k, v) {
+					if (typeof v == 'symbol') {
+						if (k == "packageType" || k == "measureType") {
+							return Symbol.keyFor(v);
+						}
+					} 
+					return v;
+			}));
+	} catch (err) {
+		console.error(err);
+	}
 });
 
 mainFormUnitCreate.btn_ItemCreateDone.addEventListener("click", (e) => {
-	mainFormUnitCreate.form.style.height = "0px";
+	mainFormUnitCreate.form.style.display = "none";
+	mainFormUnitCreate.form.parentElement.classList.add('compact');
+	console.log("Закрываю!");
+	mainFormUnitCreate.form.parentElement.onclick = (e) => {
+		if (e.target !== mainFormUnitCreate.form.parentElement) return;
+		console.log("Открываю!");
+		mainFormUnitCreate.form.parentElement.classList.remove('compact');
+		mainFormUnitCreate.form.style.display = "block";
+		mainFormUnitCreate.form.parentElement.onclick = null;
+	};
+
 });
 
 mainFormUnitCreate.conteinerBtn_setCategory.addEventListener("click", (e) => {
@@ -116,3 +153,27 @@ mainFormUnitCreate.conteinerBtn_setCategory.addEventListener("click", (e) => {
 		self.selectedUnitCategory = e.target.textContent;
 	}
 });
+
+// === объект управления формой создания списков приобритений.
+var formCreateOrderList;
+
+// === создание основного списка ассортимента
+const conteinerMainAssortimentList = document.getElementById("main-assortiment-list");
+const mainAssortimentList = new AssortimentList("Основной список товаров");
+
+mainAssortimentList.setRender(conteinerMainAssortimentList,
+	RenderAssortimentUnit, 
+	function(view, model) {
+		try {
+		view.setName = model.name;
+		view.setAmount = `${model.amount} ${MeasureType.short(model.measureType)}`;
+		view.setPrice = model.price.toFixed(2);
+		} catch (err) {
+			console.error("Ошипка!!!", err);
+			console.dir(model);
+			console.dir(MeasureType.short);
+		}
+	});
+mainAssortimentList.add(dataSet);
+mainAssortimentList.add(dataFromStorage);
+mainAssortimentList.show();
