@@ -3,10 +3,10 @@
 // браузерное хранилище (LocalStorage), константные данные, так и 
 // функционал подключения к удаленным базам данных.
 
-// -> callback = function (error, data) { };
+// -> callback = function (error, data [, info]) { };
 export const callbacksetter = function(callback) {
-    localstorDataSet.then(callback.bind(null, null), callback);
-    constDataSet.then(callback.bind(null, null), callback);
+    localstorDataSet.then(data => callback(null, data, "local"), callback);
+    constDataSet.then(data => callback(null, data, "constant"), callback);
 };
 
 // сохранение переданных данных из программы.
@@ -17,22 +17,29 @@ export const storagerdata = function (data, callback) {
 
 // симуляция получения данных по сети...
 const loaddata = new Promise(function (resolve, reject) {
-
+    
 });
 
 // симуляция сохранения/отправки данных.
+const LOCAL_STORAGE_KEY = 'product_unit_set';
 const savedata = function (data, resolve, reject) {
-    setTimeout(resolve, 1999, `Удалось разместить данные ${data}`);
-    setTimeout(reject, 2000, "Данные утеряны... ");
+    try {
+        const storage =  JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) ?? [];
+        storage.push(data);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(storage));
+        resolve(`Данные сохранены в локальном хранилище [${storage.length}]`);
+    } catch (err) {
+        reject(err);
+    }
 };
 
 const localstorDataSet = new Promise((resolve, reject) => {
     try {
-        resolve( JSON.parse(localStorage.getItem('dataset')) ?? [5, 5, 5] );
+        resolve( JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY))
+                      ?.map(item => ProductUnit.fromJson(item)) ?? [] );
     } catch (err) {
         reject(err);
     }
-    
 });
 
 const constDataSet = Promise.resolve([
@@ -55,4 +62,4 @@ const constDataSet = Promise.resolve([
     [`Гречка (Розумный выбор)`,                      1, 39.90, vendorType_packed, measureType_kilogramm],
     [`Колбаса "Салями Премиум", варено-копченая (Добров)`, 320, 77.70, vendorType_packed, measureType_gramm],
     [`Соль пищевая.`,                                 1.5, 7.70, vendorType_packed, measureType_kilogramm]
-]);
+].map(item => new ProductUnit(...item)));
