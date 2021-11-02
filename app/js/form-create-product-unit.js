@@ -72,7 +72,7 @@ radioBtnHandler["radio-is-weight"] = function () {
 radioBtnHandler["radio-is-packed"] = function () {
     selectedVendorType = vendorType_packed;
     activateBlock(radioBtnSet_TypeMeasure);
-}
+};
 // - радио кнопки установки типа единиц измерения -
 radioBtnHandler["radio-measure-milliliter"] = function () {
     selectedMeasureType = measureType_milliliter;
@@ -97,17 +97,17 @@ mainFormUnitCreate.addEventListener("change", function (e) {
 
 btn_ItemCreateApply.addEventListener("click", (e) => {
 	try {
-		const aunit = {
-			title: input_ItemName.value,
-			amount: parseAmount(input_ItemAmount.value),
-			price: parsePrice(input_ItemPrice.value),
-			vendorType: selectedVendorType,
-			measureType: selectedMeasureType,
-			category: selectedUnitCategory,
-			describe: input_ItemDescribe.value
-        };
+		const product = new ProductUnit(
+			input_ItemName.value,
+			parseAmount(input_ItemAmount.value),
+			parsePrice(input_ItemPrice.value),
+			selectedVendorType,
+			selectedMeasureType,
+			selectedUnitCategory,
+			input_ItemDescribe.value
+        );
 		// TODO: нужно событие для создаваемых в форме объектов.
-        if (typeof caller === 'function') caller(aunit);
+        if (typeof caller === 'function') caller(product);
 	} catch (err) {
         console.error("Объект не будет создан, так как возникла ошибка.", err);
 	}
