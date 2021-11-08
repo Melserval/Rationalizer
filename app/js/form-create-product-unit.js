@@ -64,6 +64,7 @@ radioBtnHandler["radio-is-unit"] = function () {
     deactivateBlock(radioBtnSet_TypeMeasure);
     // при штучном товаре единица измерения "штука".
     selectedMeasureType = measureType_unit;
+    amountType = numberType_integer;
 };
 radioBtnHandler["radio-is-weight"] = function () {
     selectedVendorType = vendorType_weighed;
@@ -73,6 +74,7 @@ radioBtnHandler["radio-is-packed"] = function () {
     selectedVendorType = vendorType_packed;
     activateBlock(radioBtnSet_TypeMeasure);
 };
+
 // - радио кнопки установки типа единиц измерения -
 radioBtnHandler["radio-measure-milliliter"] = function () {
     selectedMeasureType = measureType_milliliter;
