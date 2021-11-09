@@ -1,18 +1,66 @@
 // === МОДУЛЬ === поставщик данных приложения.
-// отсюда данные поступают в программу. это может быть как локальное,
-// браузерное хранилище (LocalStorage), константные данные, так и 
-// функционал подключения к удаленным базам данных.
+// отсюда данные поступают в программу. это может быть:
+// - локальное браузерное хранилище.
+// - константные данные.
+// - удаленныe базы данных.
 
-// -> callback = function (error, data [, info]) { };
-export const callbacksetter = function(callback) {
-    localstorDataSet.then(data => callback(null, data, "local"), callback);
-    constDataSet.then(data => callback(null, data, "constant"), callback);
+
+/**
+ * Запрос коллекции ассортимента.
+ * @param {(error, data, info?)void} callback (error, data [, info])
+ */
+export const getProductCollection = function(callback) {
+    localstorDataSet.getData().then(
+        data => callback(null, data, "local"), 
+        error => callback(error, null, "local")
+    );
+    constDataSet.then(
+        data => callback(null, data, "constant"), 
+        error => callback(error, null, "constant")
+    );
 };
 
-// сохранение переданных данных из программы.
-export const storagerdata = function (data, callback) {
-    new Promise(savedata.bind(null, data))
-        .then(callback.bind(null, null), callback);
+/**
+ * Сохранение объекта продукта в хранилище.
+ * @param {ProductUnit} product сохраняемый элемент.
+ * @param {(error, result)void} [callback] обработчик результата.
+ */
+export const addProductUnit = function (product, callback) {
+    localstorDataSet.getData()
+    .then((dataset) => {
+        dataset.push(product);
+        return localstorDataSet.setData(dataset)
+    })
+    .then(info => callback?.(null, info))
+    .catch(error => callback?.(error));
+};
+
+
+/**
+ * Удаление оъекта продукта из хранилища.
+ * @param {(product: ProductUnit)boolean} predicate
+ * @param {(err: Error, result: string)void} callback 
+ */
+export const removeProductUnit = function(predicate, callback) {
+    // TODO: Организовать проверку наличия/ожидания коллекции.
+    localstorDataSet.getData()
+    .then(data => new Promise((resolve, reject) => {
+        try {
+            const result =  data.reduce(function (acc, product) {
+                if (predicate(product)) {
+                    console.log("Продукт с id: " + product.id + " удален.");
+                    return acc;
+                } 
+                acc.push(product);
+                return acc;
+            }, []); 
+            localstorDataSet.setData(result).then(resolve.bind(null, result));
+        } catch (error) {
+           reject(error);
+        }
+    }))
+    .then(callback?.bind(null, null))
+    .catch(callback);
 };
 
 // симуляция получения данных по сети...
@@ -20,27 +68,34 @@ const loaddata = new Promise(function (resolve, reject) {
     
 });
 
-// симуляция сохранения/отправки данных.
-const LOCAL_STORAGE_KEY = 'product_unit_set';
-const savedata = function (data, resolve, reject) {
-    try {
-        const storage =  JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) ?? [];
-        storage.push(data);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(storage));
-        resolve(`Данные сохранены в локальном хранилище [${storage.length}]`);
-    } catch (err) {
-        reject(err);
+const localstorDataSet = {
+    LOCAL_STORAGE_KEY: 'product_unit_set',
+    getData() {
+        return new Promise((resolve, reject) => {
+           try {
+                const data =  JSON.parse(localStorage.getItem(this.LOCAL_STORAGE_KEY))
+                    ?.map(item => ProductUnit.fromJson(item)) ?? [];
+               resolve(data);
+           } catch (err) {
+               reject(err);
+           }
+        });
+    },
+    setData(productCollection) {
+        return new Promise((resolve, reject) => {
+            try {
+                localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(productCollection));
+                resolve(`Данные сохранены в локальном хранилище [${productCollection.length}]`);
+            } catch (err) {
+                reject(err);
+            }
+        });
+    },
+    clearData() {
+        localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify([]));
+        return Promise.resolve(true);
     }
 };
-
-const localstorDataSet = new Promise((resolve, reject) => {
-    try {
-        resolve( JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY))
-                      ?.map(item => ProductUnit.fromJson(item)) ?? [] );
-    } catch (err) {
-        reject(err);
-    }
-});
 
 const constDataSet = Promise.resolve([
     [`Вкусная колбаска "До пюрешки"`,              500, 72.00, vendorType_packed, measureType_gramm],

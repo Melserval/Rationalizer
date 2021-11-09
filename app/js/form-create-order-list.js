@@ -7,15 +7,19 @@ export const callbacksetter = function(callback) {
 
 // --- создание списка на выборочное количество дней --- 
 const btn_CustomDaysList = document.getElementById("btn_custom_days_list");
+
 btn_CustomDaysList.addEventListener("click", function (e) {
+	console.dir(e);
     if (e.target != this) return;
     createOrderList(e.target.firstElementChild.value);
 });
+
 btn_CustomDaysList.addEventListener("focus", function (e) {
-    console.log(e);
+    console.dir(e);
     if (e.target !== this) return;
     e.target.firstElementChild.focus();
-})
+});
+
 btn_CustomDaysList.addEventListener("keypress", function (e) {
     if (e.target.nodeName !== "INPUT" || e.code !== "NumpadEnter") return;
     console.log(e.target.value);

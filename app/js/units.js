@@ -2,11 +2,11 @@
 
 /**
  * Главная Единица Ассортимента. Содержит всю основную информацию.
- * Остальные классы, представляющие данные по ассортименту,
- * должны ссылаться на их экзэмляры и хранить только ссылку,
- * количество, стоимость и дату приобритения с примечанием.
+ * Этот класс представляет и хранить данные о ассортименте в программе.
+ * Остальные классы, представляющие данные по ассортименту, должны
+ * ТОЛЬКО извлекать из них информацию. Они не должны дублироваться.
  */
-class AssortimentUnit {
+class ProductUnit {
 	/**
 	 * @param {string} title название единицы ассортимента
 	 * @param {number} amount количество
@@ -27,23 +27,57 @@ class AssortimentUnit {
 		this.describe = desc || "";
 		this.id = unitid || Date.now().toString(24);
 	}
+
+	toJSON() {
+		return {
+			"title": this.title,
+		 	"amount": this.amount,
+			"price": this.price,
+		 	"packageType": Symbol.keyFor(this.packageType),
+		 	"measureType": Symbol.keyFor(this.measureType),
+		 	"category": this.category,
+		 	"describe": this.describe,
+		 	"id": this.id
+		};
+	}
+
+	static fromJson(json) {
+		
+		return new this(json.title ?? null, json.amount ?? null, json.price ?? null, Symbol.for(json.packageType),
+			             Symbol.for(json.measureType), json.category ?? null, json.describe ?? null, json.id ?? null);
+	}
+
+	// TODO: реализация механизма сохранения обновления данных обьекта в хранилищах данных.
 }
 
 /**
  * Объект - элемент для списка ассортимента.
- * предоставляет передачу данных для рендера
- * и хранит "свои" значения для цены/количества.
+ * предоставляет передачу данных для рендера.
  */
-class ListUnit {
+class AssortimentListUnit {
 	/**
-	 * @param {AssortimentUnit} unit
+	 * @param {ProductUnit} product
 	 */
-	constructor(unit) {
-		this.link = unit;
+	constructor(product) {
+		this._product = product;
+		this._views = [];
 	}
-	get title() { return this.link.title; }
-	get price() { return this.link.price; }
-	get amount() { return this.link.amount; }
+	render() {
+		this.constructor.renders.forEach(render => {
+			let view = new render.renderView();
+			view.insertInto(render.nodeElement);
+			render.handler(view, this);
+			this._views.push(view);
+		});
+	}
+	get title() { return this._product.title; }
+	get price() { return this._product.price; }
+	get amount() { return this._product.amount; }
+
+	static renders = [];
+	static bindRender(nodeElement, renderView, handler) {
+		this.renders.push({nodeElement, renderView, handler});
+	}
 }
 
 // --- Списки единиц ассортимента ---
@@ -52,6 +86,30 @@ class ListUnit {
 // (количества, цены, примечания) с различными идентификаторами для фильтрации.
 // Они не вызывают методы управления коллекцией обьекта-хранилища данных, но
 // передают ему особый объект с директивами.
+class AssortimentList {
+
+	units = [];
+
+	constructor(listName) {
+		this.listName = listName;
+	}
+
+	addProduct(product) {
+		let unit = new this.constructor.itemCreater(product);
+		unit.render();
+		this.units.push(unit);
+	}
+
+	bindView() {
+
+	}
+
+	static itemCreater = AssortimentListUnit;
+	static renders = [];
+	static bindRender(nodeElement, renderView, handler) {
+		this.renders.push({nodeElement, renderView, handler});
+	}
+}
 
 /**
  * Список единиц требуемого.
@@ -67,31 +125,5 @@ class OrderList {
 
 	add(unit) {
 		this.listUnitCollection.push(unit);
-	}
-}
-
-/**
- * Список единиц ассортимента.
- */
-class AssortimentList {
-	unitCount = 0;
-	units = [];
-	renders = [];
-	views = [];
-	/**
-	 * @param {string} listName название-идентификатор списка.
-	*/
-	constructor(listName) {
-		this.listName = listName || "список ассортимента";
-	}
-
-	add(asunit) {
-		this.units.push(asunit);
-	}
-
-	show() {
-		this.units.forEach(unit => {
-			this.renders.forEach(render => render.render(unit));
-		});
 	}
 }
