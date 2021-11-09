@@ -161,7 +161,8 @@ var formCreateOrderList;
 const conteinerMainAssortimentList = document.getElementById("main-assortiment-list");
 const mainAssortimentList = new AssortimentList("Основной список товаров");
 
-mainAssortimentList.setRender(conteinerMainAssortimentList,
+mainAssortimentList.setRender(
+	conteinerMainAssortimentList,
 	RenderAssortimentUnit, 
 	function(view, model) {
 		try {
@@ -173,7 +174,8 @@ mainAssortimentList.setRender(conteinerMainAssortimentList,
 			console.dir(model);
 			console.dir(MeasureType.short);
 		}
-	});
+	}
+);
 mainAssortimentList.add(dataSet);
 mainAssortimentList.add(dataFromStorage);
 mainAssortimentList.show();
