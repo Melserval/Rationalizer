@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Рационализатор</title>
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/master.css">
-    <script src="js/types.js" async></script>
-    <script src="js/units.js" async></script>
-    <script src="js/renders.js" async></script>
-    <script src="js/program.js" type="module"></script>
-</head>
-<body>
-    <header>
-        <a href=""><div class="main-logo">Рационализатор</div></a>
-    </header>
+{{!-- основная страница составления ассортимента --}}
     <!-- Форма создания единицы ассортимента -->
     <div class="wrapper-form">
         <div id="form-create-item">
@@ -130,7 +113,7 @@
                             <span class="item-name">Вкусная колбаска "До пюрешки"</span>
                             <span class="item-amount">500</span>
                             <span class="item-price">36.50</span>
-                        </li>    
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -175,10 +158,9 @@
     <!--  -->
 
     <script>
-        Array.prototype.forEach.call(document.body.childNodes, function (e) { 
+        Array.prototype.forEach.call(document.body.childNodes, function (e) {
             if (e.nodeName == "#text" && !e.nodeValue.trim() ) {
                 e.remove();
             }
         });
     </script>
-</body>

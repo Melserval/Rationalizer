@@ -86,30 +86,7 @@ class AssortimentListUnit {
 // (количества, цены, примечания) с различными идентификаторами для фильтрации.
 // Они не вызывают методы управления коллекцией обьекта-хранилища данных, но
 // передают ему особый объект с директивами.
-class AssortimentList {
 
-	units = [];
-
-	constructor(listName) {
-		this.listName = listName;
-	}
-
-	addProduct(product) {
-		let unit = new this.constructor.itemCreater(product);
-		unit.render();
-		this.units.push(unit);
-	}
-
-	bindView() {
-
-	}
-
-	static itemCreater = AssortimentListUnit;
-	static renders = [];
-	static bindRender(nodeElement, renderView, handler) {
-		this.renders.push({nodeElement, renderView, handler});
-	}
-}
 
 /**
  * Список единиц требуемого.

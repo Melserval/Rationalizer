@@ -27,19 +27,19 @@ btn_CustomDaysList.addEventListener("keypress", function (e) {
 
 // --- создание списка на 1 день --- 
 const btn_DayList  = document.getElementById("btn_day_list");
-btn_DayList.addEventListener("click", createOrderList.bind(null, 1));
+btn_DayList.addEventListener("click", () => createOrderList(1));
 
 // --- создание списка на неделю (7 дней) --- 
 const btn_WeakList = document.getElementById("btn_weak_list");
-btn_WeakList.addEventListener("click", createOrderList.bind(null, 7));
+btn_WeakList.addEventListener("click", () => createOrderList(7));
 
 // --- создание списка на месяц (30 дней) --- 
 const btn_MonthList = document.getElementById("btn_month_list");
-btn_MonthList.addEventListener("click", createOrderList.bind(null, 30));
+btn_MonthList.addEventListener("click", () => createOrderList(30));
 
 // --- создание отдельного списка покупок ---
 const btn_OrderList = document.getElementById("btn_order_list");
-btn_OrderList.addEventListener("click", createOrderList.bind(null, 0));
+btn_OrderList.addEventListener("click", () => createOrderList(0));
 
 function createOrderList(arg) { 
     caller?.(arg);

@@ -2,7 +2,7 @@
 
 var caller = null;
 export function callbacksetter(callback) {
-    caller = callback;
+	caller = callback;
 }
 
 const mainFormUnitCreate = document.getElementById("form-create-item");
@@ -24,65 +24,65 @@ let selectedMeasureType = null;
 let selectedUnitCategory = null;
 
 const parseAmount = function (amount) {
-    switch (amountType) {
-        case numberType_float: return parseFloat(amount);
-        case numberType_integer: return parseInt(amount);
-        default: throw new TypeError("Неопределенный amount type");
-    }
+	switch (amountType) {
+		case numberType_float: return parseFloat(amount);
+		case numberType_integer: return parseInt(amount);
+		default: throw new TypeError("Неопределенный amount type");
+	}
 };
 
 const parsePrice = function (price) {
-    return parseFloat(price);
+	return parseFloat(price);
 };
 
 const activateBlock = function(htmlCollection) {
-    Array.prototype.forEach.call(htmlCollection, element => {
-        element.disabled = false;
-        if (element.id) 
-            document.querySelector(`label[for="${element.id}"]`).classList.remove("disabled");
-    });
+	Array.prototype.forEach.call(htmlCollection, element => {
+		element.disabled = false;
+		if (element.id) 
+			document.querySelector(`label[for="${element.id}"]`).classList.remove("disabled");
+	});
 };
 
 const deactivateBlock = function (htmlCollection) {
-    Array.prototype.forEach.call(htmlCollection, element => {
-        element.disabled = true;
-        if (element.id)
-            document.querySelector(`label[for="${element.id}"]`).classList.add("disabled");
-    });
+	Array.prototype.forEach.call(htmlCollection, element => {
+		element.disabled = true;
+		if (element.id)
+			document.querySelector(`label[for="${element.id}"]`).classList.add("disabled");
+	});
 };
 
 /**  сценарии при выборе радио кнопки с определенными id. */
 const radioBtnHandler = new Proxy({}, {
-    get(t, p) {
-        if (p in t) return t[p];
-        else throw new Error(`неизвестный тип единицы измерения ${p}`);
-    }
+	get(t, p) {
+		if (p in t) return t[p];
+		else throw new Error(`неизвестный тип единицы измерения ${p}`);
+	}
 });
 // - радио кнопки определения типа распостранения -
 radioBtnHandler["radio-is-unit"] = function () {
-    selectedVendorType = vendorType_unit;
-    deactivateBlock(radioBtnSet_TypeMeasure);
-    // при штучном товаре единица измерения "штука".
-    selectedMeasureType = measureType_unit;
-    amountType = numberType_integer;
+	selectedVendorType = vendorType_unit;
+	deactivateBlock(radioBtnSet_TypeMeasure);
+	// при штучном товаре единица измерения "штука".
+	selectedMeasureType = measureType_unit;
+	amountType = numberType_integer;
 };
 radioBtnHandler["radio-is-weight"] = function () {
-    selectedVendorType = vendorType_weighed;
-    activateBlock(radioBtnSet_TypeMeasure);
+	selectedVendorType = vendorType_weighed;
+	activateBlock(radioBtnSet_TypeMeasure);
 };
 radioBtnHandler["radio-is-packed"] = function () {
-    selectedVendorType = vendorType_packed;
-    activateBlock(radioBtnSet_TypeMeasure);
+	selectedVendorType = vendorType_packed;
+	activateBlock(radioBtnSet_TypeMeasure);
 };
 
 // - радио кнопки установки типа единиц измерения -
 radioBtnHandler["radio-measure-milliliter"] = function () {
-    selectedMeasureType = measureType_milliliter;
-    amountType = numberType_integer;
+	selectedMeasureType = measureType_milliliter;
+	amountType = numberType_integer;
 };
 radioBtnHandler["radio-measure-gramm"] = function () {
-    selectedMeasureType = measureType_gramm;
-    amountType = numberType_integer;
+	selectedMeasureType = measureType_gramm;
+	amountType = numberType_integer;
 };
 
 mainFormUnitCreate.addEventListener("change", function (e) {
@@ -90,11 +90,11 @@ mainFormUnitCreate.addEventListener("change", function (e) {
 	const inputSetName = e.target.name;
 	const id = e.target.id;
 	if (nodeName == "INPUT" && 
-        inputSetName == "radio-type-vendor" || 
-        inputSetName == "radio-type-measure") 
-    {
-        radioBtnHandler[id]();
-    }		
+		inputSetName == "radio-type-vendor" || 
+		inputSetName == "radio-type-measure") 
+	{
+		radioBtnHandler[id]();
+	}		
 });
 
 btn_ItemCreateApply.addEventListener("click", (e) => {
@@ -107,18 +107,18 @@ btn_ItemCreateApply.addEventListener("click", (e) => {
 			selectedMeasureType,
 			selectedUnitCategory,
 			input_ItemDescribe.value
-        );
+		);
 		// TODO: нужно событие для создаваемых в форме объектов.
-        if (typeof caller === 'function') caller(product);
+		if (typeof caller === 'function') caller(product);
 	} catch (err) {
-        console.error("Объект не будет создан, так как возникла ошибка.", err);
+		console.error("Объект не будет создан, так как возникла ошибка.", err);
 	}
 });
 
 conteinerBtn_setCategory.addEventListener("click", (e) => {
-    if (e.target.nodeName === "BUTTON") {
-        selectedUnitCategory = e.target.textContent;
-    }
+	if (e.target.nodeName === "BUTTON") {
+		selectedUnitCategory = e.target.textContent;
+	}
 });
 
 btn_ItemCreateDone.addEventListener("click", (e) => {

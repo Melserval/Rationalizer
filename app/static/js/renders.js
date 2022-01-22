@@ -1,38 +1,41 @@
 // элементы ui.
 "use strict";
 
+
 /**
  * Представляет элемент ассортимента в списках товаров/заказов.
  */
 class RenderListUnit  {
-	_node_li = document.createElement('li');
+	_nodeElement = document.createElement('li');
 	_span_title = document.createElement('span');
 	_span_amount = document.createElement('span');
 	_span_price = document.createElement('span');
 
 	constructor() {
-		this._node_li.append(
+		this._nodeElement.append(
 			this._span_title, 
 			this._span_amount, 
 			this._span_price
 		);
 	}
 	insertInto(nodeElement) {
-		nodeElement.append(this._node_li);
+		nodeElement.append(this._nodeElement);
 	}
 	remove() {
-		this._node_li.remove();
+		this._nodeElement.remove();
 	}
+	get getNode() { return this._nodeElement; }
 	set setTitle(value) { this._span_title.textContent = value; }
 	set setAmount(value) { this._span_amount.textContent = value; }
 	set setPrice(value) { this._span_price.textContent = value; }
 }; 
 
+
 /**
  * Представление списка элементов ассортимента.
  */
 class RenderOrderList {
-	_node_div = document.createElement("div");
+	_nodeElement = document.createElement("div");
 	_header  = document.createElement('header');
 	_ul = document.createElement('ul');
 	_span_label = document.createElement('span');
@@ -47,23 +50,24 @@ class RenderOrderList {
 			this._span_quantity,
 			this._span_total
 		);
-		this._node_div.append(this._header);
-		this._node_div.append(this._ul);
-		this._ul.classList.add("items-list")
-		this._header.classList.add("items-list-header")
-		this._node_div.classList.add("block-order-list");
+		this._nodeElement.append(this._header);
+		this._nodeElement.append(this._ul);
+		this._ul.classList.add("items-list");
+		this._header.classList.add("items-list-header");
+		this._nodeElement.classList.add("block-order-list");
 	}
 	insertInto(nodeElement) {
-		nodeElement.append(this._node_div);
+		nodeElement.append(this._nodeElement);
 	}
 	remove() {
-		this._node_li.remove();
+		this._nodeElement.remove();
 	}
 	append(HTMLElementLi) {
 		this._ul.append(HTMLElementLi);
 	}
+	get getNode() { return this._nodeElement; }
 	set label(label) { this._span_label.textContent = label; }
 	set term(term) { this._span_term.textContent = term; }
 	set quantity(quantity) { this._span_quantity.textContent = quantity; }
 	set total(total) { this._span_total.textContent = total; }
- }
+}
