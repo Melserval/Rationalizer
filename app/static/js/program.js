@@ -2,6 +2,10 @@ import {callbacksetter as assortimenItemCreate} from "./form-create-product-unit
 import {callbacksetter as orderListCreate } from './form-create-order-list.js';
 import * as datastorage from './datastorage.js';
 
+import ArticleUnit from "./units/article-unit.js";
+import RenderArticleUnit from "./renders/render-article-unit.js";
+import RenderArticleList from "./renders/render-article-list.js";
+
 // основной список ассортимента
 const mainAssortiment = (function(){
     const units = [];
@@ -90,7 +94,7 @@ const mainAssortiment = (function(){
     };
 
     obj.addProduct = function(product) {
-        const p = new AssortimentListUnit(product);
+        const p = new ArticleUnit(product);
         p.render();
         units.push(p);
     };
@@ -100,9 +104,9 @@ const mainAssortiment = (function(){
 }) /* конец блока mainAssortiment */();
 
 
-AssortimentListUnit.bindRender(
+ArticleUnit.bindRender(
     document.getElementById("main-assortiment-list"),
-    RenderListUnit,
+    RenderArticleUnit,
     (view, model) => {
         view.setTitle = model.title;
         view.setAmount = model.amount;
@@ -123,10 +127,10 @@ assortimenItemCreate(function (product) {
 orderListCreate(function (arg) {
     console.log("форма создания списков сотворила список!");
     // тестовый код проверки размещения.
-    const ol =  new RenderOrderList("Супер");
+    const ol =  new RenderArticleList("Супер");
     ol.label = "Hello", ol.term = arg, ol.quantity = 4, ol.total = 25.15;
     ol.insertInto(document.querySelector("#conteiner_order_lists"));
-    [1, 3, 2].forEach(n => ol.append(new RenderListUnit()._node_li));
+    [1, 3, 2].forEach(n => ol.append(new RenderArticleUnit()._node_li));
 });
 
 // получение коллекции элементов продукт.
