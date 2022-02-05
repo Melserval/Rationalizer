@@ -1,8 +1,9 @@
 import {callbacksetter as assortimenItemCreate} from "./form-create-product-unit.js";
-import {callbacksetter as orderListCreate } from './form-create-order-list.js';
 import * as datastorage from './datastorage.js';
+import createdOrderList from './form-create-order-list.js';
 
 import ArticleUnit from "./units/article-unit.js";
+import ArticleList from "./units/article-list.js";
 import RenderArticleUnit from "./renders/render-article-unit.js";
 import RenderArticleList from "./renders/render-article-list.js";
 
@@ -114,7 +115,7 @@ ArticleUnit.bindRender(
     }
 );
 
-// ОБРАБОТЧИИК создание продукта главной формаой.
+// ОБРАБОТЧИИК создание продукта главной формой.
 assortimenItemCreate(function (product) {
     console.log("главная форма сотворила предмет!", product);
     datastorage.addProductUnit(product, (error, result) => {
@@ -123,14 +124,20 @@ assortimenItemCreate(function (product) {
     });
 });
 
-// ОБРАБОТЧИК создания списка заказов.
-orderListCreate(function (arg) {
-    console.log("форма создания списков сотворила список!");
+// TODO: Тестовые настройки.
+ArticleList.bindRender(document.querySelector("#conteiner_order_lists"), RenderArticleList, function (view, model) {
+    view.label = "Hello";
+    view.quantity = model.quantity;
+    view.term = model.term;
+});
+
+
+// ОБРАБОТЧИК создания дополнительных списков.
+createdOrderList(function (arg) {
+    console.log("форма создания списков сотворила список!", `arg ${arg}`);
     // тестовый код проверки размещения.
-    const ol =  new RenderArticleList("Супер");
-    ol.label = "Hello", ol.term = arg, ol.quantity = 4, ol.total = 25.15;
-    ol.insertInto(document.querySelector("#conteiner_order_lists"));
-    [1, 3, 2].forEach(n => ol.append(new RenderArticleUnit()._node_li));
+	const al = new ArticleList({label: "Hello!", term: arg, quantity: 4, total: 100500});
+	al.render();
 });
 
 // получение коллекции элементов продукт.

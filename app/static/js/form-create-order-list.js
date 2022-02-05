@@ -1,11 +1,17 @@
 // === МОДУЛЬ === форма создания списка-перечня.
 
-var caller = null;
-export const callbacksetter = function(callback) {
-    caller = callback;
-};
 
-// --- создание списка на выборочное количество дней --- 
+/**
+ * Назначение обработчиков вызываемых при создании списка
+ * с помощью интерфейса формы.
+ */
+export default function createdOrderList(callback) {
+	callbacks.push(callback);
+}
+
+const callbacks = [];
+
+// --- создание списка на выборочное количество дней ---
 const btn_CustomDaysList = document.getElementById("btn_custom_days_list");
 
 btn_CustomDaysList.addEventListener("click", function (e) {
@@ -25,15 +31,15 @@ btn_CustomDaysList.addEventListener("keypress", function (e) {
     console.log(e.target.value);
 });
 
-// --- создание списка на 1 день --- 
+// --- создание списка на 1 день ---
 const btn_DayList  = document.getElementById("btn_day_list");
 btn_DayList.addEventListener("click", () => createOrderList(1));
 
-// --- создание списка на неделю (7 дней) --- 
+// --- создание списка на неделю (7 дней) ---
 const btn_WeakList = document.getElementById("btn_weak_list");
 btn_WeakList.addEventListener("click", () => createOrderList(7));
 
-// --- создание списка на месяц (30 дней) --- 
+// --- создание списка на месяц (30 дней) ---
 const btn_MonthList = document.getElementById("btn_month_list");
 btn_MonthList.addEventListener("click", () => createOrderList(30));
 
@@ -41,6 +47,4 @@ btn_MonthList.addEventListener("click", () => createOrderList(30));
 const btn_OrderList = document.getElementById("btn_order_list");
 btn_OrderList.addEventListener("click", () => createOrderList(0));
 
-function createOrderList(arg) { 
-    caller?.(arg);
-}
+const createOrderList = (arg) => callbacks.forEach(callback => callback(arg));

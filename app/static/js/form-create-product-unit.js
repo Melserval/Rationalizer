@@ -1,4 +1,5 @@
 // === МОДУЛЬ === основная форма создания единицы ассортимента.
+import ProductUnit from "./units/product-unit.js";
 
 var caller = null;
 export function callbacksetter(callback) {
