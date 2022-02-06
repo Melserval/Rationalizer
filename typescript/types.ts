@@ -1,95 +1,107 @@
-"use strict";
-// *** различные типы представляющее единицы измерения и выды ассортимента. ***
-
-
-// проксимизатор.
-const proxyTypeHandler = {
-    set(target, prop, value) {
-        throw new TypeError(`Нельзя просто так добавлять свойства в сюда!`);
-    },
-    /**
-     * Новый тип единицы измерения.
-     * @param {Symbol} symbolType глобальный символ для типа.
-     * @param {string} full полное обозначание
-     * @param {string} short краткое обозначение
-     * @param {string} [desc] полное описание.
-     */
-    apply(target, thisArg, args) {
-        // позволяет удобно определять новые типы, вызывая  класс как функцию
-        // -  typeObject("typename", "full", "shorttitle", "desctiption").
-        if (args.length >= 1 && typeof args[0] === 'string') 
-        {
-            let type = Symbol.for(args[0]);
-            target.typeInfo.set(type, new target(type, ...args.slice(1)));
-            return type;
-        } else {
-            throw new Error("Неверное количество или тип аргументов для "+target.name);
-        }
-    }
-};
-
+/*
+ * различные типы представляющее единицы измерения и выды ассортимента.
+*/
 
 
 // --- собственные типы для различных сущностей, замена enum и struct ---
 class UserType {
+    private static typeInfo = new Map<string, UserType>();
+
+    private readonly typeName: string;
+    readonly symbolType: symbol;
+    readonly labelFull: string;
+    readonly labelShort?: string;
+    readonly description?: string;
+
     /**
      * Новый тип единицы измерения.
-     * @param {Symbol|string} symbolType символ типа | название нового типа
-     * @param {string} full полное обозначание
-     * @param {string} short краткое обозначение
-     * @param {string} [desc] полное описание.
+     * @param typename  название нового типа
+     * @param labelFull  полное описательное название 
+     * @param labelShort краткое обозначение
+     * @param desc полное описание или пояснения
      */
-    constructor(symbolType, full, short, desc) {
-        if (typeof symbolType !== 'symbol' && typeof symbolType !== 'string') {
-            throw new TypeError(`Первым аргументом должен быть Symbol или строка, но передан "${typeof symbolType}".`);
+    constructor(typename:  string, labelFull: string, labelShort?: string, desc?: string) {
+        try {
+            if (typename.match(/^[a-z_$]+[a-z0-9_$]+$/i) === null) {
+                throw new Error("Неверный формат для имени типа");
+            }
+            this.typeName = typename;
+            this.symbolType = Symbol.for(typename);
+            this.labelFull = labelFull;
+            this.labelShort = labelShort ;
+            this.description = desc;
+            UserType.typeInfo.set(this.typeName, this);
+        } catch (err: any) {
+            console.error("Возникла ошибка при создании типа.", err.message);
+            throw err;
         }
-        this.type = (typeof symbolType === 'symbol') ? symbolType : Symbol.for(symbolType);
-        this.full = full;
-        this.short = short;
-        this.description = desc;
+    }
+
+    /**
+     * 
+     * @param typename строка идентификатор, в формате константы.
+     * @param labelFull  полное описательное название 
+     * @param labelShort краткое обозначение
+     * @param desc полное описание или пояснения
+     * @returns символ типа.
+     */
+    static create(typename: string, labelFull: string, labelShort?: string, desc?: string): symbol {
+        return (new this(typename, labelFull, labelShort, desc)).symbolType;
     }
     
-    static typeInfo = new Map();
-    
-    static full(typeSymbol) {
-        return this.typeInfo.get(typeSymbol).full;
+    /**
+     * Предоставляет информацию о пользовательском типе.
+     * @param typeSymbol интересующий тип
+     * @returns объект содержащий информацию о типе.
+     */
+    static info(checkType: symbol | string): UserType | null {
+        if (typeof checkType === 'string') {
+            return this.typeInfo.get(checkType) ?? null;
+        }
+        const typename = Symbol.keyFor(checkType);
+        if (typename) {
+            return this.typeInfo.get(typename) ?? null;
+        }
+        return null;
     }
-    
-    static short(typeSymbol) {
-        return this.typeInfo.get(typeSymbol).short;
-    }
-    
-    static description(typeSymbol) {
-        return this.typeInfo.get(typeSymbol).description;
-    }
-    
-    static info(typeSymbol) {
-        return this.typeInfo.get(typeSymbol);
+
+    /**
+     * Проверяет что тип является соответствующим коллекции типов. 
+     * @param checkType проверяемый тип
+     * @returns допустимый ли тип.
+     */
+    static isValid(checkType: symbol | string): boolean {
+        if (typeof checkType === 'string') {
+            return this.typeInfo.has(checkType);
+        } else {
+            const nametype = Symbol.keyFor(checkType);
+            return nametype ? this.typeInfo.has(nametype) : false;
+        }
     }
 }
 
 
 // --- типы распостранения ассортимента (упакован, фасованный, развес, штучный, etc...) ---
 class VendorType extends UserType { } 
-VendorType = new Proxy(VendorType, proxyTypeHandler);
-const vendorType_unit = VendorType("vendorType_unit", "штучный");
-const vendorType_packed = VendorType("vendorType_packed", "фасованный");
-const vendorType_weighed = VendorType("vendorType_weighed", "развесной");
+
+export const vendorType_unit = VendorType.create("vendorType_unit", "штучный");
+export const vendorType_packed = VendorType.create("vendorType_packed", "фасованный");
+export const vendorType_weighed = VendorType.create("vendorType_weighed", "развесной");
 
 
 // --- типы единиц измерения (вес, обьем, etc...) ---
 class MeasureType extends UserType { }
-MeasureType = new Proxy( MeasureType, proxyTypeHandler);
-const measureType_unit = MeasureType("measureType_unit", "штука", "шт.");
-const measureType_milliliter = MeasureType("measureType_milliliter", "миллилитр", "ml.");
-const measureType_liter = MeasureType("MeasureType_liter", "литр", "l.");
-const measureType_gramm = MeasureType("measureType_gramm", "грамм", "gr.");
-const measureType_kilogramm =  MeasureType("measureType_kilogramm", "килограмм", "kg.");
-const measureType_kilowatt =  MeasureType("measureType_kilowatt", 'киловатт', 'kw.');
+
+export const measureType_unit = MeasureType.create("measureType_unit", "штука", "шт.");
+export const measureType_milliliter = MeasureType.create("measureType_milliliter", "миллилитр", "ml.");
+export const measureType_liter = MeasureType.create("MeasureType_liter", "литр", "l.");
+export const measureType_gramm = MeasureType.create("measureType_gramm", "грамм", "gr.");
+export const measureType_kilogramm =  MeasureType.create("measureType_kilogramm", "килограмм", "kg.");
+export const measureType_kilowatt =  MeasureType.create("measureType_kilowatt", 'киловатт', 'kw.');
 
 
 // --- типы чисел (целый, с плавающей точкой) ---
-class NumberType extends UserType { } 
-NumberType = new Proxy(NumberType, proxyTypeHandler);
-const numberType_integer = NumberType("numberType_integer", "integer");
-const numberType_float = NumberType("numberType_float", "float");
+class NumberType extends UserType { }
+
+export const numberType_integer = NumberType.create("numberType_integer", "integer");
+export const numberType_float = NumberType.create("numberType_float", "float");
