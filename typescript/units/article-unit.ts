@@ -1,30 +1,29 @@
+import { ProductUnit } from "./product-unit";
 /**
  * Объект представляющий единицу продукта, хранящий цену и количество,
  * а также ссылку на на ассоциируемый с этим объектом тип ProductUnit.
  */
-
 export default class ArticleUnit {
+
+	private _product: ProductUnit;
+	
 	/**
 	 * @param {ProductUnit} product
 	 */
-	constructor(product) {
+	constructor(product: ProductUnit) {
 		this._product = product;
-		this._views = [];
 	}
-	render() {
-		this.constructor.renders.forEach(render => {
-			let view = new render.renderView();
-			view.insertInto(render.nodeElement);
-			render.handler(view, this);
-			this._views.push(view);
-		});
-	}
-	get title() { return this._product.title; }
-	get price() { return this._product.price; }
-	get amount() { return this._product.amount; }
 
-	static renders = [];
-	static bindRender(nodeElement, renderView, handler) {
-		this.renders.push({nodeElement, renderView, handler});
+	/** название пролукта. */
+	get title(): string { 
+		return this._product.title;
+	}
+	/** цена продукта. */
+	get price(): number { 
+		return this._product.price;
+	}
+	/** количество продукта. */
+	get amount(): number { 
+		return this._product.amount;
 	}
 }
