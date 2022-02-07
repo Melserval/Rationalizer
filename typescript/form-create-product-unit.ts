@@ -1,100 +1,102 @@
 // === МОДУЛЬ === основная форма создания единицы ассортимента.
-import ProductUnit from "./units/product-unit.js";
+import {ProductUnit} from "./units/product-unit";
+import * as ut from './types';
 
-var caller = null;
-export function callbacksetter(callback) {
+
+export function callbacksetter(callback: CallableFunction) {
 	caller = callback;
 }
 
-const mainFormUnitCreate = document.getElementById("form-create-item");
-const radioBtnSet_TypePacked   = document.getElementsByName("radio-type-vendor");
-const radioBtnSet_TypeMeasure  = document.getElementsByName("radio-type-measure");
-const conteinerBtn_setCategory = document.getElementById("set-category-btn-list");
-	
-const input_ItemName       = document.getElementById("input-item-name");
-const input_ItemAmount     = document.getElementById("input-item-amount");
-const input_ItemPrice      = document.getElementById("input-item-price");
-const input_ItemDescribe   = document.getElementById("input-item-describe");
-	
-const btn_ItemCreateApply  = document.getElementById("item-create-apply");
-const btn_ItemCreateDone   = document.getElementById("item-create-done");
+let caller: CallableFunction;
 
-let amountType = null;
-let selectedVendorType = null;
-let selectedMeasureType = null;
-let selectedUnitCategory = null;
+const ENF = () => { throw new Error("html_element_not_found") };
 
-const parseAmount = function (amount) {
+const mainFormUnitCreate       = <HTMLDivElement>document.getElementById("form-create-item") ?? ENF();
+const radioBtnSet_TypePacked   = <NodeListOf<HTMLInputElement>>document.getElementsByName("radio-type-vendor") ?? ENF();
+const radioBtnSet_TypeMeasure  = <NodeListOf<HTMLInputElement>>document.getElementsByName("radio-type-measure") ?? ENF();
+const conteinerBtn_setCategory = <HTMLDivElement>document.getElementById("set-category-btn-list") ?? ENF();
+	
+const input_ItemName       = <HTMLInputElement>document.getElementById("input-item-name") ?? ENF();
+const input_ItemAmount     = <HTMLInputElement>document.getElementById("input-item-amount") ?? ENF();
+const input_ItemPrice      = <HTMLInputElement>document.getElementById("input-item-price") ?? ENF();
+const input_ItemDescribe   = <HTMLInputElement>document.getElementById("input-item-describe") ?? ENF();
+	
+const btn_ItemCreateApply  = <HTMLButtonElement>document.getElementById("item-create-apply") ?? ENF();
+const btn_ItemCreateDone   = <HTMLButtonElement>document.getElementById("item-create-done") ?? ENF();
+
+let amountType: symbol;
+let selectedVendorType: symbol;
+let selectedMeasureType: symbol;
+let selectedUnitCategory: any;
+
+function parseAmount(amount: string) {
 	switch (amountType) {
-		case numberType_float: return parseFloat(amount);
-		case numberType_integer: return parseInt(amount);
+		case ut.numberType_float: return parseFloat(amount);
+		case ut.numberType_integer: return parseInt(amount);
 		default: throw new TypeError("Неопределенный amount type");
 	}
-};
+}
 
-const parsePrice = function (price) {
-	return parseFloat(price);
-};
+function parsePrice(price: string): number {
+	let result = parseFloat(price);
+	if (isNaN(result)) throw new Error("недопустимый формат числа стоимости");
+	return result;
+}
 
-const activateBlock = function(htmlCollection) {
+function activateBlock(htmlCollection: NodeListOf<HTMLInputElement>) {
 	Array.prototype.forEach.call(htmlCollection, element => {
 		element.disabled = false;
 		if (element.id) 
-			document.querySelector(`label[for="${element.id}"]`).classList.remove("disabled");
+			document.querySelector(`label[for="${element.id}"]`)?.classList.remove("disabled") ?? ENF();
 	});
-};
+}
 
-const deactivateBlock = function (htmlCollection) {
+function deactivateBlock(htmlCollection: NodeListOf<HTMLInputElement>) {
 	Array.prototype.forEach.call(htmlCollection, element => {
 		element.disabled = true;
 		if (element.id)
-			document.querySelector(`label[for="${element.id}"]`).classList.add("disabled");
+			document.querySelector(`label[for="${element.id}"]`)?.classList.add("disabled");
 	});
-};
+}
 
 /**  сценарии при выборе радио кнопки с определенными id. */
-const radioBtnHandler = new Proxy({}, {
-	get(t, p) {
-		if (p in t) return t[p];
-		else throw new Error(`неизвестный тип единицы измерения ${p}`);
-	}
-});
+class radioBtnHandler {
+	static [key: string]: CallableFunction
+}
 // - радио кнопки определения типа распостранения -
 radioBtnHandler["radio-is-unit"] = function () {
-	selectedVendorType = vendorType_unit;
+	selectedVendorType = ut.vendorType_unit;
 	deactivateBlock(radioBtnSet_TypeMeasure);
 	// при штучном товаре единица измерения "штука".
-	selectedMeasureType = measureType_unit;
-	amountType = numberType_integer;
+	selectedMeasureType = ut.measureType_unit;
+	amountType = ut.numberType_integer;
 };
 radioBtnHandler["radio-is-weight"] = function () {
-	selectedVendorType = vendorType_weighed;
+	selectedVendorType = ut.vendorType_weighed;
 	activateBlock(radioBtnSet_TypeMeasure);
 };
 radioBtnHandler["radio-is-packed"] = function () {
-	selectedVendorType = vendorType_packed;
+	selectedVendorType = ut.vendorType_packed;
 	activateBlock(radioBtnSet_TypeMeasure);
 };
 
 // - радио кнопки установки типа единиц измерения -
 radioBtnHandler["radio-measure-milliliter"] = function () {
-	selectedMeasureType = measureType_milliliter;
-	amountType = numberType_integer;
+	selectedMeasureType = ut.measureType_milliliter;
+	amountType = ut.numberType_integer;
 };
 radioBtnHandler["radio-measure-gramm"] = function () {
-	selectedMeasureType = measureType_gramm;
-	amountType = numberType_integer;
+	selectedMeasureType = ut.measureType_gramm;
+	amountType = ut.numberType_integer;
 };
 
 mainFormUnitCreate.addEventListener("change", function (e) {
-	const nodeName = e.target.nodeName;
-	const inputSetName = e.target.name;
-	const id = e.target.id;
-	if (nodeName == "INPUT" && 
-		inputSetName == "radio-type-vendor" || 
-		inputSetName == "radio-type-measure") 
+	const element = e.target as HTMLInputElement;
+	if (element.nodeName == "INPUT" && 
+	 element.name == "radio-type-vendor" || 
+	 element.name == "radio-type-measure") 
 	{
-		radioBtnHandler[id]();
+		radioBtnHandler[element.id]();
 	}		
 });
 
@@ -117,18 +119,27 @@ btn_ItemCreateApply.addEventListener("click", (e) => {
 });
 
 conteinerBtn_setCategory.addEventListener("click", (e) => {
-	if (e.target.nodeName === "BUTTON") {
-		selectedUnitCategory = e.target.textContent;
+	const element = e.target as HTMLElement;
+	if (element.nodeName === "BUTTON") {
+		selectedUnitCategory = element.textContent;
 	}
 });
 
+// TODO: Это временная версия скрытия формы, она должна быть доработана.
 btn_ItemCreateDone.addEventListener("click", (e) => {
 	mainFormUnitCreate.style.display = "none";
-	mainFormUnitCreate.parentElement.classList.add('compact');
+	mainFormUnitCreate.parentElement?.classList.add('compact');
+
+	if (!mainFormUnitCreate.parentElement) return;
+
 	mainFormUnitCreate.parentElement.onclick = (e) => {
-		if (e.target !== mainFormUnitCreate.parentElement) return;
-		mainFormUnitCreate.parentElement.classList.remove('compact');
-		mainFormUnitCreate.style.display = "block";
-		mainFormUnitCreate.parentElement.onclick = null;
+
+		if (e.target === mainFormUnitCreate.parentElement 
+		&& mainFormUnitCreate.parentElement)
+		{
+			mainFormUnitCreate.parentElement.classList.remove('compact');
+			mainFormUnitCreate.style.display = "block";
+			mainFormUnitCreate.parentElement.onclick = null;
+		}
 	};
 });
