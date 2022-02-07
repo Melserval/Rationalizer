@@ -4,7 +4,7 @@
 
 
 // --- собственные типы для различных сущностей, замена enum и struct ---
-class UserType {
+export class UserType {
     private static typeInfo = new Map<string, UserType>();
 
     private readonly typeName: string;
@@ -82,26 +82,29 @@ class UserType {
 
 
 // --- типы распостранения ассортимента (упакован, фасованный, развес, штучный, etc...) ---
-class VendorType extends UserType { } 
+export class VendorType extends UserType { } 
 
-export const vendorType_unit = VendorType.create("vendorType_unit", "штучный");
-export const vendorType_packed = VendorType.create("vendorType_packed", "фасованный");
-export const vendorType_weighed = VendorType.create("vendorType_weighed", "развесной");
+export const 
+    vendorType_unit = VendorType.create("vendorType_unit", "штучный"),
+    vendorType_packed = VendorType.create("vendorType_packed", "фасованный"),
+    vendorType_weighed = VendorType.create("vendorType_weighed", "развесной");
 
 
 // --- типы единиц измерения (вес, обьем, etc...) ---
-class MeasureType extends UserType { }
+export class MeasureType extends UserType { }
 
-export const measureType_unit = MeasureType.create("measureType_unit", "штука", "шт.");
-export const measureType_milliliter = MeasureType.create("measureType_milliliter", "миллилитр", "ml.");
-export const measureType_liter = MeasureType.create("MeasureType_liter", "литр", "l.");
-export const measureType_gramm = MeasureType.create("measureType_gramm", "грамм", "gr.");
-export const measureType_kilogramm =  MeasureType.create("measureType_kilogramm", "килограмм", "kg.");
-export const measureType_kilowatt =  MeasureType.create("measureType_kilowatt", 'киловатт', 'kw.');
+export const 
+    measureType_unit = MeasureType.create("measureType_unit", "штука", "шт."),
+    measureType_milliliter = MeasureType.create("measureType_milliliter", "миллилитр", "ml."),
+    measureType_liter = MeasureType.create("MeasureType_liter", "литр", "l."),
+    measureType_gramm = MeasureType.create("measureType_gramm", "грамм", "gr."),
+    measureType_kilogramm =  MeasureType.create("measureType_kilogramm", "килограмм", "kg."),
+    measureType_kilowatt =  MeasureType.create("measureType_kilowatt", 'киловатт', 'kw.');
 
 
 // --- типы чисел (целый, с плавающей точкой) ---
-class NumberType extends UserType { }
+export class NumberType extends UserType { }
 
-export const numberType_integer = NumberType.create("numberType_integer", "integer");
-export const numberType_float = NumberType.create("numberType_float", "float");
+export const 
+    numberType_integer = NumberType.create("numberType_integer", "integer"),
+    numberType_float = NumberType.create("numberType_float", "float");
