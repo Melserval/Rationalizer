@@ -11,7 +11,7 @@ import * as uType from "./types";
  * Запрос коллекции ассортимента.
  * @param callback (error, data [, info])
  */
-export const getProductCollection = function(callback: Function) {
+export const getProductCollection = function(callback: (err: Error | null, data: ProductUnit[] | null, from: string) => void) {
 	localstorDataSet.getData().then(
 		data => callback(null, data, "local"), 
 		error => callback(error, null, "local")
@@ -27,7 +27,7 @@ export const getProductCollection = function(callback: Function) {
  * @param product сохраняемый элемент.
  * @param callback (error, result) обработчик результата.
  */
-export const addProductUnit = function (product: ProductUnit, callback?: Function) {
+export const addProductUnit = function (product: ProductUnit, callback?: CallableFunction) {
 	localstorDataSet.getData()
 		.then((dataset) => {
 			dataset.push(product);
