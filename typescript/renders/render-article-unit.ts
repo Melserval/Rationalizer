@@ -1,3 +1,5 @@
+import ArticleUnit from "../units/article-unit";
+
 /**
  * Представляет элемент ассортимента в списках товаров/заказов.
  */
@@ -15,32 +17,41 @@ export default class RenderArticleUnit  {
 		);
 	}
 
-	insertInto(nodeElement) {
-		nodeElement.append(this._nodeElement);
-	}
-
 	remove() {
 		this._nodeElement.remove();
 	}
 
-	setClassName(classname) {
+	setClassName(classname: string) {
 		this._nodeElement.classList.add(classname);
 	}
 
-	removeClassName(classname) {
+	removeClassName(classname: string) {
 		this._nodeElement.classList.remove(classname);
 	}
 
 	get element() {
 		return this._nodeElement;
 	}
-	set setTitle(value) {
+	set title(value: string) {
 		this._span_title.textContent = value;
 	}
-	set setAmount(value) {
-		this._span_amount.textContent = value;
+	set amount(value: number) {
+		this._span_amount.textContent = value.toString(10);
 	}
-	set setPrice(value) {
-		this._span_price.textContent = value;
+	set price(value: number) {
+		this._span_price.textContent = value.toFixed(2).toString();
+	}
+
+	/**
+	 * Создает LI элемент, наполняет данными из au.
+	 * @param au элемент с данными.
+	 * @param destination элемент для размещения рендера.
+	 */
+	render(au: ArticleUnit, destination: HTMLElement) {
+		destination.append(this._nodeElement);
+
+		this.title = au.title;
+		this.amount = au.amount;
+		this.price = au.price;
 	}
 };

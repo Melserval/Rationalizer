@@ -1,3 +1,6 @@
+import ArticleList from "../units/article-list";
+import RenderArticleUnit from "./render-article-unit";
+
 /**
  * Представление списка элементов ассортимента.
  */
@@ -9,6 +12,7 @@ export default class RenderArticleList {
 	_span_term = document.createElement('span');
 	_span_quantity = document.createElement('span');
 	_span_total = document.createElement('span');
+	_items = new Array<RenderArticleUnit>();
 
 	constructor() {
 		this._header.append(
@@ -23,28 +27,45 @@ export default class RenderArticleList {
 		this._header.classList.add("items-list-header");
 		this._nodeElement.classList.add("block-order-list");
 	}
-	insertInto(nodeElement) {
-		nodeElement.append(this._nodeElement);
-	}
+
 	remove() {
 		this._nodeElement.remove();
 	}
-	append(HTMLElementLi) {
-		this._ul.append(HTMLElementLi);
-	}
-	get getNode() { 
-		return this._nodeElement; 
-	}
-	set label(label) { 
+
+	set label(label: string) { 
 		this._span_label.textContent = label; 
 	}
-	set term(term) { 
-		this._span_term.textContent = term; 
+
+	set term(term: number) { 
+		this._span_term.textContent = term.toString(10); 
 	}
-	set quantity(quantity) { 
-		this._span_quantity.textContent = quantity; 
+
+	set quantity(quantity: number) { 
+		this._span_quantity.textContent = quantity.toString(10); 
 	}
-	set total(total) { 
-		this._span_total.textContent = total; 
+
+	set total(total: number) { 
+		this._span_total.textContent = total.toString(10); 
+	}
+
+	/**
+	 * Получает объект с данными и отображает их в HTML.
+	 * @param al Элемент с данными.
+	 * @param destination Элемент контейнер для рендера.
+	 */
+	render(al: ArticleList, destination: HTMLElement) {
+
+		destination.append(this._nodeElement);
+
+		this.label = al.label;
+		this.total = 10500;
+		this.quantity = al.quantity;
+		this.term = al.term;
+
+		for (let item of al.items) {
+			let renderLi = new RenderArticleUnit();
+			renderLi.render(item, this._ul);
+			this._items.push(renderLi);
+		}
 	}
 }
