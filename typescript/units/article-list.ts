@@ -9,9 +9,9 @@ export default class ArticleList {
 	private _term: number = 0;
 	private _label: string;
 	
-	constructor(label: string = "") 
-	{ 
+	constructor(label: string, term: number=0) {
 		this._label = label;
+		this._term = term;
 	}
 
 	/**

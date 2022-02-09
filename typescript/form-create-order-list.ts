@@ -5,7 +5,7 @@
  * Назначение обработчиков вызываемых при создании списка
  * с помощью интерфейса формы.
  */
-export default function createdOrderList(callback: CallableFunction) {
+export default function createdOrderList(callback: (arg: number) => void) {
 	callbacks.push(callback);
 }
 

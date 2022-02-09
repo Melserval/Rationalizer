@@ -3,26 +3,24 @@ import {ProductUnit} from "./units/product-unit";
 import * as ut from './types';
 
 
-export function callbacksetter(callback: CallableFunction) {
+export function callbacksetter(callback: (p: ProductUnit) => void ) {
 	caller = callback;
 }
 
 let caller: CallableFunction;
 
-const ENF = () => { throw new Error("html_element_not_found") };
-
-const mainFormUnitCreate       = <HTMLDivElement>document.getElementById("form-create-item") ?? ENF();
-const radioBtnSet_TypePacked   = <NodeListOf<HTMLInputElement>>document.getElementsByName("radio-type-vendor") ?? ENF();
-const radioBtnSet_TypeMeasure  = <NodeListOf<HTMLInputElement>>document.getElementsByName("radio-type-measure") ?? ENF();
-const conteinerBtn_setCategory = <HTMLDivElement>document.getElementById("set-category-btn-list") ?? ENF();
+const mainFormUnitCreate       = <HTMLDivElement>document.getElementById("form-create-item");
+const radioBtnSet_TypePacked   = <NodeListOf<HTMLInputElement>>document.getElementsByName("radio-type-vendor");
+const radioBtnSet_TypeMeasure  = <NodeListOf<HTMLInputElement>>document.getElementsByName("radio-type-measure");
+const conteinerBtn_setCategory = <HTMLDivElement>document.getElementById("set-category-btn-list");
 	
-const input_ItemName       = <HTMLInputElement>document.getElementById("input-item-name") ?? ENF();
-const input_ItemAmount     = <HTMLInputElement>document.getElementById("input-item-amount") ?? ENF();
-const input_ItemPrice      = <HTMLInputElement>document.getElementById("input-item-price") ?? ENF();
-const input_ItemDescribe   = <HTMLInputElement>document.getElementById("input-item-describe") ?? ENF();
+const input_ItemName       = <HTMLInputElement>document.getElementById("input-item-name");
+const input_ItemAmount     = <HTMLInputElement>document.getElementById("input-item-amount");
+const input_ItemPrice      = <HTMLInputElement>document.getElementById("input-item-price");
+const input_ItemDescribe   = <HTMLInputElement>document.getElementById("input-item-describe");
 	
-const btn_ItemCreateApply  = <HTMLButtonElement>document.getElementById("item-create-apply") ?? ENF();
-const btn_ItemCreateDone   = <HTMLButtonElement>document.getElementById("item-create-done") ?? ENF();
+const btn_ItemCreateApply  = <HTMLButtonElement>document.getElementById("item-create-apply");
+const btn_ItemCreateDone   = <HTMLButtonElement>document.getElementById("item-create-done");
 
 let amountType: symbol;
 let selectedVendorType: symbol;
@@ -44,19 +42,21 @@ function parsePrice(price: string): number {
 }
 
 function activateBlock(htmlCollection: NodeListOf<HTMLInputElement>) {
-	Array.prototype.forEach.call(htmlCollection, element => {
+	for (let element of htmlCollection) {
 		element.disabled = false;
-		if (element.id) 
-			document.querySelector(`label[for="${element.id}"]`)?.classList.remove("disabled") ?? ENF();
-	});
+		if (element.id) {
+			document.querySelector(`label[for="${element.id}"]`)?.classList.remove("disabled");
+		}
+	}
 }
 
 function deactivateBlock(htmlCollection: NodeListOf<HTMLInputElement>) {
-	Array.prototype.forEach.call(htmlCollection, element => {
+	for (let element of htmlCollection) {
 		element.disabled = true;
-		if (element.id)
+		if (element.id) {
 			document.querySelector(`label[for="${element.id}"]`)?.classList.add("disabled");
-	});
+		}
+	}
 }
 
 /**  сценарии при выборе радио кнопки с определенными id. */

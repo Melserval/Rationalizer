@@ -45,7 +45,7 @@ export default class RenderArticleList {
 	}
 
 	set total(total: number) { 
-		this._span_total.textContent = total.toString(10); 
+		this._span_total.textContent = total.toString(10);
 	}
 
 	/**
