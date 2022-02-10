@@ -4,6 +4,14 @@ import ArticleUnit from "./article-unit";
  * Данные составленого списка асортимента.
  */
 export default class ArticleList {
+	
+	private _events: {[key: string]: CallableFunction[]} = {
+		// событие добавление нового экземпляра ArticleUnit
+		'additem': new Array<CallableFunction>(),
+		// событие удаление экземпляра ArticleUnit
+		'removeitem': new Array<CallableFunction>()
+	};
+
 	private _created: number = Date.now();
 	private _items: ArticleUnit[] = [];
 	private _term: number = 0;
@@ -20,6 +28,7 @@ export default class ArticleList {
 	 */
 	addItem(au: ArticleUnit) {
 		this._items.push(au);
+		this._events['additem'].forEach(clb => clb(au));
 	}
 	
 	/** коллекция элементов - позиций ассортимента.  */
@@ -37,5 +46,28 @@ export default class ArticleList {
 	/** название, метка списка. */
 	get label(): string {
 		return this._label;
+	}
+	
+	/** Уставновка обработчика для события порожденных... */
+	on(eventName: string, clb: CallableFunction): void {
+		if (eventName in this._events) {
+			this._events[eventName].push(clb);
+		} else {
+			throw new Error("Нет такого события для ArticleList!");
+		}
+	}
+
+	/** удаление обработчиков */
+	off(eventName: string, clb: CallableFunction) {
+		if (eventName in this._events) {
+			const callbacks = this._events[eventName];
+			for (let i = callbacks.length - 1; i >= 0; i--) {
+				if (callbacks[i] === clb) {
+					callbacks.splice(i, 1);
+				}
+			}
+		} else {
+			throw new Error("Нет такого события для ArticleList!");
+		}
 	}
 }
