@@ -1,6 +1,6 @@
 // === МОДУЛЬ === основная форма создания единицы ассортимента.
-import {ProductUnit} from "./units/product-unit";
-import * as ut from './types';
+import {ProductUnit} from "./units/product-unit.js";
+import * as ut from './types.js';
 
 
 export function callbacksetter(callback: (p: ProductUnit) => void ) {
@@ -42,19 +42,19 @@ function parsePrice(price: string): number {
 }
 
 function activateBlock(htmlCollection: NodeListOf<HTMLInputElement>) {
-	for (let element of htmlCollection) {
-		element.disabled = false;
-		if (element.id) {
-			document.querySelector(`label[for="${element.id}"]`)?.classList.remove("disabled");
+	for (let i = 0; i > htmlCollection.length; i++) {
+		htmlCollection[i].disabled = false;
+		if (htmlCollection[i].id) {
+			document.querySelector(`label[for="${htmlCollection[i].id}"]`)?.classList.remove("disabled");
 		}
 	}
 }
 
 function deactivateBlock(htmlCollection: NodeListOf<HTMLInputElement>) {
-	for (let element of htmlCollection) {
-		element.disabled = true;
-		if (element.id) {
-			document.querySelector(`label[for="${element.id}"]`)?.classList.add("disabled");
+	for (let i = 0; i > htmlCollection.length; i++) {
+		htmlCollection[i].disabled = true;
+		if (htmlCollection[i].id) {
+			document.querySelector(`label[for="${htmlCollection[i].id}"]`)?.classList.add("disabled");
 		}
 	}
 }

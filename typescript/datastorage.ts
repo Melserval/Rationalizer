@@ -4,8 +4,8 @@
 // - константные данные.
 // - удаленныe базы данных.
 
-import { ProductUnit, ProductUnitJson } from "./units/product-unit";
-import * as uType from "./types";
+import { ProductUnit, ProductUnitJson } from "./units/product-unit.js";
+import * as uType from "./types.js";
 
 /**
  * Запрос коллекции ассортимента.
