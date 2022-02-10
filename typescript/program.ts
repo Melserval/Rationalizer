@@ -69,10 +69,9 @@ let targetItemList: HTMLUListElement | null = null;
 document.body.addEventListener('click', function (e) {
     const element = e.target as HTMLElement;
 	targetItemList = element.closest('.items-list') as HTMLUListElement;
-	console.log(targetItemList);
 });
 // TODO: Необходимо доработать связь между фокусом на элементе li, списке UL
-// и элементом визуализыции, так как юудет не один, жестко закодированный список.
+// и элементом визуализации, так как будет не один жестко закодированный список.
 window.addEventListener('keydown', function (e) {
 	if (targetItemList === null) return;
 	if (e.code != 'ArrowUp' && e.code != 'ArrowDown') return;
