@@ -1,10 +1,22 @@
-import ArticleList from "../units/article-list";
-import RenderArticleUnit from "./render-article-unit";
+import ArticleList from "../units/article-list.js";
+import ArticleUnit from "../units/article-unit.js";
+import RenderArticleUnit from "./render-article-unit.js";
 
 /**
  * Представление списка элементов ассортимента.
  */
 export default class RenderArticleList {
+
+	protected focusedAssortimentUnit: HTMLLIElement | null = null;
+	
+	protected events: { [key: string]: CallableFunction[] } = {
+		// обработчики события при выборе элемента (получен "фокус").
+		"selectitem": new Array<CallableFunction>(),
+		// обработчики события при потери фокуса.
+		"deleteitem": new Array<CallableFunction>()
+	};
+
+
 	_nodeElement = document.createElement("div");
 	_header  = document.createElement('header');
 	_ul = document.createElement('ul');
@@ -12,6 +24,7 @@ export default class RenderArticleList {
 	_span_term = document.createElement('span');
 	_span_quantity = document.createElement('span');
 	_span_total = document.createElement('span');
+	
 	_items = new Array<RenderArticleUnit>();
 
 	constructor() {
@@ -26,6 +39,17 @@ export default class RenderArticleList {
 		this._ul.classList.add("items-list");
 		this._header.classList.add("items-list-header");
 		this._nodeElement.classList.add("block-order-list");
+		// выбор элемента, фокус на него.
+		this._ul.addEventListener('click', (e) => {
+			const element = e.target as HTMLElement;
+			const elementLi = element.closest('.items-list li') as HTMLLIElement;
+			if (elementLi === null) return;
+			this.focusAssortimentUnit(elementLi);
+		});
+		// выбор элемента, запуск операций ассоциированных с ним.
+		this._ul.addEventListener("dblclick", (e) => {
+			this.events["selectitem"].forEach(e => e(this.focusedAssortimentUnit));
+		});
 	}
 
 	remove() {
@@ -61,11 +85,76 @@ export default class RenderArticleList {
 		this.total = 10500;
 		this.quantity = al.quantity;
 		this.term = al.term;
-
+		
 		for (let item of al.items) {
-			let renderLi = new RenderArticleUnit();
-			renderLi.render(item, this._ul);
-			this._items.push(renderLi);
+			this.renderItem(item)
+		}
+
+		al.on('additem', this.renderItem.bind(this));
+	}
+
+	protected renderItem(item: ArticleUnit) {
+		let renderLi = new RenderArticleUnit();
+		renderLi.render(item, this._ul);
+		this._items.push(renderLi);
+	}
+	
+	// ------  обработка перемещения по списку и выбора элементов -------
+
+	/** выделяет элемент LI в спике, показывая что он сейчас в "фокусе". */
+	focusAssortimentUnit(li: HTMLLIElement) {
+		try {
+			if (this.focusedAssortimentUnit == li) return;
+			if ( !(li instanceof HTMLLIElement) ) throw new Error("Элемент не подходит!");
+			this.focusedAssortimentUnit?.classList.remove('focusedli');
+			this.focusedAssortimentUnit = li;
+			this.focusedAssortimentUnit?.classList.add('focusedli');
+			// TODO: возможно нужно определить событие.
+		} catch (err) {
+			console.error("Недопустимый HTML элемент", err);
 		}
 	}
+	
+	focusNextItem() {
+		const li = this.focusedAssortimentUnit?.nextElementSibling?.closest('.items-list li') as HTMLLIElement;
+		if (li === null) return;
+		this.focusAssortimentUnit(li);
+	}
+
+	focusPreviousItem() {
+		const li = this.focusedAssortimentUnit?.previousElementSibling?.closest('.items-list li') as HTMLLIElement;
+		if (li === null) return;
+		this.focusAssortimentUnit(li);
+	};
+	
+	/** Уставновка обработчика для события порожденных... */
+	on(eventName: string, clb: CallableFunction): void {
+		if (eventName in this.events) {
+			this.events[eventName].push(clb);
+		} else {
+			throw new Error("Нет такого события для mainAssortiment!");
+		}
+	}
+
+	/** удаление обработчиков */
+	off(eventName: string, clb: CallableFunction) {
+		if (eventName in this.events) {
+			const callbacks = this.events[eventName];
+			for (let i = callbacks.length - 1; i >= 0; i--) {
+				if (callbacks[i] === clb) {
+					callbacks.splice(i, 1);
+				}
+			}
+		}
+	}
+
+	/** Вызов (активация) события */
+	throw(eventName: string, arg: any) {
+		if (eventName in this.events) {
+			// TODO: разобраться с типами аргументов для событий.
+			this.events[eventName].forEach(e => e(arg));
+		} else {
+			throw new Error(`Попытка вызвать не существующее событие (${eventName})`);
+		}
+	};
 }

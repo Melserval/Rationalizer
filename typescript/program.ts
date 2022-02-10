@@ -1,183 +1,88 @@
-import {callbacksetter as assortimenItemCreate} from "./form-create-product-unit.js";
+import {callbacksetter as addHandlerForAssortimenUnitIsCreated} from "./form-create-product-unit.js";
 import * as datastorage from './datastorage.js';
-import createdOrderList from './form-create-order-list.js';
+import addHandlerForOrderListCreated from './form-create-order-list.js';
 
 import ArticleUnit from "./units/article-unit.js";
 import ArticleList from "./units/article-list.js";
 import RenderArticleUnit from "./renders/render-article-unit.js";
 import RenderArticleList from "./renders/render-article-list.js";
-
-// основной список ассортимента
-const mainAssortiment = (function(){
-    const units = [];
-    const events = {};
-    const obj = {};
-	let focusedAssortimentUnit = null;
-    let focusedAssortimentUnitIndex = -1;
-
-    const getElementLi = function(etarget) {
-        let parent = etarget.parentNode;
-        while (parent !== null && parent !== this) {
-            if (parent.nodeName == "LI") {
-                return parent;
-            } else {
-                parent = parent.parentNode;
-            }
-        }
-        return null;
-    };
-
-    const focusAssortimentUnit = function (elementLi) {
-        try {
-            if (elementLi === null) throw new Error("Элемент не подходит!");
-            if (focusedAssortimentUnit == elementLi) return;
-            focusedAssortimentUnit?.classList.remove('focusedli');
-            focusedAssortimentUnit = elementLi;
-            focusedAssortimentUnit?.classList.add('focusedli');
-        } catch (err) {
-            console.error("Недопустимый HTML элемент", err);
-        }
-    };
-
-    const focusedNextAssortimenUnit = function () {
-        const li = focusedAssortimentUnit.nextElementSibling?.closest('.items-list li');
-        if (li === null) return;
-        focusAssortimentUnit(li);
-    };
-
-    const focusedPreviousAssortimenUnit = function () {
-        const li = focusedAssortimentUnit.previousElementSibling?.closest('.items-list li');
-        if (li === null) return;
-        focusAssortimentUnit(li);
-    };
-
-    const conteinerUL = document.getElementById("main-assortiment-list");
-    conteinerUL.addEventListener("dblclick", (e) => {
-        events["selectitem"].forEach(e => e(focusedAssortimentUnit));
-    });
-
-	conteinerUL.addEventListener('click', (e) => {
-		const elementLi = e.target.closest('.items-list li');
-		if (elementLi === null) return;
-        focusAssortimentUnit(elementLi);
-	});
-
-    events["selectitem"] = [];
-    events["deleteitem"] = [];
-
-    obj.on = function(eventName, handler) {
-        if (eventName in events) {
-            events[eventName].push(handler);
-        } else {
-            throw new Error("Нет такого события для mainAssortiment!");
-        }
-    }
-
-    obj.off = function(eventName, handler) {
-        if (eventName in events) {
-            const callbacks = events[eventName];
-            for (let i = callbacks.length - 1; i >= 0; i--) {
-                if (callbacks[i] === handler) {
-                    callbacks.splice(i, 1);
-                }
-            }
-        }
-    }
-
-    obj.throw = function(eventName, arg) {
-        if (eventName in events) {
-            if (eventName === "selectitem") {
-                events["selectitem"].forEach(e => e(focusedAssortimentUnit));
-            } else {
-                events[eventName].forEach(handler => handler(arg));
-            }
-        }
-    };
-
-    obj.addProduct = function(product) {
-        const p = new ArticleUnit(product);
-        p.render();
-        units.push(p);
-    };
-    obj.nextUnit = focusedNextAssortimenUnit;
-    obj.previousUnit = focusedPreviousAssortimenUnit;
-    return obj;
-}) /* конец блока mainAssortiment */();
+import { ProductUnit } from "./units/product-unit.js";
 
 
-ArticleUnit.bindRender(
-    document.getElementById("main-assortiment-list"),
-    RenderArticleUnit,
-    (view, model) => {
-        view.setTitle = model.title;
-        view.setAmount = model.amount;
-        view.setPrice = model.price;
-    }
-);
+/** размещение списков для покупок */
+const conteinerOrderList = document.querySelector("#conteiner_order_lists") as HTMLElement;
+/** размещение списков-источников ассортимента */
+const conteinerSouceList = document.getElementById("main-assortiment-list") as HTMLElement;
+
+// оновной список ассортимента.
+const mainAssortimentList = new ArticleList('main assortiment list');
+const renderMainAssortimentList = new RenderArticleList();
+renderMainAssortimentList.render(mainAssortimentList, conteinerSouceList);
 
 // ОБРАБОТЧИИК создание продукта главной формой.
-assortimenItemCreate(function (product) {
+addHandlerForAssortimenUnitIsCreated(function (product) {
     console.log("главная форма сотворила предмет!", product);
-    datastorage.addProductUnit(product, (error, result) => {
+    datastorage.addProductUnit(product, (err: Error, result: any) => {
         console.log("Сохраняю продукт: ", product);
-        error ? console.error(error) : console.log(result);
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(result);
+        }
     });
 });
 
-// TODO: Тестовые настройки.
-ArticleList.bindRender(document.querySelector("#conteiner_order_lists"), RenderArticleList, function (view, model) {
-    view.label = "Hello";
-    view.quantity = model.quantity;
-    view.term = model.term;
-});
-
-
 // ОБРАБОТЧИК создания дополнительных списков.
-createdOrderList(function (arg) {
+addHandlerForOrderListCreated(function (arg) {
     console.log("форма создания списков сотворила список!", `arg ${arg}`);
     // тестовый код проверки размещения.
-	const al = new ArticleList({label: "Hello!", term: arg, quantity: 4, total: 100500});
-	al.render();
+	const al = new ArticleList("Hello!", arg);
+	const renderAl = new RenderArticleList();
+    renderAl.render(al, conteinerOrderList);
 });
 
-// получение коллекции элементов продукт.
+// загрузка коллекции элементов ProducUnit.
 datastorage.getProductCollection(function (error, dataset, info='') {
-    // кода будут получены данные - тогда и будет наполнен список.
-    if (error) console.error("Ошибонька!", error);
-    else {
+    // когда будут получены данные - тогда и будет наполнен список.
+    if (error) {
+        console.error("Ошибонька!", error);
+        return;
+    } else if (dataset) {
         console.log("Все прекрасно, Сэр!"+info, dataset);
-        for (const product of  dataset) {
-            mainAssortiment.addProduct(product);
+        for (const product of dataset) {
+            mainAssortimentList.addItem(new ArticleUnit(product));
         }
     }
 });
 
 
-function selectItem(element) {
+function selectItem(element: any) {
     console.log("!!! выбран элемент !!!:", element);
 }
 
-mainAssortiment.on("selectitem", selectItem);
+renderMainAssortimentList.on("selectitem", selectItem);
 //mainAssortiment.off("selectitem", selectItem);
 
 
-// Обработка фокуса на списках ассортимента.
-window.targetItemList = null;
+// Глобальная Обработка фокуса на списках ассортимента.
+let targetItemList: HTMLUListElement | null = null;
 document.body.addEventListener('click', function (e) {
-	window.targetItemList = e.target.closest('.items-list')
-	console.log(window.targetItemList);
+    const element = e.target as HTMLElement;
+	targetItemList = element.closest('.items-list') as HTMLUListElement;
+	console.log(targetItemList);
 });
-
+// TODO: Необходимо доработать связь между фокусом на элементе li, списке UL
+// и элементом визуализыции, так как юудет не один, жестко закодированный список.
 window.addEventListener('keydown', function (e) {
-	if (window.targetItemList === null) return;
+	if (targetItemList === null) return;
 	if (e.code != 'ArrowUp' && e.code != 'ArrowDown') return;
 	e.preventDefault();
-	if (e.code == 'ArrowUp') mainAssortiment.previousUnit();
-    if (e.code == 'ArrowDown') mainAssortiment.nextUnit();
+	if (e.code == 'ArrowUp') renderMainAssortimentList.focusPreviousItem();
+    if (e.code == 'ArrowDown') renderMainAssortimentList.focusNextItem();
 });
 
 window.addEventListener('keypress', function (e) {
-    if (window.targetItemList === null) return;
+    if (targetItemList === null) return;
     if (e.code !== 'Enter') return;
-    mainAssortiment.throw('selectitem');
+    renderMainAssortimentList.throw('selectitem', e);
 });
