@@ -18,7 +18,7 @@ export default class ArticleList {
 	 * Добавление ассортимента в список.
 	 * @param au единица ассортимента.
 	 */
-	addAItem(au: ArticleUnit) {
+	addItem(au: ArticleUnit) {
 		this._items.push(au);
 	}
 	
