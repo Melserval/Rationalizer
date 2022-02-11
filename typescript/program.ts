@@ -10,9 +10,9 @@ import { ProductUnit } from "./units/product-unit.js";
 
 
 /** размещение списков для покупок */
-const conteinerOrderList = document.querySelector("#conteiner_order_lists") as HTMLElement;
+const conteinerOrderList = document.getElementById("block-order-list") as HTMLElement;
 /** размещение списков-источников ассортимента */
-const conteinerSouceList = document.getElementById("main-assortiment-list") as HTMLElement;
+const conteinerSouceList = document.getElementById("block-source-list") as HTMLElement;
 
 // оновной список ассортимента.
 const mainAssortimentList = new ArticleList('main assortiment list');

@@ -36,8 +36,8 @@ export default class RenderArticleList {
 		);
 		this._nodeElement.append(this._header);
 		this._nodeElement.append(this._ul);
-		this._ul.classList.add("items-list");
-		this._header.classList.add("items-list-header");
+		this._ul.classList.add("article_list__items");
+		this._header.classList.add("article_list__header");
 		this._nodeElement.classList.add("block-order-list");
 		// выбор элемента, фокус на него.
 		this._ul.addEventListener('click', (e) => {
