@@ -42,7 +42,7 @@ function parsePrice(price: string): number {
 }
 
 function activateBlock(htmlCollection: NodeListOf<HTMLInputElement>) {
-	for (let i = 0; i > htmlCollection.length; i++) {
+	for (let i = 0; i < htmlCollection.length; i++) {
 		htmlCollection[i].disabled = false;
 		if (htmlCollection[i].id) {
 			document.querySelector(`label[for="${htmlCollection[i].id}"]`)?.classList.remove("disabled");
@@ -51,7 +51,7 @@ function activateBlock(htmlCollection: NodeListOf<HTMLInputElement>) {
 }
 
 function deactivateBlock(htmlCollection: NodeListOf<HTMLInputElement>) {
-	for (let i = 0; i > htmlCollection.length; i++) {
+	for (let i = 0; i < htmlCollection.length; i++) {
 		htmlCollection[i].disabled = true;
 		if (htmlCollection[i].id) {
 			document.querySelector(`label[for="${htmlCollection[i].id}"]`)?.classList.add("disabled");
