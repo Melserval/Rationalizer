@@ -6,6 +6,7 @@ import { ProductUnit } from "./product-unit";
 export default class ArticleUnit {
 
 	private _product: ProductUnit;
+	public articleNum: string = "";
 	
 	/**
 	 * @param {ProductUnit} product

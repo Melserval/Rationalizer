@@ -7,12 +7,11 @@ import RenderArticleUnit from "./render-article-unit.js";
  */
 export default class RenderArticleList {
 	
-	public readonly id : string;
-
 	public static articleListCollection = new Map<string, RenderArticleList>();
-	
+	public readonly id : string;
+	public listInfo: string;
 	protected focusedLiElement: HTMLLIElement | null = null;
-	
+
 	protected events: { [key: string]: CallableFunction[] } = {
 		// обработчики события при выборе элемента (получен "фокус").
 		"selectitem": new Array<CallableFunction>(),
@@ -20,20 +19,23 @@ export default class RenderArticleList {
 		"deleteitem": new Array<CallableFunction>()
 	};
 
-
-	_nodeElement = document.createElement("div");
-	_header  = document.createElement('header');
-	_ul = document.createElement('ul');
-	_span_label = document.createElement('span');
-	_span_term = document.createElement('span');
-	_span_quantity = document.createElement('span');
-	_span_total = document.createElement('span');
+	private _items = new Array<RenderArticleUnit>();
+	private _nodeElement = document.createElement("div");
+	private _header  = document.createElement('header');
+	private _span_label = document.createElement('span');
+	private _span_term = document.createElement('span');
+	private _span_quantity = document.createElement('span');
+	private _span_total = document.createElement('span');
+	private _ul = document.createElement('ul');
+	private _p = document.createElement('p');
 	
-	_items = new Array<RenderArticleUnit>();
+	constructor(info: string = "Стандартный список") {
 
-	constructor() {
+		this.listInfo = info;
 		this.id = Date.now().toString(24);
+		this._nodeElement.id = this.id;
 		RenderArticleList.articleListCollection.set(this.id, this);
+
 		this._header.append(
 			this._span_label,
 			this._span_term,
@@ -42,22 +44,25 @@ export default class RenderArticleList {
 		);
 		this._nodeElement.append(this._header);
 		this._nodeElement.append(this._ul);
+		this._nodeElement.append(this._p);
 		this._ul.classList.add("article_list__items");
 		this._header.classList.add("article_list__header");
-		this._nodeElement.classList.add("block_article_list");
-		this._nodeElement.id = this.id;
+		this._nodeElement.classList.add("block-article_list");
+		this._p.classList.add("article_list__info");
+		this._p.textContent = this.listInfo;
 
-		// выбор элемента, фокус на него.
-		this._ul.addEventListener('click', (e) => {
-			const element = e.target as HTMLElement;
-			const elementLi = element.closest('.items-list li') as HTMLLIElement;
-			if (elementLi === null) return;
-			this.focusAssortimentUnit(elementLi);
-		});
-		// выбор элемента, запуск операций ассоциированных с ним.
-		this._ul.addEventListener("dblclick", (e) => {
-			this.events["selectitem"].forEach(e => e(this.focusedLiElement));
-		});
+		// FIXME: Решить как будет обрабатываться фокус на элементе - внутри класса или глобально.
+		// // выбор элемента, фокус на него.
+		// this._ul.addEventListener('click', (e) => {
+		// 	const element = e.target as HTMLElement;
+		// 	const elementLi = element.closest('.article_list__items li') as HTMLLIElement;
+		// 	if (elementLi === null) return;
+		// 	this.focusAssortimentUnit(elementLi);
+		// });
+		// // выбор элемента, запуск операций ассоциированных с ним.
+		// this._ul.addEventListener("dblclick", (e) => {
+		// 	this.events["selectitem"].forEach(e => e(this.focusedLiElement));
+		// });
 	}
 
 	remove() {
@@ -134,14 +139,21 @@ export default class RenderArticleList {
 	}
 	
 	focusNextItem() {
-		const li = this.focusedLiElement?.nextElementSibling?.closest('.article_list__items li') as HTMLLIElement;
+		const li = this.focusedLiElement?.nextElementSibling
+		           ?.closest('.article_list__items li') as HTMLLIElement;
 		if (li) this.focusAssortimentUnit(li);
 	}
 
 	focusPreviousItem() {
-		const li = this.focusedLiElement?.previousElementSibling?.closest('.article_list__items li') as HTMLLIElement;
+		const li = this.focusedLiElement?.previousElementSibling
+		           ?.closest('.article_list__items li') as HTMLLIElement;
 		if (li) this.focusAssortimentUnit(li);
-	};
+	}
+
+	/** Визуально убирает фокус с элемента. */
+	focusHide() {
+		this.focusedLiElement?.classList.remove('focusedli');
+	}
 	
 	/** Уставновка обработчика для события порожденных... */
 	on(eventName: string, clb: CallableFunction): void {

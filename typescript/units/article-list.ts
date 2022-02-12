@@ -13,7 +13,7 @@ export default class ArticleList {
 	};
 
 	private _created: number = Date.now();
-	private _items: ArticleUnit[] = [];
+	private _items = new Map<string, ArticleUnit>();
 	private _term: number = 0;
 	private _label: string;
 	
@@ -27,17 +27,18 @@ export default class ArticleList {
 	 * @param au единица ассортимента.
 	 */
 	addItem(au: ArticleUnit) {
-		this._items.push(au);
+		au.articleNum = this._items.size.toString();
+		this._items.set(au.articleNum, au);
 		this._events['additem'].forEach(clb => clb(au));
 	}
 	
 	/** коллекция элементов - позиций ассортимента.  */
 	get items(): ArticleUnit[] {
-		return this._items;
+		return Array.from(this._items.values());
 	}
 	/** количество асортимента. */
 	get quantity(): number {
-		return this._items.length;
+		return this._items.size;
 	}
 	/** временной отрезок (дней). */
 	get term(): number {

@@ -72,10 +72,11 @@ let targetItemList: RenderArticleList | null = null;
 
 document.body.addEventListener('click', function (e) {
     const target = e.target as HTMLElement;
-    const element = target.closest('.block_article_list') as HTMLElement;
+    const element = target.closest('.block-article_list') as HTMLElement;
 
     if (element !== null) {
         if (element.id !== targetItemList?.id) {
+            targetItemList?.focusHide();
             targetItemList = RenderArticleList.articleListCollection.get(element.id) ?? null;
         }
         if (targetItemList !== null) {
@@ -85,6 +86,7 @@ document.body.addEventListener('click', function (e) {
             throw new Error("Неверный id элемента списка.");
         }
     } else {
+        targetItemList?.focusHide();
         targetItemList = null;
     }
 });

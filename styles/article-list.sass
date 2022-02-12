@@ -20,6 +20,10 @@ $max-width-base: 1024px
 
 
 #block-source-list, #block-order-list
+	.block-article_list
+		background-color: #eaeaea
+		border-radius: 3px
+		padding-bottom: 1px
 	.article_list__header
 		height: 12px
 		background-color: #e2a140
@@ -29,10 +33,10 @@ $max-width-base: 1024px
 		list-style: none
 		margin: 0
 		padding: 1px
-		background-color: #faf734
 		li
 			padding: 5px 10px  5px
 			border-bottom: 1px solid white
+			background-color: #faf734
 			&:hover
 				background-color: #fff
 				cursor: pointer
@@ -53,6 +57,12 @@ $max-width-base: 1024px
 					text-align: right
 		li.focusedli
 			background-color: #ffde1c
+	.article_list__info
+		margin: 5px
+		padding: 10px
+		text-align: center
+		font-family: sans-serif
+		color: rgb(20, 44, 14)
 
 
 @media (min-width: 1024px)
