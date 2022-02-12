@@ -6,8 +6,12 @@ import RenderArticleUnit from "./render-article-unit.js";
  * Представление списка элементов ассортимента.
  */
 export default class RenderArticleList {
+	
+	public readonly id : string;
 
-	protected focusedAssortimentUnit: HTMLLIElement | null = null;
+	public static articleListCollection = new Map<string, RenderArticleList>();
+	
+	protected focusedLiElement: HTMLLIElement | null = null;
 	
 	protected events: { [key: string]: CallableFunction[] } = {
 		// обработчики события при выборе элемента (получен "фокус").
@@ -28,6 +32,8 @@ export default class RenderArticleList {
 	_items = new Array<RenderArticleUnit>();
 
 	constructor() {
+		this.id = Date.now().toString(24);
+		RenderArticleList.articleListCollection.set(this.id, this);
 		this._header.append(
 			this._span_label,
 			this._span_term,
@@ -38,7 +44,9 @@ export default class RenderArticleList {
 		this._nodeElement.append(this._ul);
 		this._ul.classList.add("article_list__items");
 		this._header.classList.add("article_list__header");
-		this._nodeElement.classList.add("block-order-list");
+		this._nodeElement.classList.add("block_article_list");
+		this._nodeElement.id = this.id;
+
 		// выбор элемента, фокус на него.
 		this._ul.addEventListener('click', (e) => {
 			const element = e.target as HTMLElement;
@@ -48,7 +56,7 @@ export default class RenderArticleList {
 		});
 		// выбор элемента, запуск операций ассоциированных с ним.
 		this._ul.addEventListener("dblclick", (e) => {
-			this.events["selectitem"].forEach(e => e(this.focusedAssortimentUnit));
+			this.events["selectitem"].forEach(e => e(this.focusedLiElement));
 		});
 	}
 
@@ -102,13 +110,23 @@ export default class RenderArticleList {
 	// ------  обработка перемещения по списку и выбора элементов -------
 
 	/** выделяет элемент LI в спике, показывая что он сейчас в "фокусе". */
-	focusAssortimentUnit(li: HTMLLIElement) {
+	focusAssortimentUnit(li: HTMLLIElement | null) {
 		try {
-			if (this.focusedAssortimentUnit == li) return;
-			if ( !(li instanceof HTMLLIElement) ) throw new Error("Элемент не подходит!");
-			this.focusedAssortimentUnit?.classList.remove('focusedli');
-			this.focusedAssortimentUnit = li;
-			this.focusedAssortimentUnit?.classList.add('focusedli');
+			if (li == null && this.focusedLiElement === null) {
+				this.focusedLiElement = this._items?.[0]._nodeElement;
+				this.focusedLiElement?.classList.add('focusedli');
+				return;
+			}
+			if (li == null && this.focusedLiElement !== null) {
+				this.focusedLiElement?.classList.add('focusedli');
+				return;
+			}
+			if (li != null && this.focusedLiElement === li) {
+				return;
+			}
+			this.focusedLiElement?.classList.remove('focusedli');
+			this.focusedLiElement = li;
+			this.focusedLiElement?.classList.add('focusedli');
 			// TODO: возможно нужно определить событие.
 		} catch (err) {
 			console.error("Недопустимый HTML элемент", err);
@@ -116,15 +134,13 @@ export default class RenderArticleList {
 	}
 	
 	focusNextItem() {
-		const li = this.focusedAssortimentUnit?.nextElementSibling?.closest('.items-list li') as HTMLLIElement;
-		if (li === null) return;
-		this.focusAssortimentUnit(li);
+		const li = this.focusedLiElement?.nextElementSibling?.closest('.article_list__items li') as HTMLLIElement;
+		if (li) this.focusAssortimentUnit(li);
 	}
 
 	focusPreviousItem() {
-		const li = this.focusedAssortimentUnit?.previousElementSibling?.closest('.items-list li') as HTMLLIElement;
-		if (li === null) return;
-		this.focusAssortimentUnit(li);
+		const li = this.focusedLiElement?.previousElementSibling?.closest('.article_list__items li') as HTMLLIElement;
+		if (li) this.focusAssortimentUnit(li);
 	};
 	
 	/** Уставновка обработчика для события порожденных... */

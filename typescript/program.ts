@@ -64,11 +64,29 @@ renderMainAssortimentList.on("selectitem", selectItem);
 //mainAssortiment.off("selectitem", selectItem);
 
 
+
+// --- обработка по перемещению и управлению списками клафишами ---
+
 // Глобальная Обработка фокуса на списках ассортимента.
-let targetItemList: HTMLUListElement | null = null;
+let targetItemList: RenderArticleList | null = null;
+
 document.body.addEventListener('click', function (e) {
-    const element = e.target as HTMLElement;
-	targetItemList = element.closest('.items-list') as HTMLUListElement;
+    const target = e.target as HTMLElement;
+    const element = target.closest('.block_article_list') as HTMLElement;
+
+    if (element !== null) {
+        if (element.id !== targetItemList?.id) {
+            targetItemList = RenderArticleList.articleListCollection.get(element.id) ?? null;
+        }
+        if (targetItemList !== null) {
+            const li = target.closest('.article_list__items li') as HTMLLIElement;
+            targetItemList.focusAssortimentUnit(li);
+        } else {
+            throw new Error("Неверный id элемента списка.");
+        }
+    } else {
+        targetItemList = null;
+    }
 });
 // TODO: Необходимо доработать связь между фокусом на элементе li, списке UL
 // и элементом визуализации, так как будет не один жестко закодированный список.
@@ -76,12 +94,12 @@ window.addEventListener('keydown', function (e) {
 	if (targetItemList === null) return;
 	if (e.code != 'ArrowUp' && e.code != 'ArrowDown') return;
 	e.preventDefault();
-	if (e.code == 'ArrowUp') renderMainAssortimentList.focusPreviousItem();
-    if (e.code == 'ArrowDown') renderMainAssortimentList.focusNextItem();
+	if (e.code == 'ArrowUp') targetItemList.focusPreviousItem();
+    if (e.code == 'ArrowDown') targetItemList.focusNextItem();
 });
 
 window.addEventListener('keypress', function (e) {
     if (targetItemList === null) return;
     if (e.code !== 'Enter') return;
-    renderMainAssortimentList.throw('selectitem', e);
+    targetItemList.throw('selectitem', e);
 });
