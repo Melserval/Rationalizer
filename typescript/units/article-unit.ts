@@ -1,18 +1,25 @@
 import { ProductUnit } from "./product-unit";
-/**
- * Объект представляющий единицу продукта, хранящий цену и количество,
- * а также ссылку на на ассоциируемый с этим объектом тип ProductUnit.
+
+
+/** 
+ * Представляет ссылку на единицу ассортимента ProductUnit, хранит 
+ * ассоциированное с ним - "заказанное" количество продукта и сумму.
  */
 export default class ArticleUnit {
 
+	private static unitCount = 0;
+
 	private _product: ProductUnit;
-	public articleNum: string = "";
+
+	/** Уникальный идентификатор объекта. */
+	public readonly id: number;
 	
 	/**
-	 * @param {ProductUnit} product
+	 * @param {ProductUnit} product данные 
 	 */
 	constructor(product: ProductUnit) {
 		this._product = product;
+		this.id = ArticleUnit.unitCount += 1;
 	}
 
 	/** название пролукта. */

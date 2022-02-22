@@ -53,7 +53,6 @@ export default class RenderArticleUnit  {
 		this.title = au.title;
 		this.amount = au.amount;
 		this.price = au.price;
-		if (au.articleNum)
-			this._nodeElement.dataset.articleNum = au.articleNum;
+		this._nodeElement.setAttribute('data-arun-id', au.id.toString());
 	}
 };

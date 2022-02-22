@@ -5,7 +5,7 @@ import ArticleUnit from "./article-unit";
  */
 export default class ArticleList {
 	
-	private _events: {[key: string]: CallableFunction[]} = {
+	private _events: {[eventname: string]: CallableFunction[]} = {
 		// событие добавление нового экземпляра ArticleUnit
 		'additem': new Array<CallableFunction>(),
 		// событие удаление экземпляра ArticleUnit
@@ -13,7 +13,7 @@ export default class ArticleList {
 	};
 
 	private _created: number = Date.now();
-	private _items = new Map<string, ArticleUnit>();
+	private _items = new Map<number, ArticleUnit>();
 	private _term: number = 0;
 	private _label: string;
 	
@@ -27,9 +27,8 @@ export default class ArticleList {
 	 * @param au единица ассортимента.
 	 */
 	addItem(au: ArticleUnit) {
-		au.articleNum = this._items.size.toString();
-		this._items.set(au.articleNum, au);
-		this._events['additem'].forEach(clb => clb(au));
+		this._items.set(au.id, au);
+		this.dispatchEvent('additem', {detail: au});
 	}
 	
 	/** коллекция элементов - позиций ассортимента.  */
@@ -69,6 +68,12 @@ export default class ArticleList {
 			}
 		} else {
 			throw new Error("Нет такого события для ArticleList!");
+		}
+	}
+
+	dispatchEvent(eventname: string, event: {detail: any, bubbles?: boolean, [key: string]: any}) {
+		for (let clbc of this._events[eventname]) {
+			clbc(event.detail);
 		}
 	}
 }

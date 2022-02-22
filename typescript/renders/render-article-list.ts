@@ -10,13 +10,15 @@ export default class RenderArticleList {
 	public static articleListCollection = new Map<string, RenderArticleList>();
 	public readonly id : string;
 	public listInfo: string;
-	protected focusedLiElement: HTMLLIElement | null = null;
+	protected selectedLiItem: HTMLLIElement | null = null;
 
 	protected events: { [key: string]: CallableFunction[] } = {
 		// обработчики события при выборе элемента (получен "фокус").
 		"selectitem": new Array<CallableFunction>(),
 		// обработчики события при потери фокуса.
-		"deleteitem": new Array<CallableFunction>()
+		"deleteitem": new Array<CallableFunction>(),
+		// событие запрос выбранного элемента
+		"requireitem": new Array<CallableFunction>() 
 	};
 
 	private _items = new Array<RenderArticleUnit>();
@@ -50,19 +52,6 @@ export default class RenderArticleList {
 		this._nodeElement.classList.add("block-article_list");
 		this._p.classList.add("article_list__info");
 		this._p.textContent = this.listInfo;
-
-		// FIXME: Решить как будет обрабатываться фокус на элементе - внутри класса или глобально.
-		// // выбор элемента, фокус на него.
-		// this._ul.addEventListener('click', (e) => {
-		// 	const element = e.target as HTMLElement;
-		// 	const elementLi = element.closest('.article_list__items li') as HTMLLIElement;
-		// 	if (elementLi === null) return;
-		// 	this.focusAssortimentUnit(elementLi);
-		// });
-		// // выбор элемента, запуск операций ассоциированных с ним.
-		// this._ul.addEventListener("dblclick", (e) => {
-		// 	this.events["selectitem"].forEach(e => e(this.focusedLiElement));
-		// });
 	}
 
 	remove() {
@@ -115,44 +104,44 @@ export default class RenderArticleList {
 	// ------  обработка перемещения по списку и выбора элементов -------
 
 	/** выделяет элемент LI в спике, показывая что он сейчас в "фокусе". */
-	focusAssortimentUnit(li: HTMLLIElement | null) {
+	selectItem(li: HTMLLIElement | null) {
 		try {
-			if (li == null && this.focusedLiElement === null) {
-				this.focusedLiElement = this._items?.[0]._nodeElement;
-				this.focusedLiElement?.classList.add('focusedli');
+			if (li == null && this.selectedLiItem === null) {
+				this.selectedLiItem = this._items?.[0]._nodeElement;
+				this.selectedLiItem?.classList.add('focusedli');
 				return;
 			}
-			if (li == null && this.focusedLiElement !== null) {
-				this.focusedLiElement?.classList.add('focusedli');
+			if (li == null && this.selectedLiItem !== null) {
+				this.selectedLiItem?.classList.add('focusedli');
 				return;
 			}
-			if (li != null && this.focusedLiElement === li) {
+			if (li != null && this.selectedLiItem === li) {
 				return;
 			}
-			this.focusedLiElement?.classList.remove('focusedli');
-			this.focusedLiElement = li;
-			this.focusedLiElement?.classList.add('focusedli');
+			this.selectedLiItem?.classList.remove('focusedli');
+			this.selectedLiItem = li;
+			this.selectedLiItem?.classList.add('focusedli');
 			// TODO: возможно нужно определить событие.
 		} catch (err) {
 			console.error("Недопустимый HTML элемент", err);
 		}
 	}
 	
-	focusNextItem() {
-		const li = this.focusedLiElement?.nextElementSibling
+	selectNextItem() {
+		const li = this.selectedLiItem?.nextElementSibling
 		           ?.closest('.article_list__items li') as HTMLLIElement;
-		if (li) this.focusAssortimentUnit(li);
+		if (li) this.selectItem(li);
 	}
 
-	focusPreviousItem() {
-		const li = this.focusedLiElement?.previousElementSibling
+	selectPreviousItem() {
+		const li = this.selectedLiItem?.previousElementSibling
 		           ?.closest('.article_list__items li') as HTMLLIElement;
-		if (li) this.focusAssortimentUnit(li);
+		if (li) this.selectItem(li);
 	}
 
 	/** Визуально убирает фокус с элемента. */
 	focusHide() {
-		this.focusedLiElement?.classList.remove('focusedli');
+		this.selectedLiItem?.classList.remove('focusedli');
 	}
 	
 	/** Уставновка обработчика для события порожденных... */
@@ -177,9 +166,12 @@ export default class RenderArticleList {
 	}
 
 	/** Вызов (активация) события */
-	throw(eventName: string, arg: any) {
+	throw(eventName: string, arg?: any) {
 		if (eventName in this.events) {
 			// TODO: разобраться с типами аргументов для событий.
+			if (eventName === 'requireitem') {
+				arg = this.selectedLiItem?.dataset.arunId;
+			}
 			this.events[eventName].forEach(e => e(arg));
 		} else {
 			throw new Error(`Попытка вызвать не существующее событие (${eventName})`);

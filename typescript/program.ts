@@ -60,7 +60,7 @@ function selectItem(element: any) {
     console.log("!!! выбран элемент !!!:", element);
 }
 
-renderMainAssortimentList.on("selectitem", selectItem);
+renderMainAssortimentList.on("requireitem", selectItem);
 //mainAssortiment.off("selectitem", selectItem);
 
 
@@ -81,7 +81,7 @@ document.body.addEventListener('click', function (e) {
         }
         if (targetItemList !== null) {
             const li = target.closest('.article_list__items li') as HTMLLIElement;
-            targetItemList.focusAssortimentUnit(li);
+            targetItemList.selectItem(li);
         } else {
             throw new Error("Неверный id элемента списка.");
         }
@@ -90,18 +90,29 @@ document.body.addEventListener('click', function (e) {
         targetItemList = null;
     }
 });
+
+document.body.addEventListener('dblclick', function (e) {
+    if (targetItemList === null) return;
+    const target = e.target as HTMLElement;
+    const li = target.closest('.article_list__items li') as HTMLLIElement;
+    if (li) {
+        targetItemList.throw('requireitem');
+    }
+});
+
+
 // TODO: Необходимо доработать связь между фокусом на элементе li, списке UL
 // и элементом визуализации, так как будет не один жестко закодированный список.
 window.addEventListener('keydown', function (e) {
 	if (targetItemList === null) return;
 	if (e.code != 'ArrowUp' && e.code != 'ArrowDown') return;
 	e.preventDefault();
-	if (e.code == 'ArrowUp') targetItemList.focusPreviousItem();
-    if (e.code == 'ArrowDown') targetItemList.focusNextItem();
+	if (e.code == 'ArrowUp') targetItemList.selectPreviousItem();
+    if (e.code == 'ArrowDown') targetItemList.selectNextItem();
 });
 
 window.addEventListener('keypress', function (e) {
     if (targetItemList === null) return;
     if (e.code !== 'Enter') return;
-    targetItemList.throw('selectitem', e);
+    targetItemList.throw('requireitem');
 });
