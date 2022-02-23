@@ -1,6 +1,7 @@
 import {callbacksetter as addHandlerForAssortimenUnitIsCreated} from "./form-create-product-unit.js";
 import * as datastorage from './datastorage.js';
 import addHandlerForOrderListCreated from './form-create-order-list.js';
+import formAddOrderItem from './form-add-order-item';
 
 import ArticleUnit from "./units/article-unit.js";
 import ArticleList from "./units/article-list.js";
@@ -63,7 +64,8 @@ function selectItem(element: any) {
 renderMainAssortimentList.on("requireitem", selectItem);
 //mainAssortiment.off("selectitem", selectItem);
 
-
+// операция добавления выбранного ассортимента в список закупок.
+function processAddArticleToOrder(items: Iterable<ArticleUnit>, id : number) { }
 
 // --- обработка по перемещению и управлению списками клафишами ---
 
