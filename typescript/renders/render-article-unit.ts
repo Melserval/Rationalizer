@@ -4,6 +4,7 @@ import ArticleUnit from "../units/article-unit";
  * Представляет элемент ассортимента в списках товаров/заказов.
  */
 export default class RenderArticleUnit  {
+	_renderedItem?: ArticleUnit;
 	_nodeElement = document.createElement('li');
 	_span_title = document.createElement('span');
 	_span_amount = document.createElement('span');
@@ -36,7 +37,9 @@ export default class RenderArticleUnit  {
 		this._span_title.textContent = value;
 	}
 	set amount(value: number) {
-		this._span_amount.textContent = value.toString(10);
+		// measureTypeLabel	
+		const mtl = this._renderedItem?.measureType?.labelShort;
+		this._span_amount.textContent = value.toString(10) + (mtl ?` ${mtl}`: "");
 	}
 	set price(value: number) {
 		this._span_price.textContent = value.toFixed(2).toString();
@@ -48,11 +51,11 @@ export default class RenderArticleUnit  {
 	 * @param destination элемент для размещения рендера.
 	 */
 	render(au: ArticleUnit, destination: HTMLElement) {
-		destination.append(this._nodeElement);
-
+		this._renderedItem = au;
 		this.title = au.title;
 		this.amount = au.amount;
 		this.price = au.price;
 		this._nodeElement.setAttribute('data-arun-id', au.id.toString());
+		destination.append(this._nodeElement);
 	}
 };

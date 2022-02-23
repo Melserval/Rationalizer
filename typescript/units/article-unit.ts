@@ -1,4 +1,5 @@
 import { ProductUnit } from "./product-unit";
+import { MeasureType } from "../types.js";
 
 
 /** 
@@ -9,7 +10,7 @@ export default class ArticleUnit {
 
 	private static unitCount = 0;
 
-	private _product: ProductUnit;
+	public readonly product: ProductUnit;
 
 	/** Уникальный идентификатор объекта. */
 	public readonly id: number;
@@ -18,20 +19,24 @@ export default class ArticleUnit {
 	 * @param {ProductUnit} product данные 
 	 */
 	constructor(product: ProductUnit) {
-		this._product = product;
+		this.product = product;
 		this.id = ArticleUnit.unitCount += 1;
 	}
 
-	/** название пролукта. */
+	/** название продукта. */
 	get title(): string { 
-		return this._product.title;
+		return this.product.title;
 	}
 	/** цена продукта. */
 	get price(): number { 
-		return this._product.price;
+		return this.product.price;
 	}
 	/** количество продукта. */
 	get amount(): number { 
-		return this._product.amount;
+		return this.product.amount;
+	}
+	/** информация о товарной единице. */
+	get measureType() {
+		return MeasureType.info(this.product.measureType);
 	}
 }
