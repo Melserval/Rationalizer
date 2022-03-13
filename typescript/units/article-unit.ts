@@ -1,5 +1,5 @@
 import { ProductUnit } from "./product-unit";
-import { MeasureType } from "../types.js";
+import { MeasureType } from "../types";
 
 
 /** 

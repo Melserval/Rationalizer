@@ -1,0 +1,27 @@
+{
+  "name": "rationalizer",
+  "version": "0.0.1",
+  "description": "рациональный рацион",
+  "main": "index.js",
+  "scripts": {
+    "test": "test",
+    "build": "webpack --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Melserval/Rationalizer.git"
+  },
+  "author": "Serhii Melnykov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Melserval/Rationalizer/issues"
+  },
+  "homepage": "https://github.com/Melserval/Rationalizer#readme",
+  "devDependencies": {
+    "@babel/core": "^7.17.5",
+    "@babel/preset-typescript": "^7.16.7",
+    "babel-loader": "^8.2.3",
+    "webpack": "^5.70.0",
+    "webpack-cli": "^4.9.2"
+  }
+}

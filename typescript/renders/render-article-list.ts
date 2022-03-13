@@ -1,6 +1,6 @@
-import ArticleList from "../units/article-list.js";
-import ArticleUnit from "../units/article-unit.js";
-import RenderArticleUnit from "./render-article-unit.js";
+import ArticleList from "../units/article-list";
+import ArticleUnit from "../units/article-unit";
+import RenderArticleUnit from "./render-article-unit";
 
 /**
  * Представление списка элементов ассортимента.

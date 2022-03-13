@@ -1,13 +1,13 @@
-import {callbacksetter as addHandlerForAssortimenUnitIsCreated} from "./form-create-product-unit.js";
-import * as datastorage from './datastorage.js';
-import addHandlerForOrderListCreated from './form-create-order-list.js';
+import {callbacksetter as addHandlerForAssortimenUnitIsCreated} from "./form-create-product-unit";
+import * as datastorage from './datastorage';
+import addHandlerForOrderListCreated from './form-create-order-list';
 import formAddOrderItem from './form-add-order-item';
 
-import ArticleUnit from "./units/article-unit.js";
-import ArticleList from "./units/article-list.js";
-import RenderArticleUnit from "./renders/render-article-unit.js";
-import RenderArticleList from "./renders/render-article-list.js";
-import { ProductUnit } from "./units/product-unit.js";
+import ArticleUnit from "./units/article-unit";
+import ArticleList from "./units/article-list";
+import RenderArticleUnit from "./renders/render-article-unit";
+import RenderArticleList from "./renders/render-article-list";
+import { ProductUnit } from "./units/product-unit";
 
 
 /** размещение списков для покупок */
