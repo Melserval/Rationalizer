@@ -1,11 +1,21 @@
+/**
+ * Форма коррекции цены и/или количества требуемого в списке ассортимента
+ * получает объект ассортимента, возвращает новый объект ассортимента с новыми,
+ * установленными данными - количеством и/или ценой.
+ *
+ * @param  dataArticleUnit    объект ассортимента
+ * @return dataArticleUnit    объект ассортимента
+ */
+
 import { IArticleUnit } from "./renders/i-article-unit";
 
-// Форма коррекции цены и/или количества 
+// Форма коррекции цены и/или количества
 // добавляемого в список закупок ассортимента.
 const form_AddOrderItem = document.getElementById("form-add-article-to-order") as HTMLFormElement;
 const p_ArticleInfoText = form_AddOrderItem.querySelector('#text-add-article-info') as HTMLParagraphElement;
 const input_AtricleQuantity = form_AddOrderItem.querySelector("#input-add-article-quantity") as HTMLInputElement;
 const input_AtriclePrice = form_AddOrderItem.querySelector("#input-add-article-total") as HTMLInputElement;
+
 
 function reset(au: IArticleUnit) {
 	p_ArticleInfoText.textContent = au.title;
@@ -39,8 +49,8 @@ form_AddOrderItem.addEventListener('submit', function(e) {
 form_AddOrderItem.addEventListener('reset', clear);
 
 
-/** 
- * Форма коррекции цены и/или количества 
+/**
+ * Форма коррекции цены и/или количества
  * добавляемого в список закупок ассортимента.
 */
 export default  {

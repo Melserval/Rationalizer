@@ -1,13 +1,16 @@
-import {callbacksetter as addHandlerForAssortimenUnitIsCreated} from "./form-create-product-unit";
 import * as datastorage from './datastorage';
+
+// формы
+import {callbacksetter as addHandlerForAssortimenUnitIsCreated} from "./form-create-product-unit";
 import addHandlerForOrderListCreated from './form-create-order-list';
 import formAddOrderItem from './form-add-order-item';
-
+// типы
 import ArticleUnit from "./units/article-unit";
 import ArticleList from "./units/article-list";
+import { ProductUnit } from "./units/product-unit";
+// рендеры
 import RenderArticleUnit from "./renders/render-article-unit";
 import RenderArticleList from "./renders/render-article-list";
-import { ProductUnit } from "./units/product-unit";
 
 
 /** размещение списков для покупок */

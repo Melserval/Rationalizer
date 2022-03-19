@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-	entry: "./typescript/program.ts",
+	entry: "./src/typescript/program.ts",
 	devtool: "source-map",
 	output: {
 		path: path.join(__dirname, 'app', 'static', 'js'),
@@ -13,7 +13,7 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.ts$/, 
+				test: /\.ts$/,
 				exclude: /(node_modules)/,
 				use: {
 		  			loader: "babel-loader",
