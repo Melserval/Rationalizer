@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "test",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "serve": "node ./app/rationalizer.js"
   },
   "repository": {
     "type": "git",
