@@ -3,7 +3,7 @@ import * as datastorage from './datastorage';
 // формы
 import {callbacksetter as addHandlerForAssortimenUnitIsCreated} from "./form-create-product-unit";
 import addHandlerForOrderListCreated from './form-create-order-list';
-import formAddOrderItem from './form-add-order-item';
+import RenterFormAddOrderItem from './renders/render-form-add-order-item';
 // типы
 import ArticleUnit from "./units/article-unit";
 import ArticleList from "./units/article-list";
@@ -12,6 +12,17 @@ import { ProductUnit } from "./units/product-unit";
 import RenderArticleUnit from "./renders/render-article-unit";
 import RenderArticleList from "./renders/render-article-list";
 
+
+const formaddorder = new RenterFormAddOrderItem();
+formaddorder.render(document.body);
+formaddorder.load("Hello form add order item", 100, 100500);
+formaddorder.apply((data) => {
+    console.log("hell there: form applable!")
+    console.log(data);
+})
+formaddorder.cancel(() => {
+    console.log("hello there: form cancelable!")
+})
 
 /** размещение списков для покупок */
 const conteinerOrderList = document.getElementById("block-order-list") as HTMLElement;

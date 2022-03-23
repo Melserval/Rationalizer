@@ -2,35 +2,45 @@
 
 export default class RenterFormAddOrderItem {
 
-	_destination: HTMLElement;
-	_applyCallback: CallableFunction;
-	_cancelCallback: CallableFunction;
+	private _destination: HTMLElement;
+	private _applyCallback: CallableFunction;
+	private _cancelCallback: CallableFunction;
 
-	_nodeElement    = document.createElement("form");
-	_p_title        = document.createElement("p");
-	_input_quantity = document.createElement("input");
-	_input_price    = document.createElement("input");
-	_btn_reset      = document.createElement("button");
-	_btn_apply      = document.createElement("button");
-	_btn_cancel     = document.createElement("button");
+	private _nodeElement    = document.createElement("form");
+	private _p_title        = document.createElement("p");
+	private _input_quantity = document.createElement("input");
+	private _input_price    = document.createElement("input");
+	private _btn_reset      = document.createElement("button");
+	private _btn_apply      = document.createElement("button");
+	private _btn_cancel     = document.createElement("button");
 
 	constructor() {
+		// форма
 		this._nodeElement.setAttribute("class", "form-add-article-to-order");
-		const div_input_set = document.createElement("div");
-		div_input_set.setAttribute("class", "input-set");
+
+		const // метка сумма
+			label_price = document.createElement("label");
+			label_price.textContent = "сумма";
+
+		const // метка количества 
+			label_quantity = document.createElement("label");
+			label_quantity.textContent = "количество";
+
+		const // блок для инпутов и меток
+			div_input_set = document.createElement("div");
+			div_input_set.setAttribute("class", "input-set");
+			
+		const // блок кнопок
+			div_btn_row1 = document.createElement("div");
+			div_btn_row1.setAttribute("class", "btn-set");
+
 			const div_input_row1 = document.createElement("div");
-		 		const label_price = document.createElement("label");
-				label_price.textContent = "сумма";
 		 	div_input_row1.append(label_price, this._input_price);
 
 			const div_input_row2 = document.createElement("div");
-		 		const label_quantity = document.createElement("label");
-				label_quantity.textContent = "количество";
 		 	div_input_row2.append(label_quantity, this._input_quantity);
 		div_input_set.append(div_input_row1, div_input_row2);
 
-		const div_btn_row1 = document.createElement("div");
-		div_btn_row1.setAttribute("class", "btn-set");
 		const div_btn_apply_wrapper = document.createElement("div");
 			div_btn_apply_wrapper.append(this._btn_apply)
 			this._btn_apply.setAttribute("type", "submit");
