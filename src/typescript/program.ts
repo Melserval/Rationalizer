@@ -3,7 +3,7 @@ import * as datastorage from './datastorage';
 // формы
 import {callbacksetter as addHandlerForAssortimenUnitIsCreated} from "./form-create-product-unit";
 import addHandlerForOrderListCreated from './form-create-order-list';
-import RenterFormAddOrderItem from './renders/render-form-add-order-item';
+import renderFormAddOrderItem from "./renders/render-form-add-order-item";
 // типы
 import ArticleUnit from "./units/article-unit";
 import ArticleList from "./units/article-list";
@@ -12,17 +12,6 @@ import { ProductUnit } from "./units/product-unit";
 import RenderArticleUnit from "./renders/render-article-unit";
 import RenderArticleList from "./renders/render-article-list";
 
-
-const formaddorder = new RenterFormAddOrderItem();
-formaddorder.render(document.body);
-formaddorder.load("Hello form add order item", 100, 100500);
-formaddorder.apply((data) => {
-    console.log("hell there: form applable!")
-    console.log(data);
-})
-formaddorder.cancel(() => {
-    console.log("hello there: form cancelable!")
-})
 
 /** размещение списков для покупок */
 const conteinerOrderList = document.getElementById("block-order-list") as HTMLElement;
@@ -71,15 +60,19 @@ datastorage.getProductCollection(function (error, dataset, info='') {
 });
 
 
-function selectItem(element: any) {
-    console.log("!!! выбран элемент !!!:", element);
-}
+// test code: обкатка формы добавления позиции в список.
+renderMainAssortimentList.on("requireitem", function (data: unknown) {
+    if (data instanceof ArticleUnit) {
+        const renderForm = new renderFormAddOrderItem(
+            (applyData: unknown) => {console.log(applyData)},
+            (cancelData: unknown) => {console.log(cancelData)}
+        );
+        renderForm.render(data, document.body);
+    } else {
+        console.error("Неверный элемент");
+    }
+});
 
-renderMainAssortimentList.on("requireitem", selectItem);
-//mainAssortiment.off("selectitem", selectItem);
-
-// операция добавления выбранного ассортимента в список закупок.
-function processAddArticleToOrder(items: Iterable<ArticleUnit>, id : number) { }
 
 // --- обработка по перемещению и управлению списками клафишами ---
 
