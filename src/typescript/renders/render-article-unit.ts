@@ -4,12 +4,13 @@ import ArticleUnit from "../units/article-unit";
  * Представляет элемент ассортимента в списках товаров/заказов.
  */
 export default class RenderArticleUnit  {
+
 	_renderedItem?: ArticleUnit;
 	_nodeElement = document.createElement('li');
 	_span_title = document.createElement('span');
 	_span_amount = document.createElement('span');
 	_span_price = document.createElement('span');
-
+	
 	constructor() {
 		this._nodeElement.append(
 			this._span_title,
@@ -29,7 +30,10 @@ export default class RenderArticleUnit  {
 	removeClassName(classname: string) {
 		this._nodeElement.classList.remove(classname);
 	}
-
+	/** объект отображаемых данных */
+	get dataItem(): ArticleUnit | null {
+		return this._renderedItem ?? null;
+	}
 	get element() {
 		return this._nodeElement;
 	}
@@ -55,7 +59,7 @@ export default class RenderArticleUnit  {
 		this.title = au.title;
 		this.amount = au.amount;
 		this.price = au.price;
-		this._nodeElement.setAttribute('data-arun-id', au.id.toString());
+		
 		destination.append(this._nodeElement);
 	}
 };

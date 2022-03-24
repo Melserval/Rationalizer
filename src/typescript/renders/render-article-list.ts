@@ -87,7 +87,7 @@ export default class RenderArticleList {
 		this.total = 10500;
 		this.quantity = al.quantity;
 		this.term = al.term;
-		
+		// рендер элементов коллекции.
 		for (let item of al.items) {
 			this.renderItem(item)
 		}
@@ -170,7 +170,14 @@ export default class RenderArticleList {
 		if (eventName in this.events) {
 			// TODO: разобраться с типами аргументов для событий.
 			if (eventName === 'requireitem') {
-				arg = this.selectedLiItem?.dataset.arunId;
+				if (this.selectedLiItem) {
+			// TODO: реализовать объект-контейнер с описанием/идентификатором для возвращаемых в коллбэки данных.
+			// что бы получатель знал с каким типом данных он работает.
+					const renderItem = this._items.find(renderau => renderau.element == this.selectedLiItem) ?? null;
+					arg = renderItem && renderItem.dataItem;		
+				} else {
+					arg = null;
+				}
 			}
 			this.events[eventName].forEach(e => e(arg));
 		} else {
