@@ -1,5 +1,5 @@
+// данные
 import * as datastorage from './datastorage';
-
 // формы
 import {callbacksetter as addHandlerForAssortimenUnitIsCreated} from "./form-create-product-unit";
 import addHandlerForOrderListCreated from './form-create-order-list';
@@ -8,6 +8,7 @@ import renderFormAddOrderItem from "./renders/render-form-add-order-item";
 import ArticleUnit from "./units/article-unit";
 import ArticleList from "./units/article-list";
 import { ProductUnit } from "./units/product-unit";
+import { ControllerArticleList } from './controller-article-list';
 // рендеры
 import RenderArticleUnit from "./renders/render-article-unit";
 import RenderArticleList from "./renders/render-article-list";
@@ -18,10 +19,17 @@ const conteinerOrderList = document.getElementById("block-order-list") as HTMLEl
 /** размещение списков-источников ассортимента */
 const conteinerSouceList = document.getElementById("block-source-list") as HTMLElement;
 
+// главный контроллер всех списков.
+const controllerArticleList = new ControllerArticleList("main controller article lists");
+
 // оновной список ассортимента.
 const mainAssortimentList = new ArticleList('main assortiment list');
 const renderMainAssortimentList = new RenderArticleList();
 renderMainAssortimentList.render(mainAssortimentList, conteinerSouceList);
+
+controllerArticleList.addList(mainAssortimentList, "assortiment", true);
+
+
 
 // ОБРАБОТЧИИК создание продукта главной формой.
 addHandlerForAssortimenUnitIsCreated(function (product) {

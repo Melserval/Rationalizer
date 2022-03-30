@@ -17,9 +17,17 @@ export default class ArticleList {
 	private _term: number = 0;
 	private _label: string;
 	
-	constructor(label: string, term: number=0) {
+	constructor(label: string);
+	constructor(label: string, term: number);
+	constructor(label: string, term: number, dataset: ArticleUnit[])
+	constructor(label: string, term: number=0, dataset?: ArticleUnit[]) {
 		this._label = label;
 		this._term = term;
+		if (dataset) {
+			for (const au of dataset) {
+				this.addItem(au);
+			}
+		}
 	}
 
 	/**
