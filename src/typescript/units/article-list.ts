@@ -14,10 +14,10 @@ export default class ArticleList {
 
 	private _created: number = Date.now();
 	private _items = new Map<number, ArticleUnit>();
-	private _term: number = 0;
+	private _term: string;
 	private _label: string;
 	
-	constructor(label: string, term: number=0) {
+	constructor(label: string, term: string) {
 		this._label = label;
 		this._term = term;
 	}
@@ -40,7 +40,7 @@ export default class ArticleList {
 		return this._items.size;
 	}
 	/** временной отрезок (дней). */
-	get term(): number {
+	get term(): string {
 		return this._term;
 	}
 	/** название, метка списка. */

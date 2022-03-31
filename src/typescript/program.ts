@@ -19,7 +19,7 @@ const conteinerOrderList = document.getElementById("block-order-list") as HTMLEl
 const conteinerSouceList = document.getElementById("block-source-list") as HTMLElement;
 
 // оновной список ассортимента.
-const mainAssortimentList = new ArticleList('main assortiment list');
+const mainAssortimentList = new ArticleList('main assortiment list', "постоянный");
 const renderMainAssortimentList = new RenderArticleList();
 renderMainAssortimentList.render(mainAssortimentList, conteinerSouceList);
 
@@ -40,7 +40,20 @@ addHandlerForAssortimenUnitIsCreated(function (product) {
 addHandlerForOrderListCreated(function (arg) {
     console.log("форма создания списков сотворила список!", `arg ${arg}`);
     // тестовый код проверки размещения.
-	const al = new ArticleList("Hello!", arg);
+    let term: string;
+    switch(arg) {
+        case "day": term = "Один день";
+            break;
+        case "weak": term = "Недельный";
+            break;
+        case "month": term = "Месяц";
+            break;
+        case "onetime": term = "Одноразовый";
+            break;
+        default:
+            term = `${arg} дн.`;
+    }
+	const al = new ArticleList("Hello!", term);
 	const renderAl = new RenderArticleList();
     renderAl.render(al, conteinerOrderList);
 });
