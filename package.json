@@ -6,7 +6,8 @@
   "scripts": {
     "test": "test",
     "build": "webpack",
-    "serve": "node ./app/rationalizer.js"
+    "serve": "node ./app/rationalizer.js",
+    "sass": "sass .\\src\\styles\\_master.scss .\\app\\static\\css\\master.css"
   },
   "repository": {
     "type": "git",
