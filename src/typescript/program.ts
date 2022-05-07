@@ -65,7 +65,7 @@ addHandlerForOrderListCreated(function (arg) {
         default:
             term = `${arg} дн.`;
         }
-    const al = new ArticleList("Hello!", term);
+    const al = new ArticleList("Список необходимых приобритений", term);
     orders.addList(al, al.label);
 	const renderAl = new RenderArticleList();
     renderAl.render(al, conteinerOrderList);
@@ -90,21 +90,20 @@ datastorage.getProductCollection(function (error, dataset, info='') {
 renderMainAssortimentList.on("requireitem", function (data: unknown) {
     if (data instanceof ArticleUnit) {
         const renderForm = new renderFormAddOrderItem(
-            (applyData: unknown) => {
-                console.log(applyData);
-                // FIXME: Нужно срочно продумать концепцию единицы
-                // артикля хранимого в списке заказов.
-                // Так как, судя по всему - артиклю будет необходима
-                // ссылка на объект продукт, данные о котором он хранит.
-                // что может привести к сосзданию подобного оъекта в ворме, 
-                // что не есть хорошо. Возможно стоит применить клонирование,
-                // с последующим изменением количества/цены/etс???
-                orders.active?.addItem(new ArticleUnit(
-                        new ProductUnit("test test", 1, 100.500, ut.vendorType_unit, ut.measureType_unit )
-                    )
-                ); 
+            (applyData) => {
+                const au = new ArticleUnit(
+                    applyData.sourceId.toString(10), 
+                    applyData.title, 
+                    parseInt(applyData.amount), 
+                    parseFloat(applyData.price), 
+                    // TODO: Нужно написать правила преобразование числовых величин в зависимости от типа продукта.
+
+                    // FIXME: ЗАГЛУШКА.
+                    ut.measureType_unit
+                );
+                orders.active?.addItem(au);
             },
-            (cancelData: unknown) => {
+            (cancelData) => {
                 console.log(cancelData)
             }
         );

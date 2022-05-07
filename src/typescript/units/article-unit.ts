@@ -23,15 +23,21 @@ export default class ArticleUnit {
 	 * @param productOrData данные 
 	 */
 	constructor(product: ProductUnit);
-	constructor(dataset: {id: string, title: string, amount: number, price: number, measureType: symbol});
-	constructor(productOrData: ProductUnit | {id: string, title: string, amount: number, price: number, measureType: symbol})
-	{
-		
-			this.productId = productOrData.id
-			this._title = productOrData.title;
-			this._amount = productOrData.amount;
-			this._price = productOrData.price;
-			this._measure = productOrData.measureType;
+	constructor(id: string, title: string, amount: number, price: number, measureType: symbol);
+	constructor(productOrId: ProductUnit | string, title="", amount=0, price=0, measureType=Symbol("less")) {
+		if (productOrId instanceof ProductUnit) {
+			this.productId = productOrId.id;
+			this._title    = productOrId.title;
+			this._amount   = productOrId.amount;
+			this._price    = productOrId.price;
+			this._measure  = productOrId.measureType;
+		} else {
+			this.productId = productOrId;
+			this._title    = title;
+			this._amount   = amount;
+			this._price    = price;
+			this._measure  = measureType;
+		}
 		
 		this.id = ArticleUnit.unitCount += 1;
 	}

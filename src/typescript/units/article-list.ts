@@ -37,6 +37,8 @@ export default class ArticleList {
 	addItem(au: ArticleUnit) {
 		this._items.set(au.id, au);
 		this.dispatchEvent('additem', {detail: au});
+		// TODO: Определиться с событием.
+		console.log("В список '%s' Был добавлен новый элемент: %s", this.label, au.title);
 	}
 	
 	/** коллекция элементов - позиций ассортимента.  */
@@ -51,7 +53,12 @@ export default class ArticleList {
 	get term(): string {
 		return this._term;
 	}
-	/** название, метка списка. */
+	
+	/**
+	 * Название, метка списка.
+	 *
+	 * @return  {string}  метка
+	 */
 	get label(): string {
 		return this._label;
 	}

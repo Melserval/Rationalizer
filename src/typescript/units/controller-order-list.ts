@@ -6,14 +6,20 @@ class ControllerOrderList {
 
 	public listSetName: string;
 	private listCollection = new Map<string, ArticleList>();
-	private activeList?: ArticleList;
+	private _active_list: ArticleList | undefined;
 
 	constructor(setName: string) { 
 		this.listSetName = setName;
 	}
 
 	get active(): ArticleList | null {
-		return this.activeList ?? null;
+		return this._active_list ?? null;
+	}
+
+	private set activeList(value: ArticleList) {
+		this._active_list = value;
+		// TODO: здесь должно создаваться событие при установке списка активным.
+		console.log("Список теперь активен.", value.label);
 	}
 
 	addList(list: ArticleList, listName: string) {
@@ -38,9 +44,8 @@ class ControllerOrderList {
 	}
 
 	setActive(item: string | ArticleList): boolean {
-		if (typeof item == "string" && this.listCollection.has(item)) {
-			this.activeList = this.listCollection.get(item);
-			return true;
+		if (typeof item == "string") {
+			this.activeList = <ArticleList>this.listCollection.get(item);
 		}
 		if (typeof item == "object" && item instanceof ArticleList) {
 			for (const [k, v] of this.listCollection.entries()) {

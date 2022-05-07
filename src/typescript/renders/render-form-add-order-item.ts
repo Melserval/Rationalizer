@@ -1,14 +1,25 @@
+import { MeasureType, UserType } from "../types";
 import ArticleUnit from "../units/article-unit";
 
+
+type ApplyResult = {
+	title: string;
+	price: string; 
+	amount: string;
+	sourceId: number;
+	sourceMeasureType: UserType | null;
+};
+
+type CancelResult = {
+	apply: boolean;
+};
 
 export default class RenterFormAddOrderItem {
 
 	private _dataSourse?: ArticleUnit;
 	private _destination?: HTMLElement;
-	private _applyCallback: CallableFunction;
-	private _cancelCallback: CallableFunction;
-
-	private _cargoData: unknown;
+	private _applyCallback: (arg: ApplyResult) => void;
+	private _cancelCallback: (arg: CancelResult) => void;
 
 	private _nodeElement    = document.createElement("form");
 	private _p_title        = document.createElement("p");
@@ -23,7 +34,10 @@ export default class RenterFormAddOrderItem {
 	 * @param applyClbc обработчик выполнения формы.
 	 * @param canceldClbc обработчик отмены формы.
 	 */
-	constructor(applyClbc: CallableFunction, canceldClbc: CallableFunction) {
+	constructor(
+		applyClbc: (arg: ApplyResult) => void, 
+		canceldClbc: (arg: CancelResult) => void
+	) {
 
 		this._applyCallback = applyClbc;
 		this._cancelCallback = canceldClbc;
@@ -101,14 +115,6 @@ export default class RenterFormAddOrderItem {
 		this._p_title.textContent = value;
 	}
 
-	// служит для транзитной переброски сопутствующих данных.
-	set cargo(value: unknown) {
-		this._cargoData = value;
-	}
-	get cargo(): unknown {
-		return this._cargoData;
-	}
-
 	// TODO: добавить установку координат места появления.
 	position(x: number = 0, y: number = 0) {
 		
@@ -127,13 +133,15 @@ export default class RenterFormAddOrderItem {
 	// обработчики событий формы
 	_handlerFormSubmit(e: SubmitEvent) {
 		e.preventDefault();
-		this._applyCallback({
-			apply: true,
-			title: this._dataSourse?.title,
-			price: this._input_price.value, 
-			amount: this._input_quantity.value,
-			gargo: this._cargoData
-		});
+		if (this._dataSourse != null) {
+			this._applyCallback({
+				title: this._dataSourse.title,
+				price: this._input_price.value, 
+				amount: this._input_quantity.value,
+				sourceId: this._dataSourse.id,
+				sourceMeasureType: this._dataSourse.measureType
+			});
+		}
 		this._nodeElement.remove();
 	}
 
