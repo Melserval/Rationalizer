@@ -22,12 +22,6 @@ const createOrderList = (arg: TimePeriod) => callbacks.forEach(callback => callb
 
 const btn_CustomDaysList = document.getElementById("btn_custom_days_list") as HTMLButtonElement;
 
-btn_CustomDaysList.addEventListener("focus", function (e) {
-    const element = e.target as HTMLButtonElement;
-    if (element !== this) return;
-    (element.firstElementChild as HTMLInputElement).focus();
-});
-
 btn_CustomDaysList.addEventListener("keypress", function (e) {
     const element = e.target as HTMLElement;
     if (element.nodeName !== "INPUT" || e.code !== "NumpadEnter") return;
