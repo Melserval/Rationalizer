@@ -62,8 +62,8 @@ export default class RenderArticleList {
 		this._span_label.textContent = label; 
 	}
 
-	set term(term: number) { 
-		this._span_term.textContent = term.toString(10); 
+	set term(term: string) { 
+		this._span_term.textContent = term; 
 	}
 
 	set quantity(quantity: number) { 

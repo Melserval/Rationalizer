@@ -8,6 +8,8 @@ export default class RenterFormAddOrderItem {
 	private _applyCallback: CallableFunction;
 	private _cancelCallback: CallableFunction;
 
+	private _cargoData: unknown;
+
 	private _nodeElement    = document.createElement("form");
 	private _p_title        = document.createElement("p");
 	private _input_quantity = document.createElement("input");
@@ -99,6 +101,14 @@ export default class RenterFormAddOrderItem {
 		this._p_title.textContent = value;
 	}
 
+	// служит для транзитной переброски сопутствующих данных.
+	set cargo(value: unknown) {
+		this._cargoData = value;
+	}
+	get cargo(): unknown {
+		return this._cargoData;
+	}
+
 	// TODO: добавить установку координат места появления.
 	position(x: number = 0, y: number = 0) {
 		
@@ -121,7 +131,8 @@ export default class RenterFormAddOrderItem {
 			apply: true,
 			title: this._dataSourse?.title,
 			price: this._input_price.value, 
-			amount: this._input_quantity.value
+			amount: this._input_quantity.value,
+			gargo: this._cargoData
 		});
 		this._nodeElement.remove();
 	}

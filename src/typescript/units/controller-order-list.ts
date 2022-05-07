@@ -2,7 +2,7 @@
 
 import ArticleList from './article-list';
 
-export default class ControllerOrderList {
+class ControllerOrderList {
 
 	public listSetName: string;
 	private listCollection = new Map<string, ArticleList>();
@@ -54,3 +54,5 @@ export default class ControllerOrderList {
 	}
 
 }
+
+export default ControllerOrderList;

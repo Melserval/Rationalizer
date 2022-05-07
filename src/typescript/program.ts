@@ -10,8 +10,8 @@ import ArticleList from "./units/article-list";
 import { ProductUnit } from "./units/product-unit";
 import { ControllerArticleList } from './controller-article-list';
 import ControllerOrderList from './units/controller-order-list';
+import * as ut from './types';
 // рендеры
-import RenderArticleUnit from "./renders/render-article-unit";
 import RenderArticleList from "./renders/render-article-list";
 
 
@@ -24,7 +24,7 @@ const conteinerSouceList = document.getElementById("block-source-list") as HTMLE
 const controllerArticleList = new ControllerArticleList("main controller article lists");
 
 // оновной список ассортимента.
-const mainAssortimentList = new ArticleList('main assortiment list');
+const mainAssortimentList = new ArticleList('main assortiment list', "постоянный");
 const renderMainAssortimentList = new RenderArticleList();
 renderMainAssortimentList.render(mainAssortimentList, conteinerSouceList);
 
@@ -52,7 +52,20 @@ addHandlerForAssortimenUnitIsCreated(function (product) {
 addHandlerForOrderListCreated(function (arg) {
     console.log("форма создания списков сотворила список!", `arg ${arg}`);
     // тестовый код проверки размещения.
-	const al = new ArticleList("Hello!", arg);
+    let term: string;
+    switch(arg) {
+        case "day": term = "Один день";
+        break;
+        case "weak": term = "Недельный";
+        break;
+        case "month": term = "Месяц";
+        break;
+        case "onetime": term = "Одноразовый";
+        break;
+        default:
+            term = `${arg} дн.`;
+        }
+    const al = new ArticleList("Hello!", term);
     orders.addList(al, al.label);
 	const renderAl = new RenderArticleList();
     renderAl.render(al, conteinerOrderList);
@@ -86,7 +99,10 @@ renderMainAssortimentList.on("requireitem", function (data: unknown) {
                 // что может привести к сосзданию подобного оъекта в ворме, 
                 // что не есть хорошо. Возможно стоит применить клонирование,
                 // с последующим изменением количества/цены/etс???
-                orders.active?.addItem(new ArticleUnit()); 
+                orders.active?.addItem(new ArticleUnit(
+                        new ProductUnit("test test", 1, 100.500, ut.vendorType_unit, ut.measureType_unit )
+                    )
+                ); 
             },
             (cancelData: unknown) => {
                 console.log(cancelData)
