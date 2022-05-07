@@ -3,6 +3,7 @@ import ArticleUnit from "../units/article-unit";
 
 export default class RenterFormAddOrderItem {
 
+	private _dataSourse?: ArticleUnit;
 	private _destination?: HTMLElement;
 	private _applyCallback: CallableFunction;
 	private _cancelCallback: CallableFunction;
@@ -104,6 +105,7 @@ export default class RenterFormAddOrderItem {
 	}
 
 	render(au: ArticleUnit, destination: HTMLElement) {
+		this._dataSourse = au;
 		this.quantity = au.amount;
 		this.title = au.title;
 		this.price = au.price;
@@ -117,6 +119,7 @@ export default class RenterFormAddOrderItem {
 		e.preventDefault();
 		this._applyCallback({
 			apply: true,
+			title: this._dataSourse?.title,
 			price: this._input_price.value, 
 			amount: this._input_quantity.value
 		});
