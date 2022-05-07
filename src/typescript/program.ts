@@ -7,9 +7,7 @@ import renderFormAddOrderItem from "./renders/render-form-add-order-item";
 // типы
 import ArticleUnit from "./units/article-unit";
 import ArticleList from "./units/article-list";
-import { ProductUnit } from "./units/product-unit";
 // рендеры
-import RenderArticleUnit from "./renders/render-article-unit";
 import RenderArticleList from "./renders/render-article-list";
 
 
