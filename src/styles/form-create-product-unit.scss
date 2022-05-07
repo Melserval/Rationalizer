@@ -20,6 +20,15 @@
 
 .radio-set {
     display: inline-block;
+    input, label {
+        height: 25px;
+        vertical-align: middle;
+        line-height: 25px;
+        display: inline-block;
+        &:hover {
+            cursor: pointer;
+        }
+    }
 }
 
 .input-set {
