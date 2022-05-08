@@ -3,7 +3,7 @@ import * as datastorage from './datastorage';
 // формы
 import {callbacksetter as addHandlerForAssortimenUnitIsCreated} from "./form-create-product-unit";
 import addHandlerForOrderListCreated from './form-create-order-list';
-import renderFormAddOrderItem from "./renders/render-form-add-order-item";
+import renderFormAddOrderItem from "./form-add-order-item";
 // типы
 import ArticleUnit from "./units/article-unit";
 import ArticleList from "./units/article-list";

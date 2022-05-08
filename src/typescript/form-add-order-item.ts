@@ -1,5 +1,9 @@
-import { MeasureType, UserType } from "../types";
-import ArticleUnit from "../units/article-unit";
+// Форма коррекции количества и/или цены выбранного
+// ассортимента, при добавлении его в список приобритаемого.
+// получает данные из объекта - единицы ассортимента, возвращает объект
+// с данными, для создания объекта ассортимента - единицы заказа.
+import { MeasureType, UserType } from "./types";
+import ArticleUnit from "./units/article-unit";
 
 
 type ApplyResult = {
