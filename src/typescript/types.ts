@@ -7,7 +7,7 @@
 export class UserType {
     private static typeInfo = new Map<string, UserType>();
 
-    private readonly typeName: string;
+    readonly typeName: string;
     readonly symbolType: symbol;
     readonly labelFull: string;
     readonly labelShort?: string;
