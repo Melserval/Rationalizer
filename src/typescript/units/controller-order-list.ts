@@ -1,6 +1,6 @@
 // Оперирует коллекцией списков покупок.
 
-import ArticleList from './article-list';
+import { ArticleList } from './article-list';
 
 class ControllerOrderList {
 
@@ -60,4 +60,4 @@ class ControllerOrderList {
 
 }
 
-export default ControllerOrderList;
+export { ControllerOrderList };

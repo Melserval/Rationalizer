@@ -44,7 +44,7 @@ class ProductUnit implements IArticleItem {
 	}
 
 	static fromJson(json: ProductUnitJson) {
-		let measureType = MeasureType.info(json.vendorType);
+		let measureType = MeasureType.info(json.measureType);
 		let vendorType = VendorType.info(json.vendorType);
 		if (measureType == null || vendorType == null) {
 			throw new Error("Нераспознан обязательный тип!");

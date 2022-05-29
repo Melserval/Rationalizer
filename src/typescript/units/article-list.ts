@@ -1,59 +1,53 @@
-import ArticleUnit from "./article-unit";
+import { IArticleItem } from "./i-article-item";
 
 /**
  * Данные составленого списка асортимента.
  */
-export default class ArticleList {
+export class ArticleList {
 	
 	private _events: {[eventname: string]: CallableFunction[]} = {
-		// событие добавление нового экземпляра ArticleUnit
+		// событие добавление нового экземпляра IArticleItem
 		'additem': new Array<CallableFunction>(),
-		// событие удаление экземпляра ArticleUnit
+		// событие удаление экземпляра IArticleItem
 		'removeitem': new Array<CallableFunction>()
 	};
 
 	private _created: number = Date.now();
-	private _items = new Map<number, ArticleUnit>();
-	private _term: string;
+	private _items = new Map<string, IArticleItem>();
 	private _label: string;
 	
 	constructor(label: string);
-	constructor(label: string, term: string);
-	constructor(label: string, term: string, dataset: ArticleUnit[])
-	constructor(label: string, term: string="0", dataset?: ArticleUnit[]) {
+	constructor(label: string) {
 		this._label = label;
-		this._term = term;
-		if (dataset) {
-			for (const au of dataset) {
-				this.addItem(au);
-			}
-		}
 	}
-
+	
 	/**
 	 * Добавление ассортимента в список.
 	 * @param au единица ассортимента.
 	 */
-	addItem(au: ArticleUnit) {
-		this._items.set(au.id, au);
-		this.dispatchEvent('additem', {detail: au});
-		// TODO: Определиться с событием.
-		console.log("В список '%s' Был добавлен новый элемент: %s", this.label, au.title);
+	addItem(au: IArticleItem | IArticleItem[]) {
+		if (Array.isArray(au)) {
+			for (const item of au) {
+				this.addItem(item);
+			}
+		} else {
+			this._items.set(au.id, au);
+			this.dispatchEvent('additem', {detail: au});
+		}
+	}
+
+	getItem(id: string): IArticleItem | null {
+		return this._items.get(id) ?? null;
 	}
 	
 	/** коллекция элементов - позиций ассортимента.  */
-	get items(): ArticleUnit[] {
+	get items(): IArticleItem[] {
 		return Array.from(this._items.values());
 	}
 	/** количество асортимента. */
 	get quantity(): number {
 		return this._items.size;
 	}
-	/** временной отрезок (дней). */
-	get term(): string {
-		return this._term;
-	}
-	
 	/**
 	 * Название, метка списка.
 	 *
@@ -91,4 +85,21 @@ export default class ArticleList {
 			clbc(event.detail);
 		}
 	}
+}
+
+
+export class ArticleListOrder extends ArticleList {
+
+	/** временной отрезок (дней). */
+	get term(): string {
+		return this._term;
+	}
+
+	constructor(label: string, term: string) {
+		super(label);
+		this._term = term;
+	}
+
+	private _term: string;
+
 }

@@ -1,7 +1,7 @@
 // глобальное хранилище списков-контйнеров для экземпляров ArticleUnit.
 // контролирует фокус на выбранных списках, списки выбраные для извлечения
 // и/или получения (добавления) ассортимента.
-import ArticleList from "./units/article-list";
+import { ArticleList } from "./units/article-list";
 
 
 type ListRole = "order" | "assortiment" | "reflection";

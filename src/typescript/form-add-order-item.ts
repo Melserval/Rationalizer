@@ -2,16 +2,9 @@
 // ассортимента, при добавлении его в список приобритаемого.
 // получает данные из объекта - единицы ассортимента, возвращает объект
 // с данными, для создания объекта ассортимента - единицы заказа.
-import { MeasureType, UserType } from "./types";
-import ArticleUnit from "./units/article-unit";
-
 
 type ApplyResult = {
-	title: string;
-	price: string; 
-	amount: string;
-	sourceId: number;
-	sourceMeasureType: UserType | null;
+	quantity: string
 };
 
 type CancelResult = {
@@ -20,7 +13,6 @@ type CancelResult = {
 
 export default class RenterFormAddOrderItem {
 
-	private _dataSourse?: ArticleUnit;
 	private _destination?: HTMLElement;
 	private _applyCallback: (arg: ApplyResult) => void;
 	private _cancelCallback: (arg: CancelResult) => void;
@@ -110,26 +102,14 @@ export default class RenterFormAddOrderItem {
 	set quantity(value: number) {
 		this._input_quantity.setAttribute("value", value.toString());
 	}
-
 	set price(value: number) {
 		this._input_price.setAttribute("value", value.toString());
 	}
-
 	set title(value: string) {
 		this._p_title.textContent = value;
 	}
 
-	// TODO: добавить установку координат места появления.
-	position(x: number = 0, y: number = 0) {
-		
-	}
-
-	render(au: ArticleUnit, destination: HTMLElement) {
-		this._dataSourse = au;
-		this.quantity = au.amount;
-		this.title = au.title;
-		this.price = au.price;
-
+	render(destination: HTMLElement) {
 		this._destination = destination;
 		this._destination.append(this._nodeElement);
 	}
@@ -137,15 +117,7 @@ export default class RenterFormAddOrderItem {
 	// обработчики событий формы
 	_handlerFormSubmit(e: SubmitEvent) {
 		e.preventDefault();
-		if (this._dataSourse != null) {
-			this._applyCallback({
-				title: this._dataSourse.title,
-				price: this._input_price.value, 
-				amount: this._input_quantity.value,
-				sourceId: this._dataSourse.id,
-				sourceMeasureType: this._dataSourse.measureType
-			});
-		}
+		this._applyCallback({quantity: this._input_quantity.value});
 		this._nodeElement.remove();
 	}
 

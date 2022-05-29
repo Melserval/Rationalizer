@@ -10,8 +10,8 @@ export class UserType {
     readonly typeName: string;
     readonly symbolType: symbol;
     readonly labelFull: string;
-    readonly labelShort?: string;
-    readonly description?: string;
+    readonly labelShort: string;
+    readonly description: string;
 
     /**
      * Новый тип единицы измерения.
@@ -20,15 +20,15 @@ export class UserType {
      * @param labelShort краткое обозначение
      * @param desc полное описание или пояснения
      */
-    constructor(typename:  string, labelFull: string, labelShort?: string, desc?: string) {
+    constructor(typename:  string, labelFull: string, labelShort="", desc="") {
         try {
             if (typename.match(/^[a-z_$]+[a-z0-9_$]+$/i) === null) {
                 throw new Error("Неверный формат для имени типа");
             }
-            this.typeName = typename;
-            this.symbolType = Symbol.for(typename);
-            this.labelFull = labelFull;
-            this.labelShort = labelShort ;
+            this.typeName    = typename;
+            this.symbolType  = Symbol.for(typename);
+            this.labelFull   = labelFull;
+            this.labelShort  = labelShort ;
             this.description = desc;
             UserType.typeInfo.set(this.typeName, this);
         } catch (err: any) {
@@ -45,7 +45,7 @@ export class UserType {
      * @param desc полное описание или пояснения
      * @returns символ типа.
      */
-    static create(typename: string, labelFull: string, labelShort?: string, desc?: string): symbol {
+    static create(typename: string, labelFull: string, labelShort="", desc=""): symbol {
         return (new this(typename, labelFull, labelShort, desc)).symbolType;
     }
     
@@ -85,21 +85,21 @@ export class UserType {
 export class VendorType extends UserType { } 
 
 export const 
-    vendorType_unit = VendorType.create("vendorType_unit", "штучный"),
-    vendorType_packed = VendorType.create("vendorType_packed", "фасованный"),
-    vendorType_weighed = VendorType.create("vendorType_weighed", "развесной");
+    vendorType_unit    = new VendorType("vendorType_unit", "штучный", "unt"),
+    vendorType_packed  = new VendorType("vendorType_packed", "фасованный", "pcg"),
+    vendorType_weighed = new VendorType("vendorType_weighed", "развесной", "wgh");
 
 
 // --- типы единиц измерения (вес, обьем, etc...) ---
 export class MeasureType extends UserType { }
 
 export const 
-    measureType_unit = MeasureType.create("measureType_unit", "штука", "шт."),
-    measureType_milliliter = MeasureType.create("measureType_milliliter", "миллилитр", "ml."),
-    measureType_liter = MeasureType.create("MeasureType_liter", "литр", "l."),
-    measureType_gramm = MeasureType.create("measureType_gramm", "грамм", "gr."),
-    measureType_kilogramm =  MeasureType.create("measureType_kilogramm", "килограмм", "kg."),
-    measureType_kilowatt =  MeasureType.create("measureType_kilowatt", 'киловатт', 'kw.');
+    measureType_unit       = new MeasureType("measureType_unit", "штука", "шт."),
+    measureType_milliliter = new MeasureType("measureType_milliliter", "миллилитр", "ml."),
+    measureType_liter      = new MeasureType("MeasureType_liter", "литр", "l."),
+    measureType_gramm      = new MeasureType("measureType_gramm", "грамм", "gr."),
+    measureType_kilogramm  =  new MeasureType("measureType_kilogramm", "килограмм", "kg."),
+    measureType_kilowatt   =  new MeasureType("measureType_kilowatt", 'киловатт', 'kw.');
 
 
 // --- типы чисел (целый, с плавающей точкой) ---
@@ -107,4 +107,4 @@ export class NumberType extends UserType { }
 
 export const 
     numberType_integer = NumberType.create("numberType_integer", "integer"),
-    numberType_float = NumberType.create("numberType_float", "float");
+    numberType_float   = NumberType.create("numberType_float", "float");

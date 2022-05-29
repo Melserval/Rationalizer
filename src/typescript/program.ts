@@ -5,18 +5,20 @@ import {callbacksetter as addHandlerForAssortimenUnitIsCreated} from "./form-cre
 import addHandlerForOrderListCreated from './form-create-order-list';
 import renderFormAddOrderItem from "./form-add-order-item";
 // типы
-import ArticleUnit from "./units/article-unit";
-import ArticleList from "./units/article-list";
+import { ArticleUnit } from "./units/article-item";
+import { ArticleList } from "./units/article-list";
 import { ProductUnit } from "./units/product-unit";
 import { ControllerArticleList } from './controller-article-list';
-import ControllerOrderList from './units/controller-order-list';
-import * as ut from './types';
+import { ControllerOrderList } from './units/controller-order-list';
 // рендеры
-import RenderArticleList from "./renders/render-article-list";
+import { RenderArticleList } from "./renders/render-article-list";
+import { ArticleListOrder } from './units/article-list';
+import { RenderArticleUnit, RenderArticleProduct } from './renders/render-article-item';
 
 
 /** контейнеры списков для покупок */
 const conteinerOrderList = document.getElementById("block-order-list") as HTMLElement;
+
 /** контейнеры списков-источников ассортимента */
 const conteinerSouceList = document.getElementById("block-source-list") as HTMLElement;
 
@@ -24,8 +26,11 @@ const conteinerSouceList = document.getElementById("block-source-list") as HTMLE
 const controllerArticleList = new ControllerArticleList("main controller article lists");
 
 // оновной список ассортимента.
-const mainAssortimentList = new ArticleList('main assortiment list', "постоянный");
-const renderMainAssortimentList = new RenderArticleList();
+const mainAssortimentList = new ArticleList('main assortiment list');
+const renderMainAssortimentList = new RenderArticleList(
+    "основной список ассортимента",
+    RenderArticleProduct.renderFor.bind(RenderArticleProduct)
+);
 renderMainAssortimentList.render(mainAssortimentList, conteinerSouceList);
 
 controllerArticleList.addList(mainAssortimentList, "assortiment", true);
@@ -65,9 +70,13 @@ addHandlerForOrderListCreated(function (arg) {
         default:
             term = `${arg} дн.`;
         }
-    const al = new ArticleList("Список необходимых приобритений", term);
+    const al = new ArticleListOrder("Список необходимых приобритений", term);
     orders.addList(al, al.label);
-	const renderAl = new RenderArticleList();
+    
+	const renderAl = new RenderArticleList(
+        "Список покупок", 
+        RenderArticleUnit.renderFor.bind(RenderArticleUnit)
+    );
     renderAl.render(al, conteinerOrderList);
 });
 
@@ -78,9 +87,8 @@ datastorage.getProductCollection(function (error, dataset, info='') {
         console.error("Ошибонька!", error);
         return;
     } else if (dataset) {
-        console.log("Все прекрасно, Сэр!"+info, dataset);
         for (const product of dataset) {
-            mainAssortimentList.addItem(new ArticleUnit(product));
+            mainAssortimentList.addItem(product);
         }
     }
 });
@@ -88,26 +96,22 @@ datastorage.getProductCollection(function (error, dataset, info='') {
 
 // test code: обкатка формы добавления позиции в список покупок.
 renderMainAssortimentList.on("requireitem", function (data: unknown) {
-    if (data instanceof ArticleUnit) {
+    if (data instanceof ProductUnit) {
         const renderForm = new renderFormAddOrderItem(
             (applyData) => {
-                const au = new ArticleUnit(
-                    applyData.sourceId.toString(10), 
-                    applyData.title, 
-                    parseInt(applyData.amount), 
-                    parseFloat(applyData.price), 
-                    // TODO: Нужно написать правила преобразование числовых величин в зависимости от типа продукта.
-
-                    // FIXME: ЗАГЛУШКА.
-                    ut.measureType_unit
-                );
-                orders.active?.addItem(au);
+                // TODO: Нужно написать правила преобразование числовых величин в зависимости от типа продукта.
+                const quantity = parseInt(applyData.quantity);
+                if (isFinite(quantity)) {
+                    orders.active?.addItem(new ArticleUnit(data, quantity));
+                }
             },
             (cancelData) => {
                 console.log(cancelData)
             }
         );
-        renderForm.render(data, document.body);
+        renderForm.price = data.price;
+        renderForm.quantity = data.amount;
+        renderForm.render(document.body);
     } else {
         console.error("Неверный элемент");
     }

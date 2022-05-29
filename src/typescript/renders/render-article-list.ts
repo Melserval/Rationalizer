@@ -1,13 +1,14 @@
-import ArticleList from "../units/article-list";
-import ArticleUnit from "../units/article-unit";
-import RenderArticleUnit from "./render-article-unit";
+
+import { ArticleList } from "../units/article-list";
+import { IArticleItem } from "../units/i-article-item";
+import { RenderArticleItem } from "./render-article-item";
+import { RenderHeaderList } from "./render-header-list";
 
 /**
  * Представление списка элементов ассортимента.
  */
-export default class RenderArticleList {
+export class RenderArticleList {
 	
-	public static articleListCollection = new Map<string, RenderArticleList>();
 	public readonly id : string;
 	public listInfo: string;
 	protected selectedLiItem: HTMLLIElement | null = null;
@@ -21,57 +22,44 @@ export default class RenderArticleList {
 		"requireitem": new Array<CallableFunction>() 
 	};
 
-	private _items = new Array<RenderArticleUnit>();
+	private _itemRender: (item: IArticleItem) => RenderArticleItem<any>;
+	private _itemsRender = new Array<RenderArticleItem<any>>();
+	private _headerRender = new RenderHeaderList();
+
 	private _nodeElement = document.createElement("div");
-	private _header  = document.createElement('header');
-	private _span_label = document.createElement('span');
-	private _span_term = document.createElement('span');
-	private _span_quantity = document.createElement('span');
-	private _span_total = document.createElement('span');
 	private _ul = document.createElement('ul');
 	private _p = document.createElement('p');
-	
-	constructor(info: string = "Стандартный список") {
 
+	// HACK: Временная мера
+	public static readonly articleListCollection = new Map<string, RenderArticleList>();
+	
+	constructor(
+		info: string,
+		itemRender: (item: IArticleItem) => RenderArticleItem<any>
+	) {
 		this.listInfo = info;
+		this._itemRender = itemRender;
 		this.id = Date.now().toString(24);
 		this._nodeElement.id = this.id;
-		RenderArticleList.articleListCollection.set(this.id, this);
 
-		this._header.append(
-			this._span_label,
-			this._span_term,
-			this._span_quantity,
-			this._span_total
-		);
-		this._nodeElement.append(this._header);
+		this._nodeElement.append(this._headerRender.element);
 		this._nodeElement.append(this._ul);
 		this._nodeElement.append(this._p);
 		this._ul.classList.add("article_list__items");
-		this._header.classList.add("article_list__header");
+		this._headerRender.element.classList.add("article_list__header");
 		this._nodeElement.classList.add("block-article_list");
 		this._p.classList.add("article_list__info");
 		this._p.textContent = this.listInfo;
+
+		RenderArticleList.articleListCollection.set(this.id, this);
 	}
 
 	remove() {
 		this._nodeElement.remove();
 	}
 
-	set label(label: string) { 
-		this._span_label.textContent = label; 
-	}
-
-	set term(term: string) { 
-		this._span_term.textContent = term; 
-	}
-
-	set quantity(quantity: number) { 
-		this._span_quantity.textContent = quantity.toString(10); 
-	}
-
-	set total(total: number) { 
-		this._span_total.textContent = total.toString(10);
+	get header() {
+		return this._headerRender;
 	}
 
 	/**
@@ -83,22 +71,22 @@ export default class RenderArticleList {
 
 		destination.append(this._nodeElement);
 
-		this.label = al.label;
-		this.total = 10500;
-		this.quantity = al.quantity;
-		this.term = al.term;
+		this.header.label = "Hello";
+		this.header.total = 10500;
+		this.header.quantity = 1;
+		this.header.term = "sk";
 		// рендер элементов коллекции.
 		for (let item of al.items) {
-			this.renderItem(item)
+			this.renderItem(item);
 		}
 
 		al.on('additem', this.renderItem.bind(this));
 	}
 
-	protected renderItem(item: ArticleUnit) {
-		let renderLi = new RenderArticleUnit();
-		renderLi.render(item, this._ul);
-		this._items.push(renderLi);
+	renderItem(item: IArticleItem) {
+		let itemRender = this._itemRender(item);
+		itemRender.render(this._ul);
+		this._itemsRender.push(itemRender);
 	}
 	
 	// ------  обработка перемещения по списку и выбора элементов -------
@@ -107,7 +95,7 @@ export default class RenderArticleList {
 	selectItem(li: HTMLLIElement | null) {
 		try {
 			if (li == null && this.selectedLiItem === null) {
-				this.selectedLiItem = this._items?.[0]._nodeElement;
+				this.selectedLiItem = this._itemsRender?.[0].element;
 				this.selectedLiItem?.classList.add('focusedli');
 				return;
 			}
@@ -173,7 +161,7 @@ export default class RenderArticleList {
 				if (this.selectedLiItem) {
 			// TODO: реализовать объект-контейнер с описанием/идентификатором для возвращаемых в коллбэки данных.
 			// что бы получатель знал с каким типом данных он работает.
-					const renderItem = this._items.find(renderau => renderau.element == this.selectedLiItem) ?? null;
+					const renderItem = this._itemsRender.find(renderau => renderau.element == this.selectedLiItem) ?? null;
 					arg = renderItem && renderItem.dataItem;		
 				} else {
 					arg = null;
@@ -183,5 +171,5 @@ export default class RenderArticleList {
 		} else {
 			throw new Error(`Попытка вызвать не существующее событие (${eventName})`);
 		}
-	};
+	}
 }

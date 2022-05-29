@@ -65,28 +65,28 @@ class radioBtnHandler {
 }
 // - радио кнопки определения типа распостранения -
 radioBtnHandler["radio-is-unit"] = function () {
-	selectedVendorType = ut.vendorType_unit;
+	selectedVendorType = ut.vendorType_unit.symbolType;
 	deactivateBlock(radioBtnSet_TypeMeasure);
 	// при штучном товаре единица измерения "штука".
-	selectedMeasureType = ut.measureType_unit;
+	selectedMeasureType = ut.measureType_unit.symbolType;
 	amountType = ut.numberType_integer;
 };
 radioBtnHandler["radio-is-weight"] = function () {
-	selectedVendorType = ut.vendorType_weighed;
+	selectedVendorType = ut.vendorType_weighed.symbolType;
 	activateBlock(radioBtnSet_TypeMeasure);
 };
 radioBtnHandler["radio-is-packed"] = function () {
-	selectedVendorType = ut.vendorType_packed;
+	selectedVendorType = ut.vendorType_packed.symbolType;
 	activateBlock(radioBtnSet_TypeMeasure);
 };
 
 // - радио кнопки установки типа единиц измерения -
 radioBtnHandler["radio-measure-milliliter"] = function () {
-	selectedMeasureType = ut.measureType_milliliter;
+	selectedMeasureType = ut.measureType_milliliter.symbolType;
 	amountType = ut.numberType_integer;
 };
 radioBtnHandler["radio-measure-gramm"] = function () {
-	selectedMeasureType = ut.measureType_gramm;
+	selectedMeasureType = ut.measureType_gramm.symbolType;
 	amountType = ut.numberType_integer;
 };
 
@@ -102,12 +102,17 @@ mainFormUnitCreate.addEventListener("change", function (e) {
 
 btn_ItemCreateApply.addEventListener("click", (e) => {
 	try {
+		let vendor = ut.VendorType.info(selectedVendorType);
+		let measure = ut.MeasureType.info(selectedMeasureType);
+		if (vendor == null || measure == null) {
+			throw new Error("Неопределен тип");
+		}
 		const product = new ProductUnit(
 			input_ItemName.value,
 			parseAmount(input_ItemAmount.value),
 			parsePrice(input_ItemPrice.value),
-			selectedVendorType,
-			selectedMeasureType,
+			vendor,
+			measure,
 			selectedUnitCategory,
 			input_ItemDescribe.value
 		);

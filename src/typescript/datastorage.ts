@@ -97,7 +97,7 @@ const localstorDataSet = {
 	}
 };
 
-const constDataSet = Promise.resolve<ProductUnit[]>(new Array<[string, number, number, symbol, symbol]>(
+const constDataSet = Promise.resolve<ProductUnit[]>(new Array<[string, number, number, uType.VendorType, uType.MeasureType]>(
 	[`Вкусная колбаска "До пюрешки"`,              500, 72.00, uType.vendorType_packed, uType.measureType_gramm],
 	[`Невкусная шинка "Кузьмич" (Колбасный Ряд)`,  500, 48.60, uType.vendorType_packed, uType.measureType_gramm],
 	[`Сгущенное молоко "Ичня"`,                    500, 67.50, uType.vendorType_packed, uType.measureType_milliliter],
