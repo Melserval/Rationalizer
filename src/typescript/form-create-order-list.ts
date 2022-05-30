@@ -22,26 +22,28 @@ const createOrderList = (arg: TimePeriod) => callbacks.forEach(callback => callb
 
 const btn_CustomDaysList = document.getElementById("btn_custom_days_list") as HTMLButtonElement;
 
-btn_CustomDaysList.addEventListener("keypress", function (e) {
-    const element = e.target as HTMLElement;
-    if (element.nodeName !== "INPUT" || e.code !== "NumpadEnter") return;
-    console.log((element as HTMLInputElement).value);
-});
 
 // TODO: Разобраться с возможным null значением ссылок на элементы. Проверить как будет работать если вернуть null.
 
 // --- создание списка на выборочное количество дней ---
-btn_CustomDaysList.addEventListener("click", function (e) {
-    const element = e.target as HTMLElement;
-    if (element != this) return;
-    
-    const days = parseInt((element.firstElementChild as HTMLInputElement).value);
+function createCustomDaysList(strdays: string) {
+    const days = parseInt(strdays);
     if (isNaN(days) || !isFinite(days)) {
         // HACK: Временное решение.
         alert("Недопустимое количество дней!");
         return;
     }
     createOrderList(days);
+}
+btn_CustomDaysList.addEventListener("keypress", function (e) {
+    const element = e.target as HTMLElement;
+    if (element.nodeName !== "INPUT" || e.code !== "NumpadEnter") return;;
+    createCustomDaysList((element as HTMLInputElement).value);
+});
+btn_CustomDaysList.addEventListener("click", function (e) {
+    const element = e.target as HTMLElement;
+    if (element != this) return;
+    createCustomDaysList((element.firstElementChild as HTMLInputElement).value);
 });
 
 // --- создание списка на 1 день ---
