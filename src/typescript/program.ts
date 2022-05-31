@@ -49,6 +49,7 @@ addHandlerForAssortimenUnitIsCreated(function (product) {
             console.log(err);
         } else {
             console.log(result);
+            mainAssortimentList.addItem(product);
         }
     });
 });
