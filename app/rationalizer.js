@@ -15,14 +15,14 @@ app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.static(path.join(__dirname, 'static')));
-// пользовательские маршруты
 
+// пользовательские маршруты
 require('./routes')(app);
 
 // служебные маршруты
 app.use(function(req, res) {
 	res.status(404);
-	res.send(`404 - Not Found - ${req.url}`, {'Content-Type': 'text/plain'});
+	res.send(`404 - Not Found - ${req.url}`);
 });
 app.use(function(err, req, res, next) {
 	console.error(err.message);
