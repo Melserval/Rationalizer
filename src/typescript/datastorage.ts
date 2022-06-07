@@ -28,13 +28,25 @@ export const getProductCollection = function(callback: (err: Error | null, data:
  * @param callback (error, result) обработчик результата.
  */
 export const addProductUnit = function (product: ProductUnit, callback?: CallableFunction) {
+	// Запись в базу данных
+	fetch("http://localhost:8000/api/data/addproduct", {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json;charset=utf-8'
+		},
+		body: JSON.stringify(product.toJSON())
+	})
+	.then(response => response.ok ? response.text() : Promise.reject())
+	.then(textid => callback?.(null, `добавлено в БД с id [${textid}]`))
+	.catch(error => callback?.(error));
+
 	localstorDataSet.getData()
-		.then((dataset) => {
-			dataset.push(product);
-			return localstorDataSet.setData(dataset)
-		})
-		.then(info => callback?.(null, info))
-		.catch(error => callback?.(error));
+	.then((dataset) => {
+		dataset.push(product);
+		return localstorDataSet.setData(dataset)
+	})
+	.then(info => callback?.(null, info))
+	.catch(error => callback?.(error));
 };
 
 

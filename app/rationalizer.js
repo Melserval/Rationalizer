@@ -1,6 +1,7 @@
 const path = require('path');
 const express = require('express');
 const handlebars = require('express-handlebars');
+const bodyParser = require('body-parser');
 
 const PORT = process.env.PORT || 8000;
 const app = express();
@@ -15,6 +16,8 @@ app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.static(path.join(__dirname, 'static')));
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 
 // пользовательские маршруты
 require('./routes')(app);

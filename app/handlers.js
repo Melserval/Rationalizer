@@ -53,3 +53,31 @@ api.product = (req, res) => {
 		}
 	);
 };
+
+api.addProduct = (req, res) => {
+	const sql = `
+	INSERT INTO product 
+		(title, amount, price, description, package_id, measure_id)
+	VALUES (?, ?, ?, ?, 
+					(SELECT id FROM type_package WHERE type_name=?), 
+					(SELECT id FROM type_measure WHERE type_name=?)
+				 )`;
+
+	mysql.createConnection(config.mysql).query(sql, [
+			req.body.title,
+			req.body.amount,
+			req.body.price,
+			req.body.describe,
+			req.body.vendorType,
+			req.body.measureType
+		],
+		function (err, results) {
+			if (err) {
+				console.error(err);
+			} else {
+				res.writeHead(200, {'Content-Type': 'text/plain'});
+				res.end(results.insertId.toString());
+			}
+		}
+	);
+};
