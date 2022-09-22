@@ -4,7 +4,7 @@
   "description": "рациональный рацион",
   "main": "index.js",
   "scripts": {
-    "build": "tsc && rollup --config rollup.config.ts --configPlugin typescript",
+    "build": "tsc && webpack-cli",
     "test": "test",
     "serve": "node ./app/rationalizer.js",
     "sass": "sass .\\src\\styles\\_master.scss .\\app\\static\\css\\master.css"
@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/Melserval/Rationalizer/issues"
   },
-  "homepage": "https://github.com/Melserval/Rationalizer#readme"
+  "homepage": "https://github.com/Melserval/Rationalizer#readme",
+  "devDependencies": {
+    "tslib": "^2.4.0"
+  }
 }
