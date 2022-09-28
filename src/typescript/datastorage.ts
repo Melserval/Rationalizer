@@ -11,7 +11,9 @@ import * as uType from "./types";
  * Запрос коллекции ассортимента.
  * @param callback (error, data [, info])
  */
-export const getProductCollection = function(callback: (err: Error | null, data: ProductUnit[] | null, from: string) => void) {
+export function getProductCollection(
+	callback: (err: Error | null, data: ProductUnit[] | null, from: string) => void
+) {
 	localstorDataSet.getData().then(
 		data => callback(null, data, "local"), 
 		error => callback(error, null, "local")
@@ -27,7 +29,10 @@ export const getProductCollection = function(callback: (err: Error | null, data:
  * @param product сохраняемый элемент.
  * @param callback (error, result) обработчик результата.
  */
-export const addProductUnit = function (product: ProductUnit, callback?: CallableFunction) {
+export function addProductUnit(
+	product: ProductUnit, 
+	callback?: CallableFunction
+) {
 	// Запись в базу данных
 	fetch("http://localhost:8000/api/data/addproduct", {
 		method: 'POST',
@@ -55,7 +60,7 @@ export const addProductUnit = function (product: ProductUnit, callback?: Callabl
  * @param {(product: ProductUnit)boolean} predicate
  * @param {(err: Error, result: string)void} callback 
  */
-export const removeProductUnit = function( 
+export function removeProductUnit(
 	predicate: ((value: ProductUnit) => boolean), 
 	callback?: ((error: Error | null, result?: string) => void)
 ) {
@@ -153,24 +158,23 @@ const typesOfVendors = fetch("http://localhost:8000/api/type/package")
 	});
 
 const constDataSet = Promise.all([typesOfMeasure, typesOfVendors])
-	.then(typesMV => {
-		return fetch("http://localhost:8000/api/data/product")
-			.then(response => response.ok ? response.json() : null)
-			.then(products => {
-				const [measures, vendors] = typesMV;
-				const productObjects = new Array<ProductUnit>();
-				for (const p of products) {
-					let measureType = measures.get(p.measure_id);
-					let vendorType = vendors.get(p.package_id);
-					if (measureType && vendorType) {
-						productObjects.push(
-							new ProductUnit(p.title, p.amount, parseFloat(p.price), vendorType, measureType)
-						);
-					} else {
-						throw new Error("Не удалось создать продукт из БД" + p.title);
-					}
-				}
-				return productObjects;
-			});
-	});
-// жуткая хрень эти цепочки промисов....
+.then(typesMV => 
+	fetch("http://localhost:8000/api/data/product")
+	.then(response => response.ok ? response.json() : null)
+	.then(products => {
+		const [measures, vendors] = typesMV;
+		const productObjects = new Array<ProductUnit>();
+		for (const p of products) {
+			let measureType = measures.get(p.measure_id);
+			let vendorType = vendors.get(p.package_id);
+			if (measureType && vendorType) {
+				productObjects.push(
+					new ProductUnit(p.title, p.amount, parseFloat(p.price), vendorType, measureType)
+				);
+			} else {
+				throw new Error("Не удалось создать продукт из БД" + p.title);
+			}
+		}
+		return productObjects;
+	})
+);
