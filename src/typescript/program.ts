@@ -2,7 +2,7 @@
 import * as datastorage from './datastorage';
 // формы
 import {callbacksetter as addHandlerForAssortimenUnitIsCreated} from "./form-create-product-unit";
-import addHandlerForOrderListCreated from './form-create-order-list';
+import { onOrderListCreated, TimePeriod } from './form-create-order-list';
 import renderFormAddOrderItem from "./form-add-order-item";
 // типы
 import { ArticleUnit } from "./units/article-item";
@@ -55,22 +55,26 @@ addHandlerForAssortimenUnitIsCreated(function (product) {
 });
 
 // ОБРАБОТЧИК создания списков заказов.
-addHandlerForOrderListCreated(function (arg) {
+onOrderListCreated(function (arg) {
     console.log("форма создания списков сотворила список!", `arg ${arg}`);
     // тестовый код проверки размещения.
     let term: string;
     switch(arg) {
-        case "day": term = "Один день";
-        break;
-        case "weak": term = "Недельный";
-        break;
-        case "month": term = "Месяц";
-        break;
-        case "onetime": term = "Одноразовый";
-        break;
-        default:
+        case TimePeriod.day: 
+            term = "Один день";
+            break;
+        case TimePeriod.weak: 
+            term = "Недельный";
+            break;
+        case TimePeriod.month: 
+            term = "Месяц";
+            break;
+        case TimePeriod.onetime: 
+            term = "Одноразовый";
+            break;
+        case TimePeriod.custom:
             term = `${arg} дн.`;
-        }
+    }
     const al = new ArticleListOrder("Список необходимых приобритений", term);
     orders.addList(al, al.label);
     
@@ -102,7 +106,7 @@ renderMainAssortimentList.on("requireitem", function (data: unknown) {
             (applyData) => {
                 // TODO: Нужно написать правила преобразование числовых величин в зависимости от типа продукта.
                 const quantity = parseInt(applyData.quantity);
-                if (isFinite(quantity)) {
+                if (isFinite(quantity) && quantity > 0) {
                     orders.active?.addItem(new ArticleUnit(data, quantity));
                 }
             },
@@ -110,8 +114,9 @@ renderMainAssortimentList.on("requireitem", function (data: unknown) {
                 console.log(cancelData)
             }
         );
+        renderForm.title  = data.title;
         renderForm.price = data.price;
-        renderForm.quantity = data.amount;
+        renderForm.quantity = 1;
         renderForm.render(document.body);
     } else {
         console.error("Неверный элемент");

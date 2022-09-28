@@ -1,7 +1,12 @@
-export default interface IArticleItem {
+
+/**
+ * Рендеринг элемента представляющего продукт в списках ассортимента/покупок/заказов.
+ */
+interface IRenderArticleItem<T> {
 	remove(): void;
-	removeClassName(name: string): void;
-	setClassName(name: string): void;
-	dataItem(): unknown;
-	element(): HTMLElement;
-};
+	setClassName(arg: string): void;
+	removeClassName(arg: string): void;
+	render(destination: HTMLElement): void;
+	dataItem: T;
+	element: HTMLLIElement;
+}

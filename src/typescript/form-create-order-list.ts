@@ -1,7 +1,12 @@
 // === МОДУЛЬ === форма создания списка-перечня.
 
-type TimePeriod = "day" | "weak" | "month" | "onetime" | number;
-
+export const enum TimePeriod {
+    custom,
+    day, 
+    weak, 
+    month, 
+    onetime
+}    
 
 /**
  *  вызываемых при создании списка
@@ -13,7 +18,7 @@ type TimePeriod = "day" | "weak" | "month" | "onetime" | number;
  * @param callback функция, которой будет передано значение 
  * выбранной продолжительности действия списка заказов.
  */
-export default function onOrderListCreated(callback: (arg: TimePeriod) => void) {
+export function onOrderListCreated(callback: (arg: TimePeriod) => void) {
 	callbacks.push(callback);
 }
 
@@ -48,16 +53,16 @@ btn_CustomDaysList.addEventListener("click", function (e) {
 
 // --- создание списка на 1 день ---
 const btn_DayList  = document.getElementById("btn_day_list") as HTMLButtonElement;
-btn_DayList.addEventListener("click", () => createOrderList("day"));
+btn_DayList.addEventListener("click", () => createOrderList(TimePeriod.day));
 
 // --- создание списка на неделю (7 дней) ---
 const btn_WeakList = document.getElementById("btn_weak_list") as HTMLButtonElement;
-btn_WeakList.addEventListener("click", () => createOrderList("weak"));
+btn_WeakList.addEventListener("click", () => createOrderList(TimePeriod.weak));
 
 // --- создание списка на месяц (30 дней) ---
 const btn_MonthList = document.getElementById("btn_month_list") as HTMLButtonElement;
-btn_MonthList.addEventListener("click", () => createOrderList("month"));
+btn_MonthList.addEventListener("click", () => createOrderList(TimePeriod.month));
 
-// --- создание отдельного списка покупок ---
+// --- создание одноразового списка покупок ---
 const btn_OrderList = document.getElementById("btn_order_list") as HTMLButtonElement;
-btn_OrderList.addEventListener("click", () => createOrderList("onetime"));
+btn_OrderList.addEventListener("click", () => createOrderList(TimePeriod.onetime));
