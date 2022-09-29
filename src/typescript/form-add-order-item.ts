@@ -3,21 +3,13 @@
 // получает данные из объекта - единицы ассортимента, возвращает объект
 // с данными, для создания объекта ассортимента - единицы заказа.
 
-type ApplyResult = {
-	quantity: string
-};
+import { IArticleItem } from "./units/i-article-item";
 
-type CancelResult = {
-	apply: boolean;
-};
 
 export default class RenterFormAddOrderItem {
 
-	private _baseQuantity = 1;
-	private _quantity: number;
+	private _quantity = 1;
 	private _destination?: HTMLElement;
-	private _applyCallback: (arg: ApplyResult) => void;
-	private _cancelCallback: (arg: CancelResult) => void;
 
 	private _nodeElement    = document.createElement("form");
 	private _p_title        = document.createElement("p");
@@ -31,17 +23,14 @@ export default class RenterFormAddOrderItem {
 
 	/**
 	 * 
-	 * @param applyClbc обработчик выполнения формы.
-	 * @param canceldClbc обработчик отмены формы.
+	 * @param _applyCallback обработчик выполнения формы.
+	 * @param _cancelCallback обработчик отмены формы.
 	 */
 	constructor(
-		applyClbc: (arg: ApplyResult) => void, 
-		canceldClbc: (arg: CancelResult) => void
+		private orderItem: IArticleItem,
+		private _applyCallback: (quantity: number) => void, 
+		private _cancelCallback: (message: string) => void
 	) {
-		this._quantity = this._baseQuantity;
-
-		this._applyCallback = applyClbc;
-		this._cancelCallback = canceldClbc;
 
 		// форма
 		this._nodeElement.setAttribute("class", "form-add-article-to-order");
@@ -121,21 +110,46 @@ export default class RenterFormAddOrderItem {
 		this._btn_increase.addEventListener("click", this._handlerQuantityIncrease.bind(this));
 		this._btn_reduce.addEventListener("click", this._handlerQuantityReduce.bind(this));
 
+		this._input_price.addEventListener("input", this._handlerPriceInput.bind(this));
+		this._input_price.addEventListener("focus", function(e) {this.value = ""});
+		this._input_price.addEventListener("blur", ((self) => function(e) {
+			if (this.value.trim().length == 0) 
+				this.value = self.calcQuantityToTotalPrice(self._quantity).toString();
+		})(this));
+
+		this._input_quantity.addEventListener("input", this._handlerQuantityInput.bind(this));
+		this._input_quantity.addEventListener("focus", function(e) {this.value = ""});
+		this._input_quantity.addEventListener("blur", ((self) => function(e) {
+			if (this.value.trim().length == 0)
+				this.value = self._quantity.toString();
+		})(this));
+
 		// Начальная установка полей формы
-		this.quantity = this._baseQuantity;
+		this.quantity = this._quantity;
 	}
 
 	set quantity(value: number) {
-		this._input_quantity.setAttribute("value", value.toString());
+		this._input_quantity.value = value.toString();
 	}
 	set price(value: number) {
-		this._input_price.setAttribute("value", value.toString());
+		this._input_price.value = value.toString();
 	}
 	set title(value: string) {
 		this._p_title.textContent = value;
 	}
 
+	private calcTotalPriceToQuantity(totalPrice: number): number {
+		return (totalPrice < this.orderItem.price) ? 
+		       0 : 0^(totalPrice / this.orderItem.price);
+	}
+	private calcQuantityToTotalPrice(quantity: number): number {
+		return this.orderItem.price * quantity;
+	}
+
 	render(destination: HTMLElement) {
+		this.quantity = this._quantity;
+		this.price = this.calcQuantityToTotalPrice(this._quantity);
+		this.title = this.orderItem.title;
 		this._destination = destination;
 		this._destination.append(this._nodeElement);
 	}
@@ -143,29 +157,50 @@ export default class RenterFormAddOrderItem {
 	// обработчики событий формы
 	_handlerFormSubmit(e: SubmitEvent) {
 		e.preventDefault();
-		this._applyCallback({quantity: this._input_quantity.value});
+		this._applyCallback(this._quantity);
 		this._nodeElement.remove();
 	}
 
 	_handleFormCancel(e: MouseEvent) {
-		this._cancelCallback({
-			apply: false
-		});
+		this._cancelCallback("user cancel input");
 		this._nodeElement.remove();
 	}
 
 	_handleFormReset(e: Event) {
-		this.quantity = this._quantity = this._baseQuantity;
+		this.quantity = this._quantity = 1;
 		console.log("Form Reset");
 	}
 
 	_handlerQuantityIncrease(e: Event | MouseEvent) {
+		console.log("qincr", this._quantity);
 		this.quantity = (this._quantity += 1);
+		this.price = this.calcQuantityToTotalPrice(this._quantity);
 	}
 
 	_handlerQuantityReduce(e: Event | MouseEvent) {
 		if (this._quantity > 0) {
 			this.quantity = (this._quantity -= 1);
+			this.price = this.calcQuantityToTotalPrice(this._quantity);
+		}
+	}
+
+	_handlerQuantityInput(e: Event) {
+		const value =  parseInt(this._input_quantity.value);
+		if (isNaN(value) || !isFinite(value)) {
+			this.price = 0;
+		} else {
+			this.quantity = this._quantity = value;
+			this.price = this.calcQuantityToTotalPrice(value);
+		}
+	}
+
+	_handlerPriceInput(e: Event) {
+		const value =  parseInt(this._input_price.value);
+		if (isNaN(value) || !isFinite(value)) {
+			this.quantity = 0;
+		} else {
+			this.price = value;
+			this.quantity = this._quantity = this.calcTotalPriceToQuantity(value);
 		}
 	}
 }

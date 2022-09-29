@@ -103,20 +103,10 @@ datastorage.getProductCollection(function (error, dataset, info='') {
 renderMainAssortimentList.on("requireitem", function (data: unknown) {
     if (data instanceof ProductUnit) {
         const renderForm = new renderFormAddOrderItem(
-            (applyData) => {
-                // TODO: Нужно написать правила преобразование числовых величин в зависимости от типа продукта.
-                const quantity = parseInt(applyData.quantity);
-                if (isFinite(quantity) && quantity > 0) {
-                    orders.active?.addItem(new ArticleUnit(data, quantity));
-                }
-            },
-            (cancelData) => {
-                console.log(cancelData)
-            }
+            data,
+            (quantity) => orders.active?.addItem(new ArticleUnit(data, quantity)),
+            console.log
         );
-        renderForm.title  = data.title;
-        renderForm.price = data.price;
-        renderForm.quantity = 1;
         renderForm.render(document.body);
     } else {
         console.error("Неверный элемент");
