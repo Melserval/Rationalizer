@@ -95,9 +95,9 @@ export default class RenterFormAddOrderItem {
 		const div_btn_set = document.createElement("div");
 		div_btn_set.setAttribute("class", "btn-set");
 		div_btn_set.append(
+			div_wrapper_btn_apply,
 			div_wrapper_btn_reset, 
-			div_wrapper_btn_cancel, 
-			div_wrapper_btn_apply
+			div_wrapper_btn_cancel 
 		);
 
 		this._nodeElement.append(this._p_title, div_btn_quantity_control_set, div_input_set, div_btn_set);
@@ -129,10 +129,16 @@ export default class RenterFormAddOrderItem {
 	}
 
 	set quantity(value: number) {
-		this._input_quantity.value = value.toString();
+		this._input_quantity.setAttribute(
+			"value", 
+			this._input_quantity.value = value.toString()
+		);
 	}
 	set price(value: number) {
-		this._input_price.value = value.toString();
+		this._input_price.setAttribute(
+			"value",
+			this._input_price.value = value.toString()
+		);
 	}
 	set title(value: string) {
 		this._p_title.textContent = value;
@@ -168,6 +174,7 @@ export default class RenterFormAddOrderItem {
 
 	_handleFormReset(e: Event) {
 		this.quantity = this._quantity = 1;
+		this.price = this.orderItem.price;
 		console.log("Form Reset");
 	}
 
