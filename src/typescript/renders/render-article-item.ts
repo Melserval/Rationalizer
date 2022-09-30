@@ -1,19 +1,22 @@
 import { ProductUnit } from '../units/product-unit';
 import { ArticleUnit } from '../units/article-item';
+
+export type ArticleItems = RenderArticleProduct | RenderArticleUnit;
+
 /**
  * Представляет элемент ассортимента в списках товаров/заказов.
  */
-export class RenderArticleItem<T> {
+export abstract class RenderArticleItem<T> {
 
-	protected _nodeElement: HTMLLIElement; 
-	protected _children = new Array<HTMLElement>();
+	protected _nodeElement: HTMLLIElement;
 	
-	protected constructor(
+	constructor(
 		protected _renderedItem: T
 	) {
 		this._nodeElement = document.createElement('li');
-		this._nodeElement.append(...this._children);
 	}
+	// NOTE: Над названием еще нужно поработать.
+	protected abstract initialize(item: T): void;
 
 	remove() {
 		this._nodeElement.remove();
@@ -36,39 +39,26 @@ export class RenderArticleItem<T> {
 		return this._nodeElement;
 	}
 
-	//abstract initialize(item: T): void;
-
 	/**
-	 * Создает LI элемент, наполняет данными из au.
-	 * @param au элемент с данными.
+	 * Помещает созданный HTML элемент в DOM.
 	 * @param destination элемент для размещения рендера.
 	 */
 	render(destination: HTMLElement) {
+		this.initialize(this._renderedItem);
 		destination.append(this._nodeElement);
-	}
-
-	/**
-	 * Объект для рендера объекта ассортимента.
-	 *
-	 * @param   {U}  item  объект ассортимента.
-	 * @return  {[type]}   Рендер.
-	 */
-	static renderFor<U>(item: U) {
-		return new this(item);
 	}
 }
 /**
- * Рендер объекта продукта.
+ * Рендер объекта продукта для списка ассортимента.
  */
-export class RenderArticleProduct<T extends ProductUnit> extends RenderArticleItem<T> {
+export class RenderArticleProduct extends RenderArticleItem<ProductUnit> {
 
 	_span_title = document.createElement('span');
 	_span_package = document.createElement('span');
 	_span_amount = document.createElement('span');
 	_span_price = document.createElement('span');
-	
-	constructor(item: T) {
-		super(item);
+
+	protected initialize(item: ProductUnit): void {
 		this._nodeElement.append(
 			this._span_title,
 			this._span_package,
@@ -79,7 +69,7 @@ export class RenderArticleProduct<T extends ProductUnit> extends RenderArticleIt
 		this._span_package.classList.add("article-package");
 		this._span_amount.classList.add("article-amount");
 		this._span_price.classList.add("article-price");
-
+	
 		this.title = item.title;
 		this.amount = item.amount;
 		this.price = item.price;
@@ -97,7 +87,7 @@ export class RenderArticleProduct<T extends ProductUnit> extends RenderArticleIt
 	}
 	
 	set price(value: number) {
-		this._span_price.textContent = value.toFixed(2).toString();
+		this._span_price.textContent = value.toFixed(2);
 	}
 
 	set package(value: string) {
@@ -108,7 +98,7 @@ export class RenderArticleProduct<T extends ProductUnit> extends RenderArticleIt
 /**
  * Рендер объекта заказанной единицы.
  */
-export class RenderArticleUnit<T extends ArticleUnit> extends RenderArticleItem<T> {
+export class RenderArticleUnit extends RenderArticleItem<ArticleUnit> {
 
 	_span_title = document.createElement('span');
 	_span_amount = document.createElement('span');
@@ -116,9 +106,7 @@ export class RenderArticleUnit<T extends ArticleUnit> extends RenderArticleItem<
 	_span_price = document.createElement('span');
 	_span_total = document.createElement('span');
 	
-	constructor(item: T) {
-		super(item);
-
+	protected initialize(item: ArticleUnit): void {
 		this._nodeElement.append(
 			this._span_title,
 			this._span_amount,
@@ -144,7 +132,6 @@ export class RenderArticleUnit<T extends ArticleUnit> extends RenderArticleItem<
 	}
 
 	set amount(value: number) {
-		// measureTypeLabel	
 		const mtl = this._renderedItem.measureType.labelShort;
 		this._span_amount.textContent = value.toString(10) + ` ${mtl}`;
 	}

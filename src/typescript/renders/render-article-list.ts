@@ -1,13 +1,15 @@
 
 import { ArticleList } from "../units/article-list";
 import { IArticleItem } from "../units/i-article-item";
-import { RenderArticleItem } from "./render-article-item";
 import { RenderHeaderList } from "./render-header-list";
+import {ArticleItems, RenderArticleProduct, RenderArticleUnit} from './render-article-item';
+import { ProductUnit } from "../units/product-unit";
+import { ArticleUnit } from "../units/article-item";
 
 /**
  * Представление списка элементов ассортимента.
  */
-export class RenderArticleList {
+export abstract class RenderArticleList {
 	
 	public readonly id : string;
 	public listInfo: string;
@@ -21,24 +23,20 @@ export class RenderArticleList {
 		// событие запрос выбранного элемента
 		"requireitem": new Array<CallableFunction>() 
 	};
-
-	private _itemRender: (item: IArticleItem) => RenderArticleItem<any>;
-	private _itemsRender = new Array<RenderArticleItem<any>>();
+	private _itemsRender = new Array<ArticleItems>();
 	private _headerRender = new RenderHeaderList();
-
+	
 	private _nodeElement = document.createElement("div");
 	private _ul = document.createElement('ul');
 	private _p = document.createElement('p');
-
+	
 	// HACK: Временная мера
 	public static readonly articleListCollection = new Map<string, RenderArticleList>();
-	
+
 	constructor(
 		info: string,
-		itemRender: (item: IArticleItem) => RenderArticleItem<any>
 	) {
 		this.listInfo = info;
-		this._itemRender = itemRender;
 		this.id = Date.now().toString(24);
 		this._nodeElement.id = this.id;
 
@@ -53,6 +51,8 @@ export class RenderArticleList {
 
 		RenderArticleList.articleListCollection.set(this.id, this);
 	}
+	
+	protected abstract getItemRender(item: unknown): ArticleItems;
 
 	remove() {
 		this._nodeElement.remove();
@@ -68,9 +68,7 @@ export class RenderArticleList {
 	 * @param destination Элемент контейнер для рендера.
 	 */
 	render(al: ArticleList, destination: HTMLElement) {
-
 		destination.append(this._nodeElement);
-
 		this.header.label = "Hello";
 		this.header.total = 10500;
 		this.header.quantity = 1;
@@ -79,14 +77,13 @@ export class RenderArticleList {
 		for (let item of al.items) {
 			this.renderItem(item);
 		}
-
 		al.on('additem', this.renderItem.bind(this));
 	}
 
 	renderItem(item: IArticleItem) {
-		let itemRender = this._itemRender(item);
+		let itemRender = this.getItemRender(item);
 		itemRender.render(this._ul);
-		this._itemsRender.push(itemRender);
+		this._itemsRender.push(itemRender); // T
 	}
 	
 	// ------  обработка перемещения по списку и выбора элементов -------
@@ -171,5 +168,17 @@ export class RenderArticleList {
 		} else {
 			throw new Error(`Попытка вызвать не существующее событие (${eventName})`);
 		}
+	}
+}
+
+export class RenderArticleAssortimentList extends RenderArticleList {
+	protected getItemRender(item: ProductUnit): ArticleItems {
+		return new RenderArticleProduct(item);
+	}
+}
+
+export class RenderArticleOrderList extends RenderArticleList {
+	protected getItemRender(item: ArticleUnit): ArticleItems {
+		return new RenderArticleUnit(item);
 	}
 }

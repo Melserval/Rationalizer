@@ -11,7 +11,7 @@ import { ProductUnit } from "./units/product-unit";
 import { ControllerArticleList } from './controller-article-list';
 import { ControllerOrderList } from './units/controller-order-list';
 // рендеры
-import { RenderArticleList } from "./renders/render-article-list";
+import { RenderArticleAssortimentList, RenderArticleList, RenderArticleOrderList } from "./renders/render-article-list";
 import { ArticleListOrder } from './units/article-list';
 import { RenderArticleUnit, RenderArticleProduct } from './renders/render-article-item';
 
@@ -27,17 +27,12 @@ const controllerArticleList = new ControllerArticleList("main controller article
 
 // оновной список ассортимента.
 const mainAssortimentList = new ArticleList('main assortiment list');
-const renderMainAssortimentList = new RenderArticleList(
-    "основной список ассортимента",
-    RenderArticleProduct.renderFor.bind(RenderArticleProduct)
-);
+const renderMainAssortimentList = new RenderArticleAssortimentList("основной список ассортимента");
 renderMainAssortimentList.render(mainAssortimentList, conteinerSouceList);
-
 controllerArticleList.addList(mainAssortimentList, "assortiment", true);
 
 // контроллер коллекции списков покупок.
 const orders = new ControllerOrderList('main orders set');
-
 
 
 // ОБРАБОТЧИИК создание продукта главной формой.
@@ -78,10 +73,7 @@ onOrderListCreated(function (arg) {
     const al = new ArticleListOrder("Список необходимых приобритений", term);
     orders.addList(al, al.label);
     
-	const renderAl = new RenderArticleList(
-        "Список покупок", 
-        RenderArticleUnit.renderFor.bind(RenderArticleUnit)
-    );
+	const renderAl = new RenderArticleOrderList("Список покупок");
     renderAl.render(al, conteinerOrderList);
 });
 
@@ -97,7 +89,6 @@ datastorage.getProductCollection(function (error, dataset, info='') {
         }
     }
 });
-
 
 // test code: обкатка формы добавления позиции в список покупок.
 renderMainAssortimentList.on("requireitem", function (data: unknown) {
