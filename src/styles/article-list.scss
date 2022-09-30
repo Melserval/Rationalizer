@@ -1,0 +1,165 @@
+// раздел списков ассортимента - общий и создаваемые списки покупок.
+$max-width-base: 1024px;
+
+// общий вид списков - ассортимента и покупок
+.section-assortiment-list, .section-orders-list {
+	display: inline-block;
+	width: 49.50%;
+	box-sizing: border-box;
+	padding: 10px;
+	vertical-align: top;
+	@media (max-width: $max-width-base) {
+		display: block;
+		width: auto;
+	}
+	header {
+		padding: 10px;
+		background-color: #cec057;
+		border-radius: 3px;
+		box-shadow: 0 1px 2px #555555a2;
+	}
+}
+
+#block-source-list, #block-order-list {
+	.block-article_list {
+		background-color: #f2f1f1;
+		border-radius: 3px;
+		padding-bottom: 1px;
+		margin-bottom: 5px;
+	}
+	.article_list__header {
+		height: 12px;
+		background-color: #e2a140;
+		font-family: 'Anka/Coder';
+		font-size: 12px;
+	}
+	.article_list__items {
+		list-style: none;
+		margin: 0;
+		padding: 1px;
+		li {
+			padding: 5px 10px  5px;
+			border-bottom: 1px solid white;
+			background-color: #faf734;
+			&:hover {
+				background-color: #fff;
+				cursor: pointer;
+			}
+			span {
+				display: inline-block;
+				font-family: rubik;
+				font-size: 14px;
+				text-align: right;
+				&.article-title {
+					color: #111;
+				}
+				&.article-package {
+					color: black;
+				}
+				&.article-amount {
+					color: rgb(36, 37, 49);
+					text-align: right;
+				}
+				&.article-price {
+					color: rgb(1 167 45);
+					text-align: right;
+				}
+			}
+			span:first-child {
+				text-align: left;
+			}
+		}
+		li.focusedli {
+			background-color: #ffde1c;
+		}
+	}
+	.article_list__info {
+		margin: 5px;
+		padding: 10px;
+		text-align: center;
+		font-family: sans-serif;
+		color: rgb(20, 44, 14);
+	}
+}
+
+#block-source-list .article_list__items {
+	span {
+		&.article-title {
+			width: 60%;
+		}
+		&.article-package {
+			width: 10%;
+		}
+		&.article-amount {
+			width: 15%;
+		}
+		&.article-price {
+			width: 15%;
+		}
+	}
+}
+
+#block-order-list .article_list__items {
+	span {
+		&.article-title {
+			width: 50%;
+		}
+		&.article-amount {
+			width: 15%;
+		}
+		&.article-price {
+			width: 15%;
+		}
+		&.article-quantity {
+			color: rgb(48, 62, 252);
+			text-align: right;
+			width: 5%;
+		}
+		&.article-total {
+			color:rgb(189, 55, 3);
+			text-align: right;
+			width: 15%;
+		}
+	}
+}
+
+@media (min-width: 1024px) {
+	.section-orders-list {
+		text-align: right;
+	}
+	// блок - список покупок
+	.article_list__items {
+		display: inline-block;
+		width: 100%;
+		max-width: 550px;
+		& > * {
+			text-align: left;
+		}
+	}
+	// блок список ассортимента
+	.article_list__items {
+		max-width: 550px;
+	}
+}
+
+#order-create-control {
+	// обертка блок кнопок
+	div:nth-child(1) {
+		display: inline-block;
+		button {
+			display: inline-block;
+			width: 100px;
+		}
+		//  инпут ввода количества дней
+		#order-custom-days {
+			display: inline-block;
+			width: 40px;
+			height: 14px;
+			padding: 0;
+			border: 1px solid #3b8102;
+			text-align: center;
+			font-size: 13px;
+			font-family: rubik;
+		}
+	}
+}

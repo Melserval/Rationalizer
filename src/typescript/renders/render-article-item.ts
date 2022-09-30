@@ -112,7 +112,9 @@ export class RenderArticleUnit<T extends ArticleUnit> extends RenderArticleItem<
 
 	_span_title = document.createElement('span');
 	_span_amount = document.createElement('span');
+	_span_quantity = document.createElement('span');
 	_span_price = document.createElement('span');
+	_span_total = document.createElement('span');
 	
 	constructor(item: T) {
 		super(item);
@@ -120,15 +122,21 @@ export class RenderArticleUnit<T extends ArticleUnit> extends RenderArticleItem<
 		this._nodeElement.append(
 			this._span_title,
 			this._span_amount,
-			this._span_price
+			this._span_price,
+			this._span_quantity,
+			this._span_total
 		);
 		this._span_title.classList.add("article-title");
 		this._span_amount.classList.add("article-amount");
+		this._span_quantity.classList.add("article-quantity");
 		this._span_price.classList.add("article-price");
+		this._span_total.classList.add("article-total");
 		
 		this.title = item.title;
 		this.amount = item.amount;
 		this.price = item.price;
+		this.quantity = item.quantity;
+		this.total = item.total;
 	}
 
 	set title(value: string) {
@@ -140,8 +148,16 @@ export class RenderArticleUnit<T extends ArticleUnit> extends RenderArticleItem<
 		const mtl = this._renderedItem.measureType.labelShort;
 		this._span_amount.textContent = value.toString(10) + ` ${mtl}`;
 	}
+
+	set quantity(value: number) {
+		this._span_quantity.textContent = value.toString(10);
+	}
 	
 	set price(value: number) {
-		this._span_price.textContent = value.toFixed(2).toString();
+		this._span_price.textContent = value.toFixed(2);
+	}
+
+	set total(value: number) {
+		this._span_total.textContent = value.toFixed(2);
 	}
 }
