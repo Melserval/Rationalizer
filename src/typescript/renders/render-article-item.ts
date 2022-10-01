@@ -15,7 +15,11 @@ export abstract class RenderArticleItem<T> {
 	) {
 		this._nodeElement = document.createElement('li');
 	}
-	// NOTE: Над названием еще нужно поработать.
+
+	/**
+	 * Формирует внутреннию HTML структуру компонента и задает начальные значения.
+	 * @param item Объект с данными для визуализации.
+	 */
 	protected abstract initialize(item: T): void;
 
 	remove() {
@@ -53,10 +57,10 @@ export abstract class RenderArticleItem<T> {
  */
 export class RenderArticleProduct extends RenderArticleItem<ProductUnit> {
 
-	_span_title = document.createElement('span');
+	_span_title   = document.createElement('span');
 	_span_package = document.createElement('span');
-	_span_amount = document.createElement('span');
-	_span_price = document.createElement('span');
+	_span_amount  = document.createElement('span');
+	_span_price   = document.createElement('span');
 
 	protected initialize(item: ProductUnit): void {
 		this._nodeElement.append(

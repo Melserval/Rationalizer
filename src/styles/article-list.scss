@@ -27,11 +27,40 @@ $max-width-base: 1024px;
 		padding-bottom: 1px;
 		margin-bottom: 5px;
 	}
-	.article_list__header {
+	.article_list__header header {
 		height: 12px;
 		background-color: #e2a140;
 		font-family: 'Anka/Coder';
 		font-size: 12px;
+
+		span {
+			display: inline-block;
+			font-family: rubik;
+			font-size: 14px;
+			text-align: right;
+
+			&.header-title {
+				color: #111;
+				width: 50%;
+			}
+			&.header-term {
+				color: black;
+				width: 20%;
+			}
+			&.header-quantity {
+				color: rgb(15, 21, 94);
+				text-align: right;
+				width: 15%;
+			}
+			&.header-total {
+				color: rgb(189, 55, 3);
+				text-align: right;
+				width: 15%;
+			}
+		}
+		span:first-child {
+			text-align: left;
+		}
 	}
 	.article_list__items {
 		list-style: none;
@@ -128,17 +157,13 @@ $max-width-base: 1024px;
 		text-align: right;
 	}
 	// блок - список покупок
-	.article_list__items {
+	.block-article_list {
 		display: inline-block;
 		width: 100%;
 		max-width: 550px;
 		& > * {
 			text-align: left;
 		}
-	}
-	// блок список ассортимента
-	.article_list__items {
-		max-width: 550px;
 	}
 }
 
