@@ -1,3 +1,4 @@
+import { ArticleUnit } from "./article-item";
 import { IArticleItem } from "./i-article-item";
 
 /**
@@ -13,10 +14,9 @@ export class ArticleList {
 	};
 
 	private _created: number = Date.now();
-	private _items = new Map<string, IArticleItem>();
+	protected _items = new Map<string, IArticleItem>();
 	private _label: string;
-	
-	constructor(label: string);
+
 	constructor(label: string) {
 		this._label = label;
 	}
@@ -95,11 +95,18 @@ export class ArticleListOrder extends ArticleList {
 		return this._term;
 	}
 
+	get total(): number {
+		let total = 0;
+		for (const item of (this._items as Map<string, ArticleUnit>).values()) {
+			total += item.total;
+		}
+		return total;
+	}
+
 	constructor(label: string, term: string) {
 		super(label);
 		this._term = term;
 	}
 
 	private _term: string;
-
 }

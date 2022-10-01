@@ -1,7 +1,7 @@
 
-import { ArticleList } from "../units/article-list";
+import { ArticleList, ArticleListOrder } from "../units/article-list";
 import { IArticleItem } from "../units/i-article-item";
-import { RenderHeaderList } from "./render-header-list";
+import { IRenderListHeader, RenderAssortimentListHeader, RenderOrderListHeader } from "./render-header-list";
 import {ArticleItems, RenderArticleProduct, RenderArticleUnit} from './render-article-item';
 import { ProductUnit } from "../units/product-unit";
 import { ArticleUnit } from "../units/article-item";
@@ -12,21 +12,19 @@ import { ArticleUnit } from "../units/article-item";
 export abstract class RenderArticleList {
 	
 	public readonly id : string;
-	public listInfo: string;
 	protected selectedLiItem: HTMLLIElement | null = null;
 
 	protected events: { [key: string]: CallableFunction[] } = {
 		// обработчики события при выборе элемента (получен "фокус").
 		"selectitem": new Array<CallableFunction>(),
-		// обработчики события при потери фокуса.
+		// обработчики события при потере фокуса.
 		"deleteitem": new Array<CallableFunction>(),
 		// событие запрос выбранного элемента
 		"requireitem": new Array<CallableFunction>() 
 	};
 	private _itemsRender = new Array<ArticleItems>();
-	private _headerRender = new RenderHeaderList();
-	
 	private _nodeElement = document.createElement("div");
+	private _headerConteiner = document.createElement("div");
 	private _ul = document.createElement('ul');
 	private _p = document.createElement('p');
 	
@@ -34,50 +32,49 @@ export abstract class RenderArticleList {
 	public static readonly articleListCollection = new Map<string, RenderArticleList>();
 
 	constructor(
-		info: string,
+		public listInfo: string
 	) {
-		this.listInfo = info;
 		this.id = Date.now().toString(24);
 		this._nodeElement.id = this.id;
 
-		this._nodeElement.append(this._headerRender.element);
+		this._nodeElement.append(this._headerConteiner);
 		this._nodeElement.append(this._ul);
 		this._nodeElement.append(this._p);
-		this._ul.classList.add("article_list__items");
-		this._headerRender.element.classList.add("article_list__header");
+
 		this._nodeElement.classList.add("block-article_list");
+		this._headerConteiner.classList.add("article_list__header");
+		this._ul.classList.add("article_list__items");
 		this._p.classList.add("article_list__info");
+		
 		this._p.textContent = this.listInfo;
 
 		RenderArticleList.articleListCollection.set(this.id, this);
 	}
 	
 	protected abstract getItemRender(item: unknown): ArticleItems;
+	protected abstract getHeaderRender(item: unknown): IRenderListHeader;
 
 	remove() {
 		this._nodeElement.remove();
 	}
 
-	get header() {
-		return this._headerRender;
-	}
-
 	/**
 	 * Получает объект с данными и отображает их в HTML.
-	 * @param al Элемент с данными.
+	 * @param articleList Элемент с данными.
 	 * @param destination Элемент контейнер для рендера.
 	 */
-	render(al: ArticleList, destination: HTMLElement) {
+	render(articleList: ArticleList, destination: HTMLElement) {
 		destination.append(this._nodeElement);
-		this.header.label = "Hello";
-		this.header.total = 10500;
-		this.header.quantity = 1;
-		this.header.term = "sk";
+		const header =  this.getHeaderRender(articleList);
+		header.render(this._headerConteiner);
 		// рендер элементов коллекции.
-		for (let item of al.items) {
+		for (let item of articleList.items) {
 			this.renderItem(item);
 		}
-		al.on('additem', this.renderItem.bind(this));
+		articleList.on('additem', (target: IArticleItem) => {
+			this.renderItem(target);
+			header.update(articleList);
+		});
 	}
 
 	renderItem(item: IArticleItem) {
@@ -172,13 +169,23 @@ export abstract class RenderArticleList {
 }
 
 export class RenderArticleAssortimentList extends RenderArticleList {
+
 	protected getItemRender(item: ProductUnit): ArticleItems {
 		return new RenderArticleProduct(item);
+	}
+
+	protected getHeaderRender(item: ArticleList): IRenderListHeader {
+		return new RenderAssortimentListHeader(item);
 	}
 }
 
 export class RenderArticleOrderList extends RenderArticleList {
+
 	protected getItemRender(item: ArticleUnit): ArticleItems {
 		return new RenderArticleUnit(item);
+	}
+
+	protected getHeaderRender(item: ArticleListOrder): IRenderListHeader {
+		return new RenderOrderListHeader(item);
 	}
 }
