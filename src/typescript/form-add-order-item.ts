@@ -22,7 +22,7 @@ export default class RenterFormAddOrderItem {
 	private _btn_reduce     = document.createElement("button");
 
 	/**
-	 * 
+	 * @param orderItem объект выбираемого продукта.
 	 * @param _applyCallback обработчик выполнения формы.
 	 * @param _cancelCallback обработчик отмены формы.
 	 */
