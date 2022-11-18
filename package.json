@@ -4,9 +4,9 @@
   "description": "рациональный рацион",
   "main": "index.js",
   "scripts": {
-    "build": "tsc && webpack-cli",
+    "build": "webpack-cli",
     "test": "test",
-    "serve": "node ./app/rationalizer.js",
+    "server": "node ./app/index.js",
     "sass": "sass .\\src\\styles\\_master.scss .\\app\\static\\css\\master.css"
   },
   "repository": {
