@@ -77,12 +77,9 @@ SELECT
 	p.price,
 	p.`description`,
 	v.type_name, 
-	m.type_name
+	m.type_name as m_typename
 FROM 
-	product p, 
-	type_measure m, 
-	type_package v
-ON
-	m.id = p.measure_id
-ON 
-	v.id = p.package_id;
+	product AS p
+INNER JOIN 
+	type_measure AS m  ON m.id = p.measure_id 
+INNER JOIN type_package AS v ON v.id = p.package_id;

@@ -83,24 +83,28 @@ export default class RenterFormAddOrderItem {
 		const div_wrapper_btn_cancel = document.createElement("div");
 		div_wrapper_btn_cancel.append(this._btn_cancel);
 
-		// секция кнопок увеличить, уменьшить количество.
-		const div_btn_quantity_control_set = document.createElement("div");
-		div_btn_quantity_control_set.setAttribute("class", "btn-set quantity-controll");
-		div_btn_quantity_control_set.append(
+		const div_wrapper_btn_quantity = document.createElement("div");
+		div_wrapper_btn_quantity.setAttribute("class", "quantity-controll");
+		div_wrapper_btn_quantity.append(
 			this._btn_increase,
 			this._btn_reduce
 		);
+
+		// секция кнопок настройки количества.
+		const div_btn_set_1 = document.createElement("div");
+		div_btn_set_1.setAttribute("class", "btn-set");
+		div_btn_set_1.append(div_wrapper_btn_quantity);
 		
 		// секция кнопок сброс, отмена, ок
-		const div_btn_set = document.createElement("div");
-		div_btn_set.setAttribute("class", "btn-set");
-		div_btn_set.append(
+		const div_btn_set_2 = document.createElement("div");
+		div_btn_set_2.setAttribute("class", "btn-set");
+		div_btn_set_2.append(
 			div_wrapper_btn_apply,
 			div_wrapper_btn_reset, 
 			div_wrapper_btn_cancel 
 		);
 
-		this._nodeElement.append(this._p_title, div_btn_quantity_control_set, div_input_set, div_btn_set);
+		this._nodeElement.append(this._p_title, div_btn_set_1, div_input_set, div_btn_set_2);
 		
 		// Обработчики
 		this._nodeElement.addEventListener("submit", this._handlerFormSubmit.bind(this));
