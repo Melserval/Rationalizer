@@ -13,7 +13,6 @@ import { ControllerOrderList } from './units/controller-order-list';
 // рендеры
 import { RenderArticleAssortimentList, RenderArticleList, RenderArticleOrderList } from "./renders/render-article-list";
 import { ArticleListOrder } from './units/article-list';
-import { RenderArticleUnit, RenderArticleProduct } from './renders/render-article-item';
 
 
 /** контейнеры списков для покупок */
@@ -36,17 +35,10 @@ const orders = new ControllerOrderList('main orders set');
 
 
 // ОБРАБОТЧИИК создание продукта главной формой.
-addHandlerForAssortimenUnitIsCreated(function (product) {
+addHandlerForAssortimenUnitIsCreated(async (product) => {
     console.log("главная форма сотворила предмет!", product);
-    datastorage.addProductUnit(product, (err: Error, result: any) => {
-        console.log("Сохраняю продукт: ", product);
-        if (err) {
-            console.log(err);
-        } else {
-            console.log(result);
-            mainAssortimentList.addItem(product);
-        }
-    });
+    await datastorage.addProductUnit(product);
+    mainAssortimentList.addItem(product);
 });
 
 // ОБРАБОТЧИК создания списков заказов.

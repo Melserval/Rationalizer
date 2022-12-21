@@ -2,15 +2,16 @@
 import {ProductUnit} from "./units/product-unit";
 import * as ut from './types';
 
+const callbacks: CallableFunction[] = [];
 
 export function callbacksetter(callback: (p: ProductUnit) => void ) {
-	caller = callback;
+	callbacks.push(callback);
 }
 
 let caller: CallableFunction;
 
 const mainFormUnitCreate       = <HTMLDivElement>document.getElementById("form-create-item");
-const radioBtnSet_TypePacked   = <NodeListOf<HTMLInputElement>>document.getElementsByName("radio-type-vendor");
+const radioBtnSet_TypeVendor   = <NodeListOf<HTMLInputElement>>document.getElementsByName("radio-type-vendor");
 const radioBtnSet_TypeMeasure  = <NodeListOf<HTMLInputElement>>document.getElementsByName("radio-type-measure");
 const conteinerBtn_setCategory = <HTMLDivElement>document.getElementById("set-category-btn-list");
 	
@@ -21,6 +22,7 @@ const input_ItemDescribe   = <HTMLInputElement>document.getElementById("input-it
 	
 const btn_ItemCreateApply  = <HTMLButtonElement>document.getElementById("item-create-apply");
 const btn_ItemCreateDone   = <HTMLButtonElement>document.getElementById("item-create-done");
+const btn_ItemCreateReset = document.getElementById("item-create-reset") as HTMLButtonElement;
 
 let amountType: symbol;
 let selectedVendorType: symbol;
@@ -100,6 +102,19 @@ mainFormUnitCreate.addEventListener("change", function (e) {
 	}		
 });
 
+/** Очистка полей формы. */
+function formCleaner(e?: Event) {
+	radioBtnSet_TypeMeasure.forEach(item => item.checked = false);
+	radioBtnSet_TypeVendor.forEach(item => item.checked = false);
+	input_ItemName.value     = "";
+	input_ItemAmount.value   = "";
+	input_ItemPrice.value    = "";
+	input_ItemDescribe.value = "";
+}
+
+btn_ItemCreateReset.addEventListener("click", formCleaner);
+
+// Создание продукта.
 btn_ItemCreateApply.addEventListener("click", (e) => {
 	try {
 		let vendor = ut.VendorType.info(selectedVendorType);
@@ -117,9 +132,14 @@ btn_ItemCreateApply.addEventListener("click", (e) => {
 			input_ItemDescribe.value
 		);
 		// TODO: нужно событие для создаваемых в форме объектов.
-		if (typeof caller === 'function') caller(product);
+		for (const callback of callbacks)
+			if (typeof callback === 'function') 
+				callback(product);
+		if (callbacks.length === 0) 
+			throw "незаданы функции обрабоки";
+		formCleaner();
 	} catch (err) {
-		console.error("Объект не будет создан, так как возникла ошибка.", err);
+		console.error("[Форма создания продукта]", "Объект не будет создан, так как возникла ошибка:", err);
 	}
 });
 
