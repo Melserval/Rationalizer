@@ -16,39 +16,45 @@ exports.about = (req, res) => {
 const api = exports.api = { };
 
 api.typeMeasure = (req, res) => {
-	mysql.createConnection(config.mysql).query(
+	const con = mysql.createConnection(config.mysql);
+	con.query(
 		"SELECT * FROM type_measure", function(err, result, fields) {
 			if (err) {
 				console.log(err);
 			} else {
 				res.status(200);
 				res.json(result);
+				con.end();
 			}
 		}
 	);
 };
 
 api.typePackage = (req, res) => {
-	mysql.createConnection(config.mysql).query(
+	const con = mysql.createConnection(config.mysql);
+	con.query(
 		"SELECT * FROM type_package", function(err, result, fields) {
 			if (err) {
 				console.log(err);
 			} else {
 				res.status(200);
 				res.json(result);
+				con.end();
 			}
 		}
 	);
 };
 
 api.product = (req, res) => {
-	mysql.createConnection(config.mysql).query(
+	const con = mysql.createConnection(config.mysql);
+	con.query(
 		"SELECT * FROM product", function(err, result, fields) {
 			if (err) {
 				console.error(err);
 			} else {
 				res.status(200);
 				res.json(result);
+				con.end();
 			}
 		}
 	);
