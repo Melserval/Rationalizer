@@ -14,44 +14,48 @@ import * as uType from "./types";
 export function getProductCollection(
 	callback: (err: Error | null, data: ProductUnit[] | null, from: string) => void
 ) {
-	localstorDataSet.getData().then(
-		data => callback(null, data, "local"), 
-		error => callback(error, null, "local")
-	);
-	constDataSet.then(
-		data => callback(null, data, "constant"), 
-		error => callback(error, null, "constant")
-	);
+	// если за отведенное время бд не ответила - тогда берем данные из локальной коллекции.
+	const TIME = 1450;
+	const timerId = setTimeout(() => {
+		localstorDataSet.getData().then(
+			data => callback(null, data, "local"), 
+			error => callback(error, null, "local")
+		);
+	}, TIME);
+	// HACK: Нужно это переделать в анализ ответов от сервера.
+	serverDataSet
+	.then(data => {
+		clearTimeout(timerId);
+		callback(null, data, "constant");
+	})
+	.catch(error => callback(error, null, "constant"));
 };
 
 /**
  * Сохранение объекта продукта в хранилище.
- * @param product сохраняемый элемент.
- * @param callback (error, result) обработчик результата.
+ *
+ * @param   ProductUnit<string>  product  сохраняемый элемент.
+ *
+ * @return  Promise<string>      ID успешно добавленного продукта.
  */
-export function addProductUnit(
-	product: ProductUnit, 
-	callback?: CallableFunction
-) {
-	// Запись в базу данных
-	fetch("http://localhost:8000/api/data/addproduct", {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json;charset=utf-8'
-		},
-		body: JSON.stringify(product.toJSON())
-	})
-	.then(response => response.ok ? response.text() : Promise.reject())
-	.then(textid => callback?.(null, `добавлено в БД с id [${textid}]`))
-	.catch(error => callback?.(error));
-
-	localstorDataSet.getData()
-	.then((dataset) => {
-		dataset.push(product);
-		return localstorDataSet.setData(dataset)
-	})
-	.then(info => callback?.(null, info))
-	.catch(error => callback?.(error));
+export function addProductUnit(product: ProductUnit): Promise<string> {
+	return Promise.race([
+		// Запись в локальную бд.
+		localstorDataSet.getData()
+		.then((dataset) => {
+			dataset.push(product);
+			return localstorDataSet.setData(dataset)
+		}),
+		// Запись в базу данных
+		fetch("http://localhost:8000/api/data/addproduct", {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json;charset=utf-8'
+			},
+			body: JSON.stringify(product.toJSON())
+		})     // продукт id.
+		.then(response => response.ok ? response.text() : Promise.reject())
+	]);
 };
 
 
@@ -109,7 +113,7 @@ const localstorDataSet = {
 	}
 };
 
-// получение данных из удаленной базы данных.
+// --- получение данных из удаленной базы данных. ---
 
 //TODO: так как создание объектов Product зависимо от типов, необходимо использовать цепочку промисов.
 
@@ -157,7 +161,7 @@ const typesOfVendors = fetch("http://localhost:8000/api/type/package")
 		return types;
 	});
 
-const constDataSet = Promise.all([typesOfMeasure, typesOfVendors])
+const serverDataSet = Promise.all([typesOfMeasure, typesOfVendors])
 .then(typesMV => 
 	fetch("http://localhost:8000/api/data/product")
 	.then(response => response.ok ? response.json() : null)
@@ -172,7 +176,7 @@ const constDataSet = Promise.all([typesOfMeasure, typesOfVendors])
 					new ProductUnit(p.title, p.amount, parseFloat(p.price), vendorType, measureType)
 				);
 			} else {
-				throw new Error("Не удалось создать продукт из БД" + p.title);
+				throw new Error(`Не удалось создать продукт из БД${p.title}`);
 			}
 		}
 		return productObjects;
