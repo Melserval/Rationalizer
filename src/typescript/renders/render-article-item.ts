@@ -1,26 +1,33 @@
 import { ProductUnit } from '../units/product-unit';
 import { ArticleUnit } from '../units/article-item';
 
-export type ArticleItems = RenderArticleProduct | RenderArticleUnit;
 
 /**
- * Представляет элемент ассортимента в списках товаров/заказов.
+ * Представление единицы ассортимента в списках товаров/заказов.
+ * 
+ * @type T - тип объекта для которого предназначен рендер.
  */
 export abstract class RenderArticleItem<T> {
 
-	protected _nodeElement: HTMLLIElement;
+	// Данные, которые будет отображать этот рендер.
+	// Ссылка на объект-источник данных необходима
+	// для доступа к источнику при манипуляциях с 
+	// рендером через дисплей.
+	protected renderableItem: T;
 	
-	constructor(
-		protected _renderedItem: T
-	) {
+	/**
+	 * Назначает сеттерам рендера отображаемые данные из this.renderableItem.
+	 * 
+	 * @param item Объект с данными для визуализации.
+	*/
+	protected abstract showData(): void;
+	
+	protected _nodeElement: HTMLLIElement;
+
+	constructor(item: T) {
+		this.renderableItem = item;
 		this._nodeElement = document.createElement('li');
 	}
-
-	/**
-	 * Формирует внутреннию HTML структуру компонента и задает начальные значения.
-	 * @param item Объект с данными для визуализации.
-	 */
-	protected abstract initialize(item: T): void;
 
 	remove() {
 		this._nodeElement.remove();
@@ -36,9 +43,10 @@ export abstract class RenderArticleItem<T> {
 
 	/** объект отображаемых данных */
 	get dataItem(): T {
-		return this._renderedItem;
+		return this.renderableItem;
 	}
 
+	/** Корневой элемент  */
 	get element(): HTMLLIElement {
 		return this._nodeElement;
 	}
@@ -48,36 +56,50 @@ export abstract class RenderArticleItem<T> {
 	 * @param destination элемент для размещения рендера.
 	 */
 	render(destination: HTMLElement) {
-		this.initialize(this._renderedItem);
+		this.showData();
 		destination.append(this._nodeElement);
 	}
 }
+
 /**
  * Рендер объекта продукта для списка ассортимента.
+ * 
+ * @param ProductUnit визуализируемый рендером объект.
  */
 export class RenderArticleProduct extends RenderArticleItem<ProductUnit> {
 
-	_span_title   = document.createElement('span');
-	_span_package = document.createElement('span');
-	_span_amount  = document.createElement('span');
-	_span_price   = document.createElement('span');
+	private _span_title: HTMLSpanElement;
+	private _span_package: HTMLSpanElement;
+	private _span_amount: HTMLSpanElement;
+	private _span_price: HTMLSpanElement;
 
-	protected initialize(item: ProductUnit): void {
+	constructor(item: ProductUnit) {
+		super(item);
+		this._span_title = document.createElement('span');
+		this._span_title.classList.add("article-title");
+
+		this._span_package = document.createElement('span');
+		this._span_package.classList.add("article-package");
+
+		this._span_amount = document.createElement('span');
+		this._span_amount.classList.add("article-amount");
+
+		this._span_price = document.createElement('span');
+		this._span_price.classList.add("article-price");
+		
 		this._nodeElement.append(
 			this._span_title,
 			this._span_package,
 			this._span_amount,
 			this._span_price
 		);
-		this._span_title.classList.add("article-title");
-		this._span_package.classList.add("article-package");
-		this._span_amount.classList.add("article-amount");
-		this._span_price.classList.add("article-price");
-	
-		this.title = item.title;
-		this.amount = item.amount;
-		this.price = item.price;
-		this.package = item.vendorType.labelShort;
+	}
+
+	protected showData(): void {
+		this.title   = this.renderableItem.title;
+		this.amount  = this.renderableItem.amount;
+		this.price   = this.renderableItem.price;
+		this.package = this.renderableItem.vendorType.labelShort;
 	}
 
 	set title(value: string) {
@@ -85,9 +107,7 @@ export class RenderArticleProduct extends RenderArticleItem<ProductUnit> {
 	}
 
 	set amount(value: number) {
-		// measureTypeLabel	
-		const mtl = this._renderedItem.measureType.labelShort;
-		this._span_amount.textContent = value.toString(10) + ` ${mtl}`;
+		this._span_amount.textContent = `${value} ${this.renderableItem.measureType.labelShort}`;
 	}
 	
 	set price(value: number) {
@@ -104,13 +124,29 @@ export class RenderArticleProduct extends RenderArticleItem<ProductUnit> {
  */
 export class RenderArticleUnit extends RenderArticleItem<ArticleUnit> {
 
-	_span_title = document.createElement('span');
-	_span_amount = document.createElement('span');
-	_span_quantity = document.createElement('span');
-	_span_price = document.createElement('span');
-	_span_total = document.createElement('span');
-	
-	protected initialize(item: ArticleUnit): void {
+	private _span_title: HTMLSpanElement;
+	private _span_amount: HTMLSpanElement;
+	private _span_quantity: HTMLSpanElement;
+	private _span_price: HTMLSpanElement;
+	private _span_total: HTMLSpanElement;
+
+	constructor(item: ArticleUnit) {
+		super(item);
+		this._span_title = document.createElement('span');
+		this._span_title.classList.add("article-title");
+
+		this._span_amount = document.createElement('span');
+		this._span_amount.classList.add("article-amount");
+		
+		this._span_quantity = document.createElement('span');
+		this._span_quantity.classList.add("article-quantity");
+		
+		this._span_price = document.createElement('span');
+		this._span_price.classList.add("article-price");
+		
+		this._span_total = document.createElement('span');
+		this._span_total.classList.add("article-total");
+		
 		this._nodeElement.append(
 			this._span_title,
 			this._span_amount,
@@ -118,17 +154,14 @@ export class RenderArticleUnit extends RenderArticleItem<ArticleUnit> {
 			this._span_quantity,
 			this._span_total
 		);
-		this._span_title.classList.add("article-title");
-		this._span_amount.classList.add("article-amount");
-		this._span_quantity.classList.add("article-quantity");
-		this._span_price.classList.add("article-price");
-		this._span_total.classList.add("article-total");
-		
-		this.title = item.title;
-		this.amount = item.amount;
-		this.price = item.price;
-		this.quantity = item.quantity;
-		this.total = item.total;
+	}
+	
+	protected showData(): void {
+		this.title    = this.renderableItem.title;
+		this.amount   = this.renderableItem.amount;
+		this.price    = this.renderableItem.price;
+		this.quantity = this.renderableItem.quantity;
+		this.total    = this.renderableItem.total;
 	}
 
 	set title(value: string) {
@@ -136,7 +169,7 @@ export class RenderArticleUnit extends RenderArticleItem<ArticleUnit> {
 	}
 
 	set amount(value: number) {
-		const mtl = this._renderedItem.measureType.labelShort;
+		const mtl = this.renderableItem.measureType.labelShort;
 		this._span_amount.textContent = value.toString(10) + ` ${mtl}`;
 	}
 

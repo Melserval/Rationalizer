@@ -1,8 +1,8 @@
 
 import { ArticleList, ArticleListOrder } from "../units/article-list";
 import { IArticleItem } from "../units/i-article-item";
-import { IRenderListHeader, RenderAssortimentListHeader, RenderOrderListHeader } from "./render-header-list";
-import {ArticleItems, RenderArticleProduct, RenderArticleUnit} from './render-article-item';
+import { RenderListHeader, RenderAssortimentListHeader, RenderOrderListHeader } from "./headers/render-list-header";
+import { RenderArticleItem, RenderArticleProduct, RenderArticleUnit} from './render-article-item';
 import { ProductUnit } from "../units/product-unit";
 import { ArticleUnit } from "../units/article-item";
 
@@ -10,10 +10,21 @@ import { ArticleUnit } from "../units/article-item";
  * Представление списка элементов ассортимента.
  */
 export abstract class RenderArticleList {
-	
-	public readonly id : string;
-	protected selectedLiItem: HTMLLIElement | null = null;
 
+	// HACK: Временная мера
+	public static readonly articleListCollection = new Map<string, RenderArticleList>();
+
+	public readonly listInfo: string;
+	public readonly id : string;
+
+	// Компонент представляющий шапку списка.
+	protected abstract headerRender: RenderListHeader;
+
+	// возвращает компонет для рендинга элементов списка.
+	protected abstract getItemRender(item: any): RenderArticleItem<any>; 
+
+	protected selectedLiItem: HTMLLIElement | null = null;
+	
 	protected events: { [key: string]: CallableFunction[] } = {
 		// обработчики события при выборе элемента (получен "фокус").
 		"selectitem": new Array<CallableFunction>(),
@@ -22,18 +33,16 @@ export abstract class RenderArticleList {
 		// событие запрос выбранного элемента
 		"requireitem": new Array<CallableFunction>() 
 	};
-	private _itemsRender = new Array<ArticleItems>();
+	
+	private _itemsRender = new Array<RenderArticleItem<IArticleItem>>();
 	private _nodeElement = document.createElement("div");
 	private _headerConteiner = document.createElement("div");
 	private _ul = document.createElement('ul');
 	private _p = document.createElement('p');
 	
-	// HACK: Временная мера
-	public static readonly articleListCollection = new Map<string, RenderArticleList>();
 
-	constructor(
-		public listInfo: string
-	) {
+	constructor(listinfo: string) {
+		this.listInfo = listinfo;
 		this.id = Date.now().toString(24);
 		this._nodeElement.id = this.id;
 
@@ -50,9 +59,6 @@ export abstract class RenderArticleList {
 
 		RenderArticleList.articleListCollection.set(this.id, this);
 	}
-	
-	protected abstract getItemRender(item: unknown): ArticleItems;
-	protected abstract getHeaderRender(item: unknown): IRenderListHeader;
 
 	remove() {
 		this._nodeElement.remove();
@@ -65,15 +71,15 @@ export abstract class RenderArticleList {
 	 */
 	render(articleList: ArticleList, destination: HTMLElement) {
 		destination.append(this._nodeElement);
-		const header =  this.getHeaderRender(articleList);
-		header.render(this._headerConteiner);
+		this.headerRender.render(this._headerConteiner)
+
 		// рендер элементов коллекции.
 		for (let item of articleList.items) {
 			this.renderItem(item);
 		}
 		articleList.on('additem', (target: IArticleItem) => {
 			this.renderItem(target);
-			header.update(articleList);
+			this.headerRender.showData(articleList);
 		});
 	}
 
@@ -170,22 +176,18 @@ export abstract class RenderArticleList {
 
 export class RenderArticleAssortimentList extends RenderArticleList {
 
-	protected getItemRender(item: ProductUnit): ArticleItems {
+	protected getItemRender(item: ProductUnit) {
 		return new RenderArticleProduct(item);
 	}
 
-	protected getHeaderRender(item: ArticleList): IRenderListHeader {
-		return new RenderAssortimentListHeader(item);
-	}
+	protected headerRender = new RenderAssortimentListHeader();
 }
 
 export class RenderArticleOrderList extends RenderArticleList {
-
-	protected getItemRender(item: ArticleUnit): ArticleItems {
+	
+	protected getItemRender(item: ArticleUnit) {
 		return new RenderArticleUnit(item);
 	}
 
-	protected getHeaderRender(item: ArticleListOrder): IRenderListHeader {
-		return new RenderOrderListHeader(item);
-	}
+	protected headerRender = new RenderOrderListHeader();
 }
