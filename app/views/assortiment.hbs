@@ -1,4 +1,35 @@
 {{!-- основная страница составления ассортимента --}}
+    {{!-- Форма указания бюджета на заданный период --}}
+    <div class="wrapper-form">
+        <form id="form-budget-setting" action="." method="post">
+            <div class="row">
+                <div class="block-start-period">
+                    <label for="input-start-period">Начало периода</label>
+                    <input type="date" id="input-start-period">
+                </div>
+                <div class="block-end-period">
+                    <label for="input-end-period">Завершение периода</label>
+                    <input type="date" id="input-end-period">
+                </div>
+            </div>
+            <div class="row">
+                <label for="input-budget-amount">Сумма бюджета</label>
+                <input id="input-budget-amount" type="number" min="0" max="2000000000" value="0">
+            </div>
+            <hr/>
+            <div class="row">
+                <button id="btn-confirm-period" type="button">Задать финансовый период</button>
+            </div>
+            <hr/>
+            <div class="row">
+                <button id="period-set-done" type="button">Отмена</button>
+                <button id="period-set-reset" type="reset">Сброс</button>
+                <button id="period-set-apply" type="submit">Применить</button>
+            </div>
+            </div>
+        </form>
+    </div>
+    {{!--  --}}
     <!-- Форма создания единицы ассортимента -->
     <div class="wrapper-form">
         <div id="form-create-item">
@@ -72,27 +103,6 @@
             </div>
         </div>
     </div>
-    <!--  -->
-    <!-- форма добавления единицы из основного списка в список покупок/закупок.  -->
-    <form id="form-add-article-to-order" style="display: none;">
-        <p id="text-add-article-info">
-            хороший полезный товар
-        </p>
-        <div class="input-set">
-            <div>
-                <label for="input-add-article-quantity">количество</label>
-                <input type="text" id="input-add-article-quantity" value="0">
-            </div>
-            <div>
-                <label for="input-add-article-total">сумма</label>
-                <input type="text" id="input-add-article-total" value="0">
-            </div>
-        </div>
-        <div class="btn-set">
-            <div><button type="reset">отмена</button></div>
-            <div><button type="submit">принять</button></div>
-        </div>
-    </form>
     <!--  -->
     <div class="items-list-area">
         <!-- секция составляемых списков -->

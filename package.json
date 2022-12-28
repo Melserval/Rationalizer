@@ -7,7 +7,10 @@
     "build": "webpack-cli",
     "test": "test",
     "server": "node ./app/index.js",
-    "sass": "sass .\\src\\styles\\_master.scss .\\app\\static\\css\\master.css"
+    "sass": "sass .\\src\\styles\\_master.scss .\\app\\static\\css\\master.css",
+    "start:client": "webpack-cli --watch",
+    "start:server": "nodemon app/index.js",
+    "start": "concurrently npm:start:*"
   },
   "repository": {
     "type": "git",

@@ -14,6 +14,9 @@ import { ControllerOrderList } from './units/controller-order-list';
 import { RenderArticleAssortimentList, RenderArticleList, RenderArticleOrderList } from "./renders/render-article-list";
 import { ArticleListOrder } from './units/article-list';
 
+// модуль бюджета
+import * as budget from "./budget/budget-form-controller";
+
 
 /** контейнеры списков для покупок */
 const conteinerOrderList = document.getElementById("block-order-list") as HTMLElement;
