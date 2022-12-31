@@ -95,6 +95,7 @@ export class ArticleListOrder extends ArticleList {
 		return this._term;
 	}
 
+	/** общая сумма покупок. */ 
 	get total(): number {
 		let total = 0;
 		for (const item of (this._items as Map<string, ArticleUnit>).values()) {

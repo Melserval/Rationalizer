@@ -42,7 +42,7 @@ function createCustomDaysList(strdays: string) {
 }
 btn_CustomDaysList.addEventListener("keypress", function (e) {
     const element = e.target as HTMLElement;
-    if (element.nodeName !== "INPUT" || e.code !== "NumpadEnter") return;;
+    if (element.nodeName !== "INPUT" || e.code !== "NumpadEnter") return;
     createCustomDaysList((element as HTMLInputElement).value);
 });
 btn_CustomDaysList.addEventListener("click", function (e) {

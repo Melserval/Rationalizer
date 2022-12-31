@@ -18,18 +18,16 @@ export abstract class RenderArticleItem<T> {
 	protected renderableItem: T;
 	
 	/**
-	 * @param   {T}  renderable  визуализируемый рендером объект.
-	 */
-	constructor(renderable: T) {
-		this.renderableItem = renderable;
+	 * Назначает сеттерам рендера отображаемые данные из this.renderableItem.
+	 * 
+	 * @param item Объект с данными для визуализации.
+	*/
+	protected abstract showData(): void;
+
+	constructor(item: T) {
+		this.renderableItem = item;
 		this._nodeElement = document.createElement('li');
 	}
-
-	/**
-	 * Формирует внутреннию HTML структуру компонента и задает начальные значения.
-	 * @param item Объект с данными для визуализации.
-	 */
-	protected abstract initialize(): void;
 
 	remove() {
 		this._nodeElement.remove();
@@ -48,6 +46,7 @@ export abstract class RenderArticleItem<T> {
 		return this.renderableItem;
 	}
 
+	/** Корневой элемент  */
 	get element(): HTMLLIElement {
 		return this._nodeElement;
 	}
@@ -57,7 +56,7 @@ export abstract class RenderArticleItem<T> {
 	 * @param destination элемент для размещения рендера.
 	 */
 	render(destination: HTMLElement) {
-		this.initialize();
+		this.showData();
 		destination.append(this._nodeElement);
 	}
 }
@@ -72,11 +71,10 @@ export class RenderArticleProduct extends RenderArticleItem<ProductUnit> {
 	private _span_title: HTMLSpanElement;
 	private _span_package: HTMLSpanElement;
 	private _span_amount: HTMLSpanElement;
-	private _span_price: HTMLSpanElement;   
+	private _span_price: HTMLSpanElement;
 
-	constructor(renderable: ProductUnit) {
-		super(renderable);
-
+	constructor(item: ProductUnit) {
+		super(item);
 		this._span_title = document.createElement('span');
 		this._span_title.classList.add("article-title");
 
@@ -97,7 +95,7 @@ export class RenderArticleProduct extends RenderArticleItem<ProductUnit> {
 		);
 	}
 
-	protected initialize(): void {
+	protected showData(): void {
 		this.title   = this.renderableItem.title;
 		this.amount  = this.renderableItem.amount;
 		this.price   = this.renderableItem.price;
@@ -132,9 +130,8 @@ export class RenderArticleUnit extends RenderArticleItem<ArticleUnit> {
 	private _span_price: HTMLSpanElement;
 	private _span_total: HTMLSpanElement;
 
-	constructor(renderable: ArticleUnit) {
-		super(renderable);
-
+	constructor(item: ArticleUnit) {
+		super(item);
 		this._span_title = document.createElement('span');
 		this._span_title.classList.add("article-title");
 
@@ -159,7 +156,7 @@ export class RenderArticleUnit extends RenderArticleItem<ArticleUnit> {
 		);
 	}
 	
-	protected initialize(): void {
+	protected showData(): void {
 		this.title    = this.renderableItem.title;
 		this.amount   = this.renderableItem.amount;
 		this.price    = this.renderableItem.price;

@@ -10,10 +10,21 @@ import { ArticleUnit } from "../units/article-item";
  * Представление списка элементов ассортимента.
  */
 export abstract class RenderArticleList {
-	
-	public readonly id : string;
-	protected selectedLiItem: HTMLLIElement | null = null;
 
+	// HACK: Временная мера
+	public static readonly articleListCollection = new Map<string, RenderArticleList>();
+
+	public readonly listInfo: string;
+	public readonly id : string;
+
+	// Компонент представляющий шапку списка.
+	protected abstract headerRender: RenderListHeader;
+
+	// возвращает компонет для рендинга элементов списка.
+	protected abstract getItemRender(item: any): RenderArticleItem<any>; 
+
+	protected selectedLiItem: HTMLLIElement | null = null;
+	
 	protected events: { [key: string]: CallableFunction[] } = {
 		// обработчики события при выборе элемента (получен "фокус").
 		"selectitem": new Array<CallableFunction>(),
@@ -22,18 +33,16 @@ export abstract class RenderArticleList {
 		// событие запрос выбранного элемента
 		"requireitem": new Array<CallableFunction>() 
 	};
+	
 	private _itemsRender = new Array<RenderArticleItem<IArticleItem>>();
 	private _nodeElement = document.createElement("div");
 	private _headerConteiner = document.createElement("div");
 	private _ul = document.createElement('ul');
 	private _p = document.createElement('p');
 	
-	// HACK: Временная мера
-	public static readonly articleListCollection = new Map<string, RenderArticleList>();
 
-	constructor(
-		public listInfo: string
-	) {
+	constructor(listinfo: string) {
+		this.listInfo = listinfo;
 		this.id = Date.now().toString(24);
 		this._nodeElement.id = this.id;
 
@@ -50,9 +59,6 @@ export abstract class RenderArticleList {
 
 		RenderArticleList.articleListCollection.set(this.id, this);
 	}
-	
-	protected abstract getItemRender(item: IArticleItem): RenderArticleItem<IArticleItem>;
-	protected abstract getHeaderRender(): RenderListHeader;
 
 	remove() {
 		this._nodeElement.remove();
@@ -65,8 +71,7 @@ export abstract class RenderArticleList {
 	 */
 	render(articleList: ArticleList, destination: HTMLElement) {
 		destination.append(this._nodeElement);
-		const header =  this.getHeaderRender();
-		header.render(this._headerConteiner);
+		this.headerRender.render(this._headerConteiner)
 
 		// рендер элементов коллекции.
 		for (let item of articleList.items) {
@@ -74,7 +79,7 @@ export abstract class RenderArticleList {
 		}
 		articleList.on('additem', (target: IArticleItem) => {
 			this.renderItem(target);
-			header.showData(articleList);
+			this.headerRender.showData(articleList);
 		});
 	}
 
@@ -175,18 +180,14 @@ export class RenderArticleAssortimentList extends RenderArticleList {
 		return new RenderArticleProduct(item);
 	}
 
-	protected getHeaderRender() {
-		return new RenderAssortimentListHeader();
-	}
+	protected headerRender = new RenderAssortimentListHeader();
 }
 
 export class RenderArticleOrderList extends RenderArticleList {
-
+	
 	protected getItemRender(item: ArticleUnit) {
 		return new RenderArticleUnit(item);
 	}
 
-	protected getHeaderRender() {
-		return new RenderOrderListHeader();
-	}
+	protected headerRender = new RenderOrderListHeader();
 }
