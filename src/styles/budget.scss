@@ -1,0 +1,39 @@
+
+#budget-info-display {
+	width: 200px;
+	float: left;
+	margin-top: 10px;
+
+	div {
+		margin-left: 20px;
+		span:nth-child(1) {
+			font-family: Arial, Helvetica, sans-serif;
+			font-size: 14px;
+			width: 80px;
+		}
+		span:nth-child(2) {
+			font-size: 16px;
+			font-weight: bolder;
+		}
+	}
+
+	span {
+		display: inline-block;
+	}
+
+	.remain {
+		color: #807f81;
+	}
+
+	.free {
+		color: #39dd39;
+	}
+
+	.reserv {
+		color: yellow;
+	}
+
+	.utilize {
+		color: red;
+	}
+}

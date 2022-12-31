@@ -10,6 +10,7 @@
     "sass": "sass .\\src\\styles\\_master.scss .\\app\\static\\css\\master.css",
     "start:client": "webpack-cli --watch",
     "start:server": "nodemon app/index.js",
+    "start:sass": "sass --watch .\\src\\styles\\_master.scss .\\app\\static\\css\\master.css",
     "start": "concurrently npm:start:*"
   },
   "repository": {
