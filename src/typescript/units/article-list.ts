@@ -1,47 +1,83 @@
 import { ArticleUnit } from "./article-item";
 import { IArticleItem } from "./i-article-item";
 
+type EventCallback<T extends IArticleItem> = (item: T, target?: ArticleList<T>) => void;
+
+export const enum EventItem {
+	/** добавлен элемент IArticleItem. */
+	add = "additem",
+	/** удален элемент IArticleItem. */
+	remove = "removeitem"
+};
+
+export type ArticleListJson = {
+	id: string,
+	created: string,
+	label: string
+}
+
+export type OrderListJson = ArticleListJson & {
+	term: string,
+	total: number
+}
+
 /**
  * Данные составленого списка асортимента.
+ * 
+ * @event additem при добавлении в коллекцию элемента.
+ * @event removeitem при удалении элемента из коллекции.
  */
-export class ArticleList {
+export class ArticleList<T extends IArticleItem=IArticleItem> {
 	
-	private _events: {[eventname: string]: CallableFunction[]} = {
-		// событие добавление нового экземпляра IArticleItem
-		'additem': new Array<CallableFunction>(),
-		// событие удаление экземпляра IArticleItem
-		'removeitem': new Array<CallableFunction>()
+	private _events: {[eventname: string]: Array<EventCallback<T>>} = {
+		[EventItem.add]: new Array(),
+		[EventItem.remove]: new Array()
 	};
 
-	private _created: number = Date.now();
-	protected _items = new Map<string, IArticleItem>();
+	readonly created: number;
+	readonly id: string;
+	protected _items = new Map<string, T>();
 	private _label: string;
 
-	constructor(label: string) {
+	constructor(label: string, created: number=Date.now()) {
 		this._label = label;
+		this.created = created;
+		this.id = created.toString(36);
+	}
+
+	toJSON(): ArticleListJson {
+		return {
+			id: this.id,
+			created: new Date(this.created).toJSON(),
+			label: this.label
+		}
+	}
+
+	static fromJSON(item: ArticleListJson): ArticleList<any> {
+		return new ArticleList(item.label, new Date(item.created).getMilliseconds());
 	}
 	
 	/**
 	 * Добавление ассортимента в список.
 	 * @param au единица ассортимента.
 	 */
-	addItem(au: IArticleItem | IArticleItem[]) {
+	addItem(au: T | T[]) {
 		if (Array.isArray(au)) {
 			for (const item of au) {
 				this.addItem(item);
 			}
 		} else {
 			this._items.set(au.id, au);
-			this.dispatchEvent('additem', {detail: au});
+			this.dispatchEvent('additem', au);
 		}
 	}
 
-	getItem(id: string): IArticleItem | null {
+	getItem(id: string): T | null {
 		return this._items.get(id) ?? null;
 	}
 	
 	/** коллекция элементов - позиций ассортимента.  */
-	get items(): IArticleItem[] {
+	get items(): T[] {
 		return Array.from(this._items.values());
 	}
 	/** количество асортимента. */
@@ -58,7 +94,7 @@ export class ArticleList {
 	}
 	
 	/** Уставновка обработчика для события порожденных... */
-	on(eventName: string, clb: CallableFunction): void {
+	on(eventName: EventItem, clb: EventCallback<T>): void {
 		if (eventName in this._events) {
 			this._events[eventName].push(clb);
 		} else {
@@ -67,7 +103,7 @@ export class ArticleList {
 	}
 
 	/** удаление обработчиков */
-	off(eventName: string, clb: CallableFunction) {
+	off(eventName: EventItem, clb: EventCallback<T>) {
 		if (eventName in this._events) {
 			const callbacks = this._events[eventName];
 			for (let i = callbacks.length - 1; i >= 0; i--) {
@@ -80,15 +116,34 @@ export class ArticleList {
 		}
 	}
 
-	dispatchEvent(eventname: string, event: {detail: any, bubbles?: boolean, [key: string]: any}) {
+	dispatchEvent(eventname: string, item: T) {
 		for (let clbc of this._events[eventname]) {
-			clbc(event.detail);
+			clbc(item, this);
 		}
 	}
 }
 
 
-export class ArticleListOrder extends ArticleList {
+export class ArticleOrderList extends ArticleList<ArticleUnit> {
+	
+	private _term: string;
+
+	constructor(label: string, term: string, created?: number) {
+		super(label, created);
+		this._term = term;
+	}
+
+	override toJSON(): OrderListJson {
+		return Object.assign(super.toJSON(), {
+			quantity: this.quantity,
+			total: this.total,
+			term: this.term
+		});
+	}
+
+	static override fromJSON(item: OrderListJson): ArticleOrderList {
+		return new this(item.label, item.term, new Date(item.created).getMilliseconds());
+	}
 
 	/** временной отрезок (дней). */
 	get term(): string {
@@ -103,11 +158,4 @@ export class ArticleListOrder extends ArticleList {
 		}
 		return total;
 	}
-
-	constructor(label: string, term: string) {
-		super(label);
-		this._term = term;
-	}
-
-	private _term: string;
 }

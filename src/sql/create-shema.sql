@@ -22,7 +22,7 @@ CREATE TABLE type_package (
 
 -- единица  продукта
 CREATE TABLE product (
-	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	id CHAR(9) NOT NULL UNIQUE,
 	title VARCHAR(255) NOT NULL,
 	amount INT NOT NULL DEFAULT 1,
 	price DECIMAL(9, 2) NOT NULL DEFAULT 0.0,
@@ -33,9 +33,19 @@ CREATE TABLE product (
 	CONSTRAINT product_measure_FK FOREIGN KEY (measure_id) REFERENCES type_measure (id)
 );
 
+-- финансовый период
+CREATE TABLE budget_period (
+	id CHAR(8) NOT NULL UNIQUE,
+	period_start DATE NOT NULL DEFAULT (CURRENT_DATE()),
+	period_end DATE DEFAULT NULL,
+	resources_free DECIMAL(9, 2) NOT NULL DEFAULT 0.0,
+	resources_reserved DECIMAL(9, 2) NOT NULL DEFAULT 0.0,
+	resources_utilize DECIMAL(9, 2) NOT NULL DEFAULT 0.0
+);
+
 -- список приобритаемого
-CREATE TABLE purshase (
-	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE order_list (
+	id CHAR(8) NOT NULL UNIQUE,
 	created TIMESTAMP NOT NULL DEFAULT (CURRENT_TIMESTAMP()),
 	quantity INT NOT NULL DEFAULT 0,
 	total DECIMAL(9, 2) NOT NULL DEFAULT 0.0,
@@ -43,13 +53,14 @@ CREATE TABLE purshase (
 	label VARCHAR(255)
 );
 
--- перечень продуктов в списке покупок
-CREATE TABLE orders_products (
-	product_id INT NOT NULL,
-	purshase_id INT NOT NULL,
+-- Приобритаемый продукт.
+CREATE TABLE purshase (
+	order_id CHAR(8) NOT NULL,
+	product_id CHAR(9) NOT NULL,
 	quantity INT NOT NULL,
+	purshase_price DECIMAL(9, 2) DEFAULT NULL, -- Если NULL значит покупка еще не совершена.
 	CONSTRAINT orders_product_FK FOREIGN KEY (product_id) REFERENCES product (id),
-	CONSTRAINT orders_order_FK FOREIGN KEY (purshase_id) REFERENCES purshase (id)
+	CONSTRAINT orders_order_FK FOREIGN KEY (order_id) REFERENCES order_list (id)
 );
 
 -- категории для продукта
@@ -66,8 +77,6 @@ CREATE TABLE product_categories (
 	CONSTRAINT category_categories_FK FOREIGN KEY (category_id) REFERENCES category_product (id)
 );
 
-
-
 -- Выборка продуктов
 CREATE VIEW assortiment AS 
 SELECT 
@@ -83,3 +92,15 @@ FROM
 INNER JOIN 
 	type_measure AS m  ON m.id = p.measure_id 
 INNER JOIN type_package AS v ON v.id = p.package_id;
+
+-- Выборка списков закупок.
+CREATE VIEW orders AS 
+SELECT
+	product_id,
+	quantity,
+	purshase_price,
+FROM 
+	order_products
+WHERE 
+	order_id IN 
+		(SELECT id_order FROM orders_budget WHERE id_period = 1);

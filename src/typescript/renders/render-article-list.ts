@@ -1,5 +1,5 @@
 
-import { ArticleList, ArticleListOrder } from "../units/article-list";
+import { ArticleList, ArticleOrderList, EventItem } from "../units/article-list";
 import { IArticleItem } from "../units/i-article-item";
 import { RenderListHeader, RenderAssortimentListHeader, RenderOrderListHeader } from "./headers/render-list-header";
 import { RenderArticleItem, RenderArticleProduct, RenderArticleUnit} from './render-article-item';
@@ -69,15 +69,16 @@ export abstract class RenderArticleList {
 	 * @param articleList Элемент с данными.
 	 * @param destination Элемент контейнер для рендера.
 	 */
-	render(articleList: ArticleList, destination: HTMLElement) {
+	render<T extends IArticleItem>(articleList: ArticleList<T>, destination: HTMLElement) {
 		destination.append(this._nodeElement);
-		this.headerRender.render(this._headerConteiner)
+		this.headerRender.render(this._headerConteiner);
+		this.headerRender.showData(articleList);
 
 		// рендер элементов коллекции.
 		for (let item of articleList.items) {
 			this.renderItem(item);
 		}
-		articleList.on('additem', (target: IArticleItem) => {
+		articleList.on(EventItem.add, (target: IArticleItem) => {
 			this.renderItem(target);
 			this.headerRender.showData(articleList);
 		});

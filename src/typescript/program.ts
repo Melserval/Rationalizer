@@ -6,16 +6,18 @@ import { onOrderListCreated, TimePeriod } from './form-create-order-list';
 import renderFormAddOrderItem from "./form-add-order-item";
 // типы
 import { ArticleUnit } from "./units/article-item";
-import { ArticleList } from "./units/article-list";
+import { ArticleList, EventItem } from "./units/article-list";
 import { ProductUnit } from "./units/product-unit";
-import { ControllerArticleList } from './controller-article-list';
-import { ControllerOrderList } from './units/controller-order-list';
 // рендеры
 import { RenderArticleAssortimentList, RenderArticleList, RenderArticleOrderList } from "./renders/render-article-list";
-import { ArticleListOrder } from './units/article-list';
+import { ArticleOrderList } from './units/article-list';
+// контроллеры
+import { ControllerOrderList, EventList } from './units/controller-order-list';
+import { ControllerArticleList } from './controller-article-list';
+import controllerPeriodPurshase from "./budget/controller-period-purshase";
+import { IArticleItem } from './units/i-article-item';
 
-// модуль бюджета
-import * as budget from "./budget/budget-form-controller";
+
 
 
 /** контейнеры списков для покупок */
@@ -27,14 +29,14 @@ const conteinerSouceList = document.getElementById("block-source-list") as HTMLE
 // главный контроллер всех списков.
 const controllerArticleList = new ControllerArticleList("main controller article lists");
 
+// контроллер коллекции списков покупок (основной экран).
+const controllerOrderList = new ControllerOrderList('main orders set');
+
 // оновной список ассортимента.
 const mainAssortimentList = new ArticleList('main assortiment list');
 const renderMainAssortimentList = new RenderArticleAssortimentList("основной список ассортимента");
 renderMainAssortimentList.render(mainAssortimentList, conteinerSouceList);
 controllerArticleList.addList(mainAssortimentList, "assortiment", true);
-
-// контроллер коллекции списков покупок.
-const orders = new ControllerOrderList('main orders set');
 
 
 // ОБРАБОТЧИИК создание продукта главной формой.
@@ -65,9 +67,9 @@ onOrderListCreated(function (arg) {
         case TimePeriod.custom:
             term = `${arg} дн.`;
     }
-    const al = new ArticleListOrder("Список необходимых приобритений", term);
-    orders.addList(al, al.label);
-    
+    const al = new ArticleOrderList("Список необходимых приобритений", term);
+    controllerOrderList.addList(al);
+
 	const renderAl = new RenderArticleOrderList("Список покупок");
     renderAl.render(al, conteinerOrderList);
 });
@@ -90,7 +92,7 @@ renderMainAssortimentList.on("requireitem", function (data: unknown) {
     if (data instanceof ProductUnit) {
         const renderForm = new renderFormAddOrderItem(
             data,
-            (quantity) => orders.active?.addItem(new ArticleUnit(data, quantity)),
+            (quantity) => controllerOrderList.active?.addItem(new ArticleUnit(data, quantity)),
             console.log
         );
         renderForm.render(document.body);
@@ -98,6 +100,16 @@ renderMainAssortimentList.on("requireitem", function (data: unknown) {
         console.error("Неверный элемент");
     }
 });
+
+// обработка событий в списках покупок для учета фин-периодов.
+controllerOrderList.on(EventList.add, list => controllerPeriodPurshase.handleAddedList(list));
+controllerOrderList.on(EventList.remove, list => controllerPeriodPurshase.handleRemoveList(list));
+controllerOrderList.on(EventList.activate, i => controllerPeriodPurshase.setActiveList(i));
+controllerOrderList.on(EventList.deactivate, i => controllerPeriodPurshase.unsetActiveList(i));
+
+// обработка событий в списках покупок для записи в БД
+controllerOrderList.on(EventList.add, datastorage.addOrderList);
+controllerOrderList.onList(EventItem.add, datastorage.addPurshase);
 
 
 // --- обработка по перемещению и управлению списками клафишами ---
@@ -116,6 +128,7 @@ document.body.addEventListener('click', function (e) {
         }
         if (targetItemList !== null) {
             const li = target.closest('.article_list__items li') as HTMLLIElement;
+            console.log("Клик На список заказов", li);
             targetItemList.selectItem(li);
         } else {
             throw new Error("Неверный id элемента списка.");

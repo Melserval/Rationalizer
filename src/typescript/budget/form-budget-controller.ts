@@ -10,9 +10,29 @@ const input_StartPeriod  = document.getElementById("input-start-period") as HTML
 const input_EndPeriod    = document.getElementById("input-end-period") as HTMLInputElement;
 const input_BudgetAmount = document.getElementById("input-budget-amount") as HTMLInputElement;
 const btn_ConfirmPeriod  = document.getElementById("btn-confirm-period") as HTMLButtonElement;
+const p_FormMessage      = document.getElementById("p-budget-message") as HTMLParagraphElement;
+
 
 // FIX: Почему неактуальная дата?
-input_StartPeriod.valueAsDate = new Date();
+const today = new Date();
+input_StartPeriod.valueAsDate = today;
+
+// установка инимально возможной конечной даты - на 1 день длиннее текущей.
+// для установки атрибута "min" требуется формат вида "2022-01-01".
+today.setDate(today.getDate() + 1);
+const month = today.getMonth() < 9 ? "0" + (today.getMonth() + 1): today.getMonth() + 1 + "";
+const day = today.getDate() < 10 ? "0" + today.getDate(): today.getDate() + "";
+input_EndPeriod.setAttribute("min", `${today.getFullYear()}-${month}-${day}`);
+
+
+// при фокусе убирает дефолтный "0" мешающий вводу суммы.
+input_BudgetAmount.addEventListener('focusin', function(e) {
+	if (this.value == "0") this.value = "";
+});
+// при потере фокуса, если сумма не вводилась, возвращает "0".
+input_BudgetAmount.addEventListener('focusout', function(e) {
+	if (this.value == "") this.value = "0";
+});
 
 form_BudgetSetting.addEventListener("submit", function(e) {
 	e.preventDefault();
@@ -34,7 +54,7 @@ form_BudgetSetting.addEventListener("submit", function(e) {
 			input_StartPeriod.valueAsDate as Date,
 			input_EndPeriod.valueAsDate as Date
 		);
-		
+		p_FormMessage.textContent = "Бюджет принят! clap-clap!";
 		callbacks.forEach(clb => clb(budgetPeriod));
 	} catch (err) {
 		console.error("Форма установки бюджета:", ...errors);
@@ -50,6 +70,6 @@ form_BudgetSetting.addEventListener("reset", function(e) {
 console.log("buget module is loaded.");
 
 /** Установщик колбэков получающих объект-финансовый период. */
-export default function(callback: CallableFunction) {
+export default function(callback: (item: BudgetPeriod) => void) {
 	callbacks.push(callback);
 }

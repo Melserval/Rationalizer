@@ -1,6 +1,12 @@
 import { ProductUnit } from "./product-unit";
 import { IArticleItem } from "./i-article-item";
+import { ArticleList } from "./article-list";
 
+export type ArticleUnitJson = {
+	productId: string,
+	quantity: number,
+	price: number
+}
 
 /** 
  * Представляет ссылку на единицу ассортимента ProductUnit, хранит 
@@ -12,6 +18,34 @@ export class ArticleUnit implements IArticleItem {
 
 	/** Уникальный идентификатор объекта. */
 	public readonly id: string;
+
+	/**
+	 * @param productOrData данные 
+	 */
+	constructor(
+		readonly product: IArticleItem, 
+		private _quantity: number
+	) {
+		 this.id = (ArticleUnit.unitCount += 1).toString(10);
+	}
+
+	toJSON(): ArticleUnitJson {
+		return {
+			productId: this.product.id,
+			quantity: this._quantity,
+			price: this.price
+		}
+	}
+	
+	static fromJSON(item: ArticleUnitJson, products: ArticleList): ArticleUnit | null {
+		try {
+			const product = products.getItem(item.productId);
+			if (!product) throw Error("ArticleUnit::fromJSON: Не существущий Id ProductUnit.");
+			return new this(product, item.quantity);
+		} catch {
+			return null;
+		}
+	}
 
 	get productId(): string {
 		return this.product.id;
@@ -42,13 +76,4 @@ export class ArticleUnit implements IArticleItem {
 		return this.product.vendorType;
 	}
 	
-	/**
-	 * @param productOrData данные 
-	 */
-	constructor(
-		readonly product: ProductUnit, 
-		private _quantity: number
-	) {
-	 	this.id = (ArticleUnit.unitCount += 1).toString(10);
-	}
 }

@@ -1,7 +1,7 @@
 // Рендер для показа статистики в списках закупок/ассортимента/etc.
 // Используется как внутренний компонент этих списков.
 
-import { ArticleList, ArticleListOrder } from "../../units/article-list";
+import { ArticleList, ArticleOrderList } from "../../units/article-list";
 
 /** Базовый рендер заголовка для списков. */
 export abstract class RenderListHeader {
@@ -73,7 +73,7 @@ export class RenderOrderListHeader extends RenderListHeader {
 		this._span_total.textContent = total.toFixed(2);
 	}
 
-	showData(item: ArticleListOrder) {
+	showData(item: ArticleOrderList) {
 		this.label    = item.label;
 		this.quantity = item.quantity;
 		this.term     = item.term;

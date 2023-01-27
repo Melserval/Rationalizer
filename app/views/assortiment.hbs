@@ -9,13 +9,15 @@
                 </div>
                 <div class="block-end-period">
                     <label for="input-end-period">Завершение периода</label>
-                    <input type="date" id="input-end-period">
+                    <input type="date" id="input-end-period" min="1970-01-01">
                 </div>
             </div>
             <div class="row">
                 <label for="input-budget-amount">Сумма бюджета</label>
                 <input id="input-budget-amount" type="number" min="0" max="2000000000" value="0">
             </div>
+            <hr/>
+            <div class="row"><p id="p-budget-message">-</p></div>
             <hr/>
             <div class="row">
                 <button id="btn-confirm-period" type="button">Задать финансовый период</button>
