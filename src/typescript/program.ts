@@ -68,10 +68,8 @@ onOrderListCreated(function (arg) {
             term = `${arg} дн.`;
     }
     const al = new ArticleOrderList("Список необходимых приобритений", term);
+    datastorage.addOrderList(al);
     controllerOrderList.addList(al);
-
-	const renderAl = new RenderArticleOrderList("Список покупок");
-    renderAl.render(al, conteinerOrderList);
 });
 
 // загрузка коллекции элементов ProducUnit.
@@ -85,6 +83,13 @@ datastorage.getProductCollection(function (error, dataset, info='') {
             mainAssortimentList.addItem(product);
         }
     }
+});
+
+// загрузка коллекции элементов списков закупок.
+datastorage.orderListDataSet.then(orders => {
+    orders.forEach(o => {
+        controllerOrderList.addList(o);
+    });
 });
 
 // test code: обкатка формы добавления позиции в список покупок.
@@ -107,8 +112,17 @@ controllerOrderList.on(EventList.remove, list => controllerPeriodPurshase.handle
 controllerOrderList.on(EventList.activate, i => controllerPeriodPurshase.setActiveList(i));
 controllerOrderList.on(EventList.deactivate, i => controllerPeriodPurshase.unsetActiveList(i));
 
+// обработка событий в списках покупок для рендеров.
+controllerOrderList.on(EventList.add, list => {
+	const render = new RenderArticleOrderList("Список покупок");
+    render.render(list, conteinerOrderList);
+});
+
+// обработчики котроля для тестов
+controllerOrderList.on(EventList.add, list => console.log("Добавлен список заказов: ", list));
+controllerOrderList.on(EventList.activate, list => console.log("Активирован список заказов: ", list));
+
 // обработка событий в списках покупок для записи в БД
-controllerOrderList.on(EventList.add, datastorage.addOrderList);
 controllerOrderList.onList(EventItem.add, datastorage.addPurshase);
 
 

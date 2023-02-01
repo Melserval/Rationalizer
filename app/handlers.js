@@ -63,6 +63,40 @@ api.product = (req, res) => {
 	);
 };
 
+// загрузка списка заказов
+api.orders = (req, res) => {
+	const con = mysql.createConnection(config.mysql);
+	let innerQuery = 0;
+	let orderList = [];
+	con.query(
+		"SELECT id, created, quantity, total, term, label FROM order_list",
+		(err, orderlistResult, fields) => {
+			if (err) {
+				console.error(err);
+			} else {
+				orderlistResult.forEach((item, i) => {
+					con.query(
+						"SELECT order_id, product_id, quantity, purshase_price FROM purshase WHERE order_id = ?", 
+						[item.id],
+						(err, purshaseResult, fields) => {
+							if (err) {
+								console.error(err);
+							} else {
+								innerQuery++;
+								orderList.push({ order: item, items: purshaseResult });
+								if (innerQuery == orderlistResult.length) {
+									con.end();
+									res.json(orderList);
+								}
+							}
+						}
+					)
+				});
+			}
+		} 
+	);
+};
+
 // запись нового продукта в БД.
 api.addProduct = (req, res) => {
 
@@ -116,13 +150,12 @@ api.addOrderList = (req, res) => {
 	con.query(sql_add_order, [
 		req.body.id,
 		req.body.created,
-		req.body.label,
-		req.body.term
+		req.body.term,
+		req.body.label
 	], (err, result) => {
 		if (err) {
 			console.error(err);
 		} else {
-			console.log(result);
 			con.end();
 		}
 	})
@@ -141,9 +174,8 @@ api.addPurshase = (req, res) => {
 		req.body.quantity
 	], (err, result) => {
 		if (err) {
-			console.error(err);
+			console.error("add purshase", err);
 		} else {
-			console.log(result);
 			con.end();
 		}
 	})

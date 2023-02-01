@@ -37,14 +37,8 @@ export class ArticleUnit implements IArticleItem {
 		}
 	}
 	
-	static fromJSON(item: ArticleUnitJson, products: ArticleList): ArticleUnit | null {
-		try {
-			const product = products.getItem(item.productId);
-			if (!product) throw Error("ArticleUnit::fromJSON: Не существущий Id ProductUnit.");
-			return new this(product, item.quantity);
-		} catch {
-			return null;
-		}
+	static fromJSON(item: ArticleUnitJson, product: ProductUnit): ArticleUnit {
+		return new this(product, item.quantity);
 	}
 
 	get productId(): string {

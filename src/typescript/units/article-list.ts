@@ -48,13 +48,9 @@ export class ArticleList<T extends IArticleItem=IArticleItem> {
 	toJSON(): ArticleListJson {
 		return {
 			id: this.id,
-			created: new Date(this.created).toJSON(),
+			created: new Date(this.created).toISOString(),
 			label: this.label
 		}
-	}
-
-	static fromJSON(item: ArticleListJson): ArticleList<any> {
-		return new ArticleList(item.label, new Date(item.created).getMilliseconds());
 	}
 	
 	/**
@@ -139,10 +135,6 @@ export class ArticleOrderList extends ArticleList<ArticleUnit> {
 			total: this.total,
 			term: this.term
 		});
-	}
-
-	static override fromJSON(item: OrderListJson): ArticleOrderList {
-		return new this(item.label, item.term, new Date(item.created).getMilliseconds());
 	}
 
 	/** временной отрезок (дней). */

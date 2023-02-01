@@ -6,9 +6,8 @@
 
 import { ProductUnit, ProductUnitJson } from "./units/product-unit";
 import * as uType from "./types";
-import { IFinPeriod } from "./budget/i-fin-period";
-import { ArticleOrderList, OrderListJson } from "./units/article-list";
-import { ArticleUnit, ArticleUnitJson } from "./units/article-item";
+import { ArticleOrderList } from "./units/article-list";
+import { ArticleUnit } from "./units/article-item";
 import { BudgetPeriodJson } from "./budget/BudgetPeriod";
 
 /**
@@ -193,9 +192,34 @@ const serverDataSet = Promise.all([typesOfMeasure, typesOfVendors])
 		return productObjects;
 	})
 );
-// Создание списка заказов.
-// (создание списка заказов зависимо от списка продуктов.)
+// Загрузка списка заказов.
+// (список заказов зависит от списка продуктов.)
+const orderList = fetch("http://localhost:8000/api/data/get-orders")
+.then(response => response.ok ? response.json() : null);
 
+export const orderListDataSet = Promise.all([orderList, serverDataSet])
+.then(ordersAndProducts => {
+	const [orders, products] = ordersAndProducts;
+	const orderObjects = new Array<ArticleOrderList>();
+	for (let order of orders) {
+		const {id, created, quantity, total, term, label} = order.order;
+		//TODO: Подумать над инкапсуляцией преобразования id в дату создания.
+		let AOL = new ArticleOrderList(label, term, parseInt(id, 36));
+		let purshases: ArticleUnit[] = []; 
+		try {
+			for (const pjson of order.items) {
+				let product = products.find(p => p.id === pjson.product_id);
+				if (!product) throw pjson;
+				purshases.push(ArticleUnit.fromJSON(pjson, product));
+			}
+			AOL.addItem(purshases);
+		} catch (err) {
+			console.error("Возникла ошибка при создании коллекции списков закупок из БД", err);
+		}
+		orderObjects.push(AOL);
+	}
+	return orderObjects;
+});
 // ---
 
 export async function addBudgetPeriod(period: BudgetPeriodJson): Promise<string> {

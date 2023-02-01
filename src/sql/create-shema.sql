@@ -55,6 +55,7 @@ CREATE TABLE order_list (
 
 -- Приобритаемый продукт.
 CREATE TABLE purshase (
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	order_id CHAR(8) NOT NULL,
 	product_id CHAR(9) NOT NULL,
 	quantity INT NOT NULL,
@@ -94,13 +95,3 @@ INNER JOIN
 INNER JOIN type_package AS v ON v.id = p.package_id;
 
 -- Выборка списков закупок.
-CREATE VIEW orders AS 
-SELECT
-	product_id,
-	quantity,
-	purshase_price,
-FROM 
-	order_products
-WHERE 
-	order_id IN 
-		(SELECT id_order FROM orders_budget WHERE id_period = 1);
