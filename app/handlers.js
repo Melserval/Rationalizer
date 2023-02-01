@@ -21,7 +21,7 @@ api.typeMeasure = (req, res) => {
 	con.query(
 		"SELECT * FROM type_measure", function(err, result, fields) {
 			if (err) {
-				console.log(err);
+				console.error(err);
 			} else {
 				res.status(200);
 				res.json(result);
@@ -37,7 +37,7 @@ api.typePackage = (req, res) => {
 	con.query(
 		"SELECT * FROM type_package", function(err, result, fields) {
 			if (err) {
-				console.log(err);
+				console.error(err);
 			} else {
 				res.status(200);
 				res.json(result);
@@ -132,12 +132,45 @@ api.addProduct = (req, res) => {
 
 // запись нового финпериода в БД.
 api.addBudgetPeriod = (req, res) => {
-	// фин. период в БД.
+	const con = mysql.createConnection(config.mysql);
+
 	const sql_insert_budgetPeriod = `
 	INSERT INTO budget_period 
-		(period_start, period_end, resources_free, resources_reserved, resources_utilize) 
-	VALUES (?, ?, ?, ?, ?)`;
-	console.log(req.body);
+		(id, period_start, period_end, resources_deposit, resources_reserved, resources_utilize, exchange)
+	VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+	con.query(sql_insert_budgetPeriod, [
+			req.body.id,
+			req.body.start,
+			req.body.end,
+			req.body.deposit,
+			req.body.reserved,
+			req.body.utilize,
+			req.body.exchange
+		], (err, result) => {
+			if (err) {
+				console.error(err);
+			} else {
+				con.end();
+			}
+		} 
+	)
+};
+
+api.getBudgetPeriod = (req, res) => {
+	const con = mysql.createConnection(config.mysql);
+
+	const sql_select_budgetPeriod = `
+		SELECT * FROM budget_period ORDER BY period_start DESC LIMIT 1
+	`;
+	con.query(sql_select_budgetPeriod, (err, result, fields) => {
+		if (err) {
+			console.error(err);
+		} else {
+			res.json(result);
+			con.end();
+		}
+	});
 };
 
 // запись нового списка приобритений.
@@ -179,4 +212,4 @@ api.addPurshase = (req, res) => {
 			con.end();
 		}
 	})
-}
+};

@@ -10,6 +10,7 @@ module.exports = function (app) {
 	app.get('/api/data/get-orders', h.api.orders);
 	app.post('/api/data/add-product', h.api.addProduct);
 	app.post('/api/data/add-budgetperiod', h.api.addBudgetPeriod);
+	app.get('/api/data/get-budgetperiod', h.api.getBudgetPeriod);
 	app.post('/api/data/add-orderlist', h.api.addOrderList);
 	app.post('/api/data/add-purshase', h.api.addPurshase);
 }

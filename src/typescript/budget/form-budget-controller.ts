@@ -4,13 +4,14 @@ import { BudgetPeriod } from "./BudgetPeriod";
 
 const callbacks: CallableFunction[] = [];
 
-const form_BudgetSetting = document.getElementById("form-budget-setting") as HTMLFormElement;
+const form_BudgetSetting   = document.getElementById("form-budget-setting") as HTMLFormElement;
 // элементы ввода формы.
-const input_StartPeriod  = document.getElementById("input-start-period") as HTMLInputElement;
-const input_EndPeriod    = document.getElementById("input-end-period") as HTMLInputElement;
-const input_BudgetAmount = document.getElementById("input-budget-amount") as HTMLInputElement;
-const btn_ConfirmPeriod  = document.getElementById("btn-confirm-period") as HTMLButtonElement;
-const p_FormMessage      = document.getElementById("p-budget-message") as HTMLParagraphElement;
+const input_StartPeriod    = document.getElementById("input-start-period") as HTMLInputElement;
+const input_EndPeriod      = document.getElementById("input-end-period") as HTMLInputElement;
+const input_BudgetAmount   = document.getElementById("input-budget-amount") as HTMLInputElement;
+const input_RateOfExchange = document.getElementById("input-rate-of-exchange") as HTMLInputElement;
+const btn_ConfirmPeriod    = document.getElementById("btn-confirm-period") as HTMLButtonElement;
+const p_FormMessage        = document.getElementById("p-budget-message") as HTMLParagraphElement;
 
 
 // FIX: Почему неактуальная дата?
@@ -24,15 +25,15 @@ const month = today.getMonth() < 9 ? "0" + (today.getMonth() + 1): today.getMont
 const day = today.getDate() < 10 ? "0" + today.getDate(): today.getDate() + "";
 input_EndPeriod.setAttribute("min", `${today.getFullYear()}-${month}-${day}`);
 
-
 // при фокусе убирает дефолтный "0" мешающий вводу суммы.
-input_BudgetAmount.addEventListener('focusin', function(e) {
-	if (this.value == "0") this.value = "";
-});
+function eraseInputNull(this: HTMLInputElement) { if (this.value == "0") this.value = ""; }
+input_BudgetAmount.addEventListener('focusin', eraseInputNull);
+input_RateOfExchange.addEventListener('focusin', eraseInputNull);
+
 // при потере фокуса, если сумма не вводилась, возвращает "0".
-input_BudgetAmount.addEventListener('focusout', function(e) {
-	if (this.value == "") this.value = "0";
-});
+function writeInputNull(this: HTMLInputElement) { if (this.value == "") this.value = "0"; }
+input_BudgetAmount.addEventListener('focusout', writeInputNull);
+input_RateOfExchange.addEventListener('focusout', writeInputNull);
 
 form_BudgetSetting.addEventListener("submit", function(e) {
 	e.preventDefault();
@@ -51,6 +52,9 @@ form_BudgetSetting.addEventListener("submit", function(e) {
 
 		const budgetPeriod = new BudgetPeriod(
 			parseFloat(input_BudgetAmount.value),
+			0,
+			0,
+			parseFloat(input_RateOfExchange.value),
 			input_StartPeriod.valueAsDate as Date,
 			input_EndPeriod.valueAsDate as Date
 		);

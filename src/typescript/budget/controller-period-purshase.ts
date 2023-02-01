@@ -10,7 +10,7 @@
 
 // типы
 import { ArticleUnit } from "../units/article-item";
-import { ArticleList, EventItem } from "../units/article-list";
+import { ArticleOrderList, EventItem } from "../units/article-list";
 import { IArticleItem } from "../units/i-article-item";
 import { BudgetPeriod } from "./BudgetPeriod";
 // форма
@@ -19,30 +19,46 @@ import FormCreateBudgetPeriod from "./form-budget-controller";
 import viewBudgetController from "./view-budget-info-display";
 
 
+
+export const enum EventPeriod {
+	/** Добавлен новый период. */
+	add = "add"
+};
+
+export type EventCallback = (item: BudgetPeriod) => void;
+
 class ControllerCollectorPeriodPurshase {
+	private _events: {[enventname:string]: Array<EventCallback>} = {
+		[EventPeriod.add] : new Array()
+	}
 	// текущий активный список закупок.
 	// что бы не пересчитывать все списки в коллекции.
-	// private activePurshaseList: ArticleListOrder | null;
 	
 	// идентификатор текущего выбранного финансового периода.
 	// значение "0" - для списков без определенного периода.
-	private activePeriodId: number;
+	private _activePeriodId: string;
 
 	// идентификаторы списков покупок для текущего периода.
 	private activePeriodListId = new Set<number>();
 
-	private periodCollection = new Map<number, BudgetPeriod>();
+	private periodCollection = new Map<string, BudgetPeriod>();
 
 	constructor() {
-		this.activePeriodId = 0;
+		this._activePeriodId = "0";
 		// FIX: (1)Разобраться с этим. Врядли это должно быть так прибито...
 		FormCreateBudgetPeriod(this.addPeriod.bind(this)); // создаст объект периода .
 	}
 
+	get activePeriodId(): string {
+		return this._activePeriodId;
+	}
+
 	/** Добавляет объект периода в контроллер */
 	addPeriod(period: BudgetPeriod) {
-		this.activePeriodId = period.id;
+		this._activePeriodId = period.id;
 		this.periodCollection.set(period.id, period);
+		this.dispatchEvent(EventPeriod.add, period);
+		this.updateDisplayInfo(period);
 	}
 
 	/** Действия при добавлении позиции в список покупок. */
@@ -50,11 +66,11 @@ class ControllerCollectorPeriodPurshase {
 		//HACK: временное преобразование.
 		const item = data as ArticleUnit;
 
-		if (this.activePeriodId == 0 || !this.periodCollection.has(this.activePeriodId)) {
+		if (!this._activePeriodId || !this.periodCollection.has(this._activePeriodId)) {
 			return;
 		}
 
-		const bp: BudgetPeriod = this.periodCollection.get(this.activePeriodId) as BudgetPeriod;
+		const bp: BudgetPeriod = this.periodCollection.get(this._activePeriodId) as BudgetPeriod;
 		bp.addReserve(item.total);
 		this.updateDisplayInfo(bp);
 	}
@@ -64,22 +80,22 @@ class ControllerCollectorPeriodPurshase {
 		//HACK: временное преобразование.
 		const item = data as ArticleUnit;
 
-		if (this.activePeriodId == 0 || !this.periodCollection.has(this.activePeriodId)) {
+		if (!this._activePeriodId || !this.periodCollection.has(this._activePeriodId)) {
 			return;
 		}
 		
-		const bp: BudgetPeriod = this.periodCollection.get(this.activePeriodId) as BudgetPeriod;
+		const bp: BudgetPeriod = this.periodCollection.get(this._activePeriodId) as BudgetPeriod;
 		bp.addReserve(-(item.total));
 		this.updateDisplayInfo(bp);
 	}
 
 	/** Действие при добавлении нового списка покупок. */
-	handleAddedList(list: ArticleList): void {
+	handleAddedList(list: ArticleOrderList): void {
 		this.activePeriodListId.add(list.created);
 	}
 
 	/** Действия при удалении списка покупок. */
-	handleRemoveList(list: ArticleList): void {
+	handleRemoveList(list: ArticleOrderList): void {
 		this.activePeriodListId.delete(list.created);
 	}
 
@@ -95,17 +111,44 @@ class ControllerCollectorPeriodPurshase {
 	// фукциями-хандлерами, тут они снимаются и перевешиваются на активный список.
 
 	/** Получает активный (целевой) список покупок. */
-	setActiveList(list: ArticleList): void {
+	setActiveList(list: ArticleOrderList): void {
 		// вешает на этот список различные слушатели и обработчики.
 		list.on(EventItem.add, this.handleAddPurshase.bind(this));
 		list.on(EventItem.remove, this.handleRemovePurshase.bind(this));
 	}
 	
 	/** Получает дективируемый список покупок. */
-	unsetActiveList(list: ArticleList): void {
+	unsetActiveList(list: ArticleOrderList): void {
 		// удаляет свои обработчики и слушатели с этого списка.
 		list.off(EventItem.add, this.handleAddPurshase.bind(this))
 		list.off(EventItem.remove, this.handleRemovePurshase.bind(this));
+	}
+
+		/** Уставновка обработчика  */
+	on(eventName: EventPeriod, clb: EventCallback): void {
+		if (eventName in this._events) {
+			this._events[eventName].push(clb);
+		} else {
+			throw new Error("Нет такого события для BudgetPeriod!");
+		}
+	}
+
+	/** удаление обработчиков */
+	off(eventName: EventPeriod, clb: EventCallback) {
+		if (eventName in this._events) {
+			const callbacks = this._events[eventName];
+			for (let i = callbacks.length - 1; i >= 0; i--) {
+				if (callbacks[i] === clb) {
+					callbacks.splice(i, 1);
+				}
+			}
+		} else {
+			throw new Error("Нет такого события для BudgetPeriod!");
+		}
+	}
+
+	dispatchEvent(eventname: EventPeriod, item: BudgetPeriod): void {
+		this._events[eventname].forEach(clbc => clbc(item));
 	}
 }
 

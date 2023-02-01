@@ -8,7 +8,10 @@ import { ProductUnit, ProductUnitJson } from "./units/product-unit";
 import * as uType from "./types";
 import { ArticleOrderList } from "./units/article-list";
 import { ArticleUnit } from "./units/article-item";
-import { BudgetPeriodJson } from "./budget/BudgetPeriod";
+import { BudgetPeriod } from "./budget/BudgetPeriod";
+
+
+const uri_api_host = "http://localhost:8000/api";
 
 /**
  * Запрос коллекции ассортимента.
@@ -119,7 +122,7 @@ const localstorDataSet = {
 // --- получение данных из удаленной базы данных. ---
 
 // Создание типов единиц измерений из списка на сервере.
-const typesOfMeasure = fetch("http://localhost:8000/api/type/measure")
+const typesOfMeasure = fetch(uri_api_host + "/type/measure")
 	.then(response => response.ok ? response.json() : null)
 	.then(measures => {
 		// числовые ключи соответствуют id типа в БД и обеспечат 
@@ -140,7 +143,7 @@ const typesOfMeasure = fetch("http://localhost:8000/api/type/measure")
 		return types;
 	});
 // Создание типов упаковок (видов распостранения) из списка на сервере.
-const typesOfVendors = fetch("http://localhost:8000/api/type/package")
+const typesOfVendors = fetch(uri_api_host + "/type/package")
 	.then(response => response.ok ? response.json() : null)
 	.then(vendors => {
 		// числовые ключи соответствуют id типа в БД и обеспечат 
@@ -166,7 +169,7 @@ const typesOfVendors = fetch("http://localhost:8000/api/type/package")
 // (создание Product зависимо от типов, поэтому используется цепочка промисов).
 const serverDataSet = Promise.all([typesOfMeasure, typesOfVendors])
 .then(typesMV => 
-	fetch("http://localhost:8000/api/data/product")
+	fetch(uri_api_host + "/data/product")
 	.then(response => response.ok ? response.json() : null)
 	.then(products => {
 		const [measures, vendors] = typesMV;
@@ -183,8 +186,7 @@ const serverDataSet = Promise.all([typesOfMeasure, typesOfVendors])
 										measureType,
 										null, 
 										null,
-										p.id)
-				);
+										p.id));
 			} else {
 				throw new Error(`Не удалось создать продукт из БД${p.title}`);
 			}
@@ -194,7 +196,7 @@ const serverDataSet = Promise.all([typesOfMeasure, typesOfVendors])
 );
 // Загрузка списка заказов.
 // (список заказов зависит от списка продуктов.)
-const orderList = fetch("http://localhost:8000/api/data/get-orders")
+const orderList = fetch(uri_api_host + "/data/get-orders")
 .then(response => response.ok ? response.json() : null);
 
 export const orderListDataSet = Promise.all([orderList, serverDataSet])
@@ -222,21 +224,38 @@ export const orderListDataSet = Promise.all([orderList, serverDataSet])
 });
 // ---
 
-export async function addBudgetPeriod(period: BudgetPeriodJson): Promise<string> {
-	const response = await fetch("http://localhost:8000/api/data/add-budgetperiod", {
+/** Отправляет данные фин. периода. */
+export async function addBudgetPeriod(period: BudgetPeriod): Promise<string> {
+	const response = await fetch(uri_api_host + "/data/add-budgetperiod", {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json;charset=utf-8'
 		},
-		body: JSON.stringify(period)
+		body: JSON.stringify(period.toJSON())
 	});
 	return await (response.ok ? response.text() : Promise.reject());
 }
 
+/** Загружает данные фин. периода. */
+export function getBudgetPeriod(): Promise<BudgetPeriod> {
+	return fetch(uri_api_host + "/data/get-budgetperiod")
+		.then(response => response.ok ? response.json(): Promise.reject('Ошибка запроса'))
+		.then(budget => budget.length ? budget[0]: Promise.reject('Пустой результат'))
+		.then(budget => new BudgetPeriod(
+			budget.resources_deposit,
+			budget.resources_reserved,
+			budget.resources_utilize,
+			budget.exchange,
+			budget.period_start,
+			budget.period_end,
+			budget.id
+		));
+};
+
 /** Отправляет данные списка закупок на сервер. */
 export async function addOrderList(list: ArticleOrderList): Promise<string> {
 	console.log("Ордер на вставку в БД", list);
-	const response = await fetch("http://localhost:8000/api/data/add-orderlist", {
+	const response = await fetch(uri_api_host + "/data/add-orderlist", {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json;charset=utf-8'
@@ -248,7 +267,7 @@ export async function addOrderList(list: ArticleOrderList): Promise<string> {
 
 /** Отправляет данные элемента списка заказа на сервер. */
 export async function addPurshase(item: ArticleUnit , orderList: ArticleOrderList): Promise<string> {
-	const response = await fetch("http://localhost:8000/api/data/add-purshase", {
+	const response = await fetch(uri_api_host + "/data/add-purshase", {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json;charset=utf-8'

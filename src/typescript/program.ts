@@ -14,8 +14,7 @@ import { ArticleOrderList } from './units/article-list';
 // контроллеры
 import { ControllerOrderList, EventList } from './units/controller-order-list';
 import { ControllerArticleList } from './controller-article-list';
-import controllerPeriodPurshase from "./budget/controller-period-purshase";
-import { IArticleItem } from './units/i-article-item';
+import controllerPeriodPurshase, { EventPeriod } from "./budget/controller-period-purshase";
 
 
 
@@ -118,13 +117,11 @@ controllerOrderList.on(EventList.add, list => {
     render.render(list, conteinerOrderList);
 });
 
-// обработчики котроля для тестов
-controllerOrderList.on(EventList.add, list => console.log("Добавлен список заказов: ", list));
-controllerOrderList.on(EventList.activate, list => console.log("Активирован список заказов: ", list));
-
 // обработка событий в списках покупок для записи в БД
 controllerOrderList.onList(EventItem.add, datastorage.addPurshase);
 
+// обработка событий в списках периодов для записи в БД
+controllerPeriodPurshase.on(EventPeriod.add, datastorage.addBudgetPeriod);
 
 // --- обработка по перемещению и управлению списками клафишами ---
 

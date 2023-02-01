@@ -38,9 +38,10 @@ CREATE TABLE budget_period (
 	id CHAR(8) NOT NULL UNIQUE,
 	period_start DATE NOT NULL DEFAULT (CURRENT_DATE()),
 	period_end DATE DEFAULT NULL,
-	resources_free DECIMAL(9, 2) NOT NULL DEFAULT 0.0,
+	resources_deposit DECIMAL(9, 2) NOT NULL DEFAULT 0.0,
 	resources_reserved DECIMAL(9, 2) NOT NULL DEFAULT 0.0,
-	resources_utilize DECIMAL(9, 2) NOT NULL DEFAULT 0.0
+	resources_utilize DECIMAL(9, 2) NOT NULL DEFAULT 0.0,
+	exchange DECIMAL(9, 2) NOT NULL DEFAULT 1.0
 );
 
 -- список приобритаемого
