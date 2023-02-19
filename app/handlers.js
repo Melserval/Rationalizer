@@ -12,10 +12,12 @@ exports.about = (req, res) => {
 	res.status(200).render('about');
 }
 
-// обработчики обращений к API
-const api = exports.api = { };
+// --- обработчики API --- \\
+ const api = exports.api = { };
 
-// загрузка типов единиц измерения.
+//.................... ассортимент ................... \\
+
+// DB: загрузка типов единиц измерения.
 api.typeMeasure = (req, res) => {
 	const con = mysql.createConnection(config.mysql);
 	con.query(
@@ -30,12 +32,14 @@ api.typeMeasure = (req, res) => {
 		}
 	);
 };
-
-// загрузка типов (видов) упаковки (распостранения).
+// DB: загрузка типов (видов) упаковки (распостранения).
 api.typePackage = (req, res) => {
+	const sql_select_type = `
+		SELECT * FROM type_package
+	`;
 	const con = mysql.createConnection(config.mysql);
-	con.query(
-		"SELECT * FROM type_package", function(err, result, fields) {
+	con.query(sql_select_type,
+		(err, result, fields) => {
 			if (err) {
 				console.error(err);
 			} else {
@@ -46,8 +50,7 @@ api.typePackage = (req, res) => {
 		}
 	);
 };
-
-// загрузка списка продуктов.
+// DB: загрузка списка ассортимента.
 api.product = (req, res) => {
 	const con = mysql.createConnection(config.mysql);
 	con.query(
@@ -62,54 +65,18 @@ api.product = (req, res) => {
 		}
 	);
 };
-
-// загрузка списка заказов
-api.orders = (req, res) => {
-	const con = mysql.createConnection(config.mysql);
-	let innerQuery = 0;
-	let orderList = [];
-	con.query(
-		"SELECT id, created, quantity, total, term, label FROM order_list",
-		(err, orderlistResult, fields) => {
-			if (err) {
-				console.error(err);
-			} else {
-				orderlistResult.forEach((item, i) => {
-					con.query(
-						"SELECT order_id, product_id, quantity, purshase_price FROM purshase WHERE order_id = ?", 
-						[item.id],
-						(err, purshaseResult, fields) => {
-							if (err) {
-								console.error(err);
-							} else {
-								innerQuery++;
-								orderList.push({ order: item, items: purshaseResult });
-								if (innerQuery == orderlistResult.length) {
-									con.end();
-									res.json(orderList);
-								}
-							}
-						}
-					)
-				});
-			}
-		} 
-	);
-};
-
-// запись нового продукта в БД.
+// DB: запись запись новой единицы ассортимента.
 api.addProduct = (req, res) => {
-
-	const con = mysql.createConnection(config.mysql);
-	const sql = `
+	const sql_insert_new_product = `
 	INSERT INTO product 
 		(id, title, amount, price, description, package_id, measure_id)
 	VALUES (?,?, ?, ?, ?, 
 		(SELECT id FROM type_package WHERE type_name=?), 
 		(SELECT id FROM type_measure WHERE type_name=?)
 	)`;
+	const con = mysql.createConnection(config.mysql);
 
-	con.query(sql, [
+	con.query(sql_insert_new_product, [
 			req.body.id,
 			req.body.title,
 			req.body.amount,
@@ -130,40 +97,26 @@ api.addProduct = (req, res) => {
 	);
 };
 
-// запись нового финпериода в БД.
-api.addBudgetPeriod = (req, res) => {
-	const con = mysql.createConnection(config.mysql);
+//................. финансовые периоды ................ \\
 
+// DB: запись нового фин. периода.
+api.addBudgetPeriod = (req, res) => {
 	const sql_insert_budgetPeriod = `
 	INSERT INTO budget_period 
 		(id, period_start, period_end, resources_deposit, resources_reserved, resources_utilize, exchange)
-	VALUES (?, ?, ?, ?, ?, ?, ?)`;
-
-	con.query(sql_insert_budgetPeriod, [
-			req.body.id,
-			req.body.start,
-			req.body.end,
-			req.body.deposit,
-			req.body.reserved,
-			req.body.utilize,
-			req.body.exchange
-		], (err, result) => {
-			if (err) {
-				console.error(err);
-			} else {
-				con.end();
-			}
-		} 
-	)
-};
-
-api.getBudgetPeriod = (req, res) => {
+	VALUES (?, ?, ?, ?, ?, ?, ?)
+	`;
 	const con = mysql.createConnection(config.mysql);
 
-	const sql_select_budgetPeriod = `
-		SELECT * FROM budget_period ORDER BY period_start DESC LIMIT 1
-	`;
-	con.query(sql_select_budgetPeriod, (err, result, fields) => {
+	con.query(sql_insert_budgetPeriod, [
+		req.body.id,
+		req.body.start,
+		req.body.end,
+		req.body.deposit,
+		req.body.reserved,
+		req.body.utilize,
+		req.body.exchange
+	], (err, result) => {
 		if (err) {
 			console.error(err);
 		} else {
@@ -172,14 +125,93 @@ api.getBudgetPeriod = (req, res) => {
 		}
 	});
 };
+// DB: загрузка фин. периода - самый новый.
+api.getBudgetPeriodLast = (req, res) => {
+	const con = mysql.createConnection(config.mysql);
 
-// запись нового списка приобритений.
-api.addOrderList = (req, res) => {
+	con.query("SELECT * FROM budget_period ORDER BY period_start DESC LIMIT 1", 
+		(err, result, fields) => {
+			if (err) {
+				console.error(err);
+			} else {
+				res.json(result);
+				con.end();
+			}
+		});
+};
+// DB: загрузка фин периода - по id.
+api.getBudgetPeriodById = (req, res) => {
+	const con = mysql.createConnection(config.mysql);
+
+	con.query("SELECT * FROM budget_period WHERE id = ?", [
+		req.body.id 
+	], (err, result, fields) => {
+			if (err) {
+				console.error(err);
+			} else {
+				res.json(result);
+				con.end();
+			}
+	});
+};
+// DB: запись связи указанного заказа с указанным периодом.
+api.associateOrderByPeriod = (req, res) => {
+	// HACK: тут нужна ТРАНЗАКЦИЯ для проверки внешних ключей!
+	const sql_set_order_by_period = `
+	INSERT INTO orders_of_budget (order_id, period_id)
+	VALUES (?, ?)
+	`;
+	const con = mysql.createConnection(config.mysql);
+
+	con.query(sql_set_order_by_period, [
+		req.body.orderId, req.body.periodId
+	], (err, result) => {
+		if (err) {
+			console.error(err);
+		} else {
+			res.json(result);
+			con.end();
+		}
+	});
+};
+// DB: загрузка связанных с указанным периодом заказов.
+api.getOrdersByPeriodId = (req, res) => {
+	const con = mysql.createConnection(config.mysql);
+
+	const sql_get_orders_by_period = `
+		SELECT 
+			orders.id, orders.created, orders.term, orders.label
+		FROM 
+			order_list AS orders
+		JOIN 
+			orders_of_budget AS period
+		ON 
+			orders.id = period.order_id
+		WHERE 
+			period.period_id = ?
+	`;
+	con.query(sql_get_orders_by_period, [
+		req.body.periodId
+	], (err, orders) => {
+		if (err) {
+			console.error(err);
+		} else {
+			res.json(orders);
+			con.end()
+		}
+	});
+};
+
+//............ закупки: заказазы и их элементы ............\\
+
+// DB: запись нового заказа.
+api.addOrder = (req, res) => {	
 	const sql_add_order = `
 	INSERT INTO order_list (id, created, term, label)
 	VALUES (?, ?, ?, ?)
 	`;
 	const con = mysql.createConnection(config.mysql);
+
 	con.query(sql_add_order, [
 		req.body.id,
 		req.body.created,
@@ -189,18 +221,37 @@ api.addOrderList = (req, res) => {
 		if (err) {
 			console.error(err);
 		} else {
+			res.json(result);
 			con.end();
 		}
 	})
 };
+// DB: получение заказа по id.
+api.getOrderById = (req, res) => {
+	const sql_get_order = `
+		SELECT * FROM order_list WHERE id = ?
+	`;
+	const con = mysql.createConnection(config.mysql);
 
-// запись покупки .
+	con.query(sql_get_order, [
+		req.body.listId
+	], (err, result) => {
+		if (err) {
+			console.error(err);
+		} else {
+			res.json(result);
+			con.end();
+		}
+	});
+};
+// DB: запись единицы покупки.
 api.addPurshase = (req, res) => {
 	const sql_add_purshase = `
 	INSERT INTO purshase (order_id, product_id, quantity)
 	VALUES (?, ?, ?)
 	`;
 	const con = mysql.createConnection(config.mysql);
+	
 	con.query(sql_add_purshase, [
 		req.body.orderId,
 		req.body.productId,
@@ -212,4 +263,22 @@ api.addPurshase = (req, res) => {
 			con.end();
 		}
 	})
+};
+// DB: получение списка покупок в заказе по id заказа.
+// если id несколько - вернет несколько наборов покупок.
+api.getPurshasesByOrderId = (req, res) => {
+	const sql =  Array.isArray(req.body.orderId) ?
+	` SELECT * FROM purshase WHERE order_id IN (?) `:
+	` SELECT * FROM purshase WHERE order_id = ? `;
+	const con = mysql.createConnection(config.mysql);
+	con.query("",[
+		req.body.orderId
+	], (err, result) => {
+		if (err) {
+			console.error(err);
+		} else {
+			res.json(result);
+			con.end();
+		}
+	});
 };
