@@ -10,8 +10,9 @@ import { ArticleOrderList } from "./units/article-list";
 import { ArticleUnit } from "./units/article-item";
 import { BudgetPeriod } from "./budget/BudgetPeriod";
 
+export type DBSet = {[key: string]: string };
 
-const uri_api_host = "http://localhost:8000/api";
+const api_uri_host = "http://localhost:8000/api";
 
 /**
  * Запрос коллекции ассортимента.
@@ -29,7 +30,7 @@ export function getProductCollection(
 		);
 	}, TIME);
 	// HACK: Нужно это переделать в анализ ответов от сервера.
-	serverDataSet
+	productDataSet
 	.then(data => {
 		clearTimeout(timerId);
 		callback(null, data, "constant");
@@ -122,7 +123,7 @@ const localstorDataSet = {
 // --- получение данных из удаленной базы данных. ---
 
 // Создание типов единиц измерений из списка на сервере.
-const typesOfMeasure = fetch(uri_api_host + "/type/measure")
+const typesOfMeasure = fetch(api_uri_host + "/type/measure")
 	.then(response => response.ok ? response.json() : null)
 	.then(measures => {
 		// числовые ключи соответствуют id типа в БД и обеспечат 
@@ -143,7 +144,7 @@ const typesOfMeasure = fetch(uri_api_host + "/type/measure")
 		return types;
 	});
 // Создание типов упаковок (видов распостранения) из списка на сервере.
-const typesOfVendors = fetch(uri_api_host + "/type/package")
+const typesOfVendors = fetch(api_uri_host + "/type/package")
 	.then(response => response.ok ? response.json() : null)
 	.then(vendors => {
 		// числовые ключи соответствуют id типа в БД и обеспечат 
@@ -167,9 +168,9 @@ const typesOfVendors = fetch(uri_api_host + "/type/package")
 	});
 // Создание списка продуктов из списка на сервере.
 // (создание Product зависимо от типов, поэтому используется цепочка промисов).
-const serverDataSet = Promise.all([typesOfMeasure, typesOfVendors])
+const productDataSet = Promise.all([typesOfMeasure, typesOfVendors])
 .then(typesMV => 
-	fetch(uri_api_host + "/data/product")
+	fetch(api_uri_host + "/data/product")
 	.then(response => response.ok ? response.json() : null)
 	.then(products => {
 		const [measures, vendors] = typesMV;
@@ -196,10 +197,10 @@ const serverDataSet = Promise.all([typesOfMeasure, typesOfVendors])
 );
 // Загрузка списка заказов.
 // (список заказов зависит от списка продуктов.)
-const orderList = fetch(uri_api_host + "/data/get-orders")
-.then(response => response.ok ? response.json() : null);
+const ordersDataSet = fetch(api_uri_host + "/data/get-orders")
+	.then(response => response.ok ? response.json() : null);
 
-export const orderListDataSet = Promise.all([orderList, serverDataSet])
+export const orderListDataSet = Promise.all([ordersDataSet, productDataSet])
 .then(ordersAndProducts => {
 	const [orders, products] = ordersAndProducts;
 	const orderObjects = new Array<ArticleOrderList>();
@@ -222,11 +223,12 @@ export const orderListDataSet = Promise.all([orderList, serverDataSet])
 	}
 	return orderObjects;
 });
-// ---
 
-/** Отправляет данные фин. периода. */
+///////// ---  Финансовые периоды --- \\\\\\\\\\\\
+
+/** Отправка на сервер: сохранить фин. период */
 export async function addBudgetPeriod(period: BudgetPeriod): Promise<string> {
-	const response = await fetch(uri_api_host + "/data/add-budgetperiod", {
+	const response = await fetch(api_uri_host + "/data/add-budget-period", {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json;charset=utf-8'
