@@ -79,6 +79,13 @@ CREATE TABLE product_categories (
 	CONSTRAINT category_categories_FK FOREIGN KEY (category_id) REFERENCES category_product (id)
 );
 
+-- таблица отношений заказов к периоду.
+CREATE TABLE orders_of_budget (
+	order_id char(8) NOT NULL,
+	period_id CHAR(8) NOT NULL,
+	PRIMARY KEY(order_id, period_id)
+);
+
 -- Выборка продуктов
 CREATE VIEW assortiment AS 
 SELECT 
