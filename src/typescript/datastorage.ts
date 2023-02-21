@@ -195,34 +195,6 @@ const productDataSet = Promise.all([typesOfMeasure, typesOfVendors])
 		return productObjects;
 	})
 );
-// Загрузка списка заказов.
-// (список заказов зависит от списка продуктов.)
-const ordersDataSet = fetch(api_uri_host + "/data/get-orders")
-	.then(response => response.ok ? response.json() : null);
-
-export const orderListDataSet = Promise.all([ordersDataSet, productDataSet])
-.then(ordersAndProducts => {
-	const [orders, products] = ordersAndProducts;
-	const orderObjects = new Array<ArticleOrderList>();
-	for (let order of orders) {
-		const {id, created, quantity, total, term, label} = order.order;
-		//TODO: Подумать над инкапсуляцией преобразования id в дату создания.
-		let AOL = new ArticleOrderList(label, term, parseInt(id, 36));
-		let purshases: ArticleUnit[] = []; 
-		try {
-			for (const pjson of order.items) {
-				let product = products.find(p => p.id === pjson.product_id);
-				if (!product) throw pjson;
-				purshases.push(ArticleUnit.fromJSON(pjson, product));
-			}
-			AOL.addItem(purshases);
-		} catch (err) {
-			console.error("Возникла ошибка при создании коллекции списков закупок из БД", err);
-		}
-		orderObjects.push(AOL);
-	}
-	return orderObjects;
-});
 
 ///////// ---  Финансовые периоды --- \\\\\\\\\\\\
 
@@ -238,26 +210,58 @@ export async function addBudgetPeriod(period: BudgetPeriod): Promise<string> {
 	return await (response.ok ? response.text() : Promise.reject());
 }
 
-/** Загружает данные фин. периода. */
-export function getBudgetPeriod(): Promise<BudgetPeriod> {
-	return fetch(uri_api_host + "/data/get-budgetperiod")
-		.then(response => response.ok ? response.json(): Promise.reject('Ошибка запроса'))
-		.then(budget => budget.length ? budget[0]: Promise.reject('Пустой результат'))
-		.then(budget => new BudgetPeriod(
-			budget.resources_deposit,
-			budget.resources_reserved,
-			budget.resources_utilize,
-			budget.exchange,
-			budget.period_start,
-			budget.period_end,
-			budget.id
-		));
+/** Получить с сервера: Последний добавленнный фин. период. */
+export function getBudgetPeriodLast(): Promise<BudgetPeriod> {
+	return fetch(api_uri_host + "/data/get-budget-period-last", {
+		'method': 'POST'
+	})
+	.then(response => response.ok ? response.json() : Promise.reject("Не удалось получить last period"))
+	.then(dbset => dbset.length == 1 ? dbset[0] : Promise.reject("БД вернула пустой результат"))
+	.then((dbset: DBSet) => BudgetPeriod.createFromDBSet(dbset));
 };
 
-/** Отправляет данные списка закупок на сервер. */
-export async function addOrderList(list: ArticleOrderList): Promise<string> {
+/** Получить с сервера: Фин. период с указанным id */
+export function getBudgetPeriodById(periodId: string): Promise<BudgetPeriod> {
+	return fetch(api_uri_host + "/get-budget-period", {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json;charset=utf-8'
+		},
+		body:  JSON.stringify({periodId})
+	})
+	.then(result => result.ok ? result.json() : Promise.reject("Не удалось получить period by id"))
+	.then((item: DBSet) => BudgetPeriod.createFromDBSet(item));
+}
+
+/**
+ * Отправка на сервер: связать заказ с указанным фин. периодом
+ * 
+ * @param   {string}   orderId   Идентификатор списка закупок.
+ * @param   {string}   periodId  Идентификатор фин. периода.
+ *
+ * @return  {Promise<string>}            результат связи с БД.
+ */
+export function associateOrderByPeriod(orderId: string, periodId: string): Promise<string> {
+	console.log(`Ассоцияция заказа ${orderId} с периодом ${periodId}`);
+	return fetch(api_uri_host + "/data/add-order-period", {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json;charset=utf-8'
+		},
+		body: JSON.stringify({orderId, periodId})
+	})
+	.then(response => response.ok ? 
+		response.json() : 
+		Promise.reject<string>(response.statusText)
+	);
+}
+
+ ///////////////// --- Заказы - Покупки --- \\\\\\\\\\\\\\\\\\\\\
+
+/** Отправка на сервер: сохранить заказ */
+export async function addOrder(list: ArticleOrderList): Promise<string> {
 	console.log("Ордер на вставку в БД", list);
-	const response = await fetch(uri_api_host + "/data/add-orderlist", {
+	const response = await fetch(api_uri_host + "/data/add-order", {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json;charset=utf-8'
@@ -267,14 +271,59 @@ export async function addOrderList(list: ArticleOrderList): Promise<string> {
 	return await (response.ok ? response.text() : Promise.reject());
 }
 
-/** Отправляет данные элемента списка заказа на сервер. */
-export async function addPurshase(item: ArticleUnit , orderList: ArticleOrderList): Promise<string> {
-	const response = await fetch(uri_api_host + "/data/add-purshase", {
+/** Получить с сервера: заказ по его id */
+export async function getOrderById(orderId: string): Promise<string> {
+	const response = await fetch(api_uri_host + "/data/get-order", {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json;charset=utf-8'
 		},
-		body:  JSON.stringify( Object.assign(item.toJSON(), {"orderId": orderList.id}) )
+		body:  JSON.stringify({orderId})
+	});
+	return await (response.ok ? response.json() : Promise.reject());
+}
+
+/** Получить с сервера: заказы связанные с фин. периодом с указанным id */
+export function getOrdersByPeriodId(periodId: string): Promise<ArticleOrderList[]> {
+	return fetch(api_uri_host + "/data/get-orders-by-period", {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json;charset=utf-8'
+		},
+		body:  JSON.stringify({periodId})
+	})
+	.then(result => result.ok ? result.json() : Promise.reject("Не удалось получить orders by period id"))
+	.then((dbset: DBSet[]) => dbset.length > 0 ? dbset : Promise.reject("БД вернула пустой ответ."))
+	.then(dbset => dbset.map(order => ArticleOrderList.createFromDBSet(order)));
+}
+
+/** Отправка на сервер: сохранить покупку. */
+export async function addPurshase(purshase: ArticleUnit , orderList: ArticleOrderList): Promise<string> {
+	const response = await fetch(api_uri_host + "/data/add-purshase", {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json;charset=utf-8'
+		},
+		body:  JSON.stringify( Object.assign(purshase.toJSON(), {"orderId": orderList.id}) )
 	});
 	return await (response.ok ? response.text() : Promise.reject());
+}
+
+/** Получить с сервера: Коллекция покупок из заказа с указанным id */
+export function getPurshasesByOrderId(orderId: string): Promise<ArticleUnit[]> {
+	const purshaseDBSet = fetch(api_uri_host + "/data/get-purshases", {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json;charset=utf-8'
+		},
+		body:  JSON.stringify({orderId})
+	})
+	.then(result => result.ok ? result.json() : Promise.reject("Не удалось получить purshases by order id"))
+	.then((dbset: DBSet[]) => dbset.length > 0 ? dbset : Promise.reject("БД вернула пустой ответ"));
+	
+	return Promise.all([productDataSet, purshaseDBSet])
+	.then(productAndDBset => {
+		const [products, purshases] = productAndDBset;
+		return purshases.map(dbset => ArticleUnit.createFromDBSet(dbset, products));
+	});
 }
