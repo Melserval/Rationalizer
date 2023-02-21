@@ -1,5 +1,8 @@
+import { DBSet } from "../datastorage";
 import { ArticleUnit } from "./article-item";
 import { IArticleItem } from "./i-article-item";
+
+const idRadix = 36;
 
 type EventCallback<T extends IArticleItem> = (item: T, target?: ArticleList<T>) => void;
 
@@ -42,7 +45,7 @@ export class ArticleList<T extends IArticleItem=IArticleItem> {
 	constructor(label: string, created: number=Date.now()) {
 		this._label = label;
 		this.created = created;
-		this.id = created.toString(36);
+		this.id = created.toString(idRadix);
 	}
 
 	toJSON(): ArticleListJson {
@@ -149,5 +152,20 @@ export class ArticleOrderList extends ArticleList<ArticleUnit> {
 			total += item.total;
 		}
 		return total;
+	}
+
+	static createFromDBSet(dbset: DBSet): ArticleOrderList {
+		try {
+			const label = dbset.label;
+			// HACK: Временный терм - заглушка.
+			const term = "test term"; //parseInt(dbset.term);
+			const created = parseInt(dbset.id, idRadix);
+			if (isNaN(created)) {
+				throw  Error("Дата создания имеет недопустимый формат.");
+			}
+			return new ArticleOrderList(label, term, created);
+		} catch (err) {
+			console.error("Неудалось создать объект ArticleOrderList из данных БД.", err);
+		}
 	}
 }

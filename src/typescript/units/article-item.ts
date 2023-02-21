@@ -1,6 +1,7 @@
 import { ProductUnit } from "./product-unit";
 import { IArticleItem } from "./i-article-item";
 import { ArticleList } from "./article-list";
+import { DBSet } from "../datastorage";
 
 export type ArticleUnitJson = {
 	productId: string,
@@ -39,6 +40,24 @@ export class ArticleUnit implements IArticleItem {
 	
 	static fromJSON(item: ArticleUnitJson, product: ProductUnit): ArticleUnit {
 		return new this(product, item.quantity);
+	}
+
+	static createFromDBSet(dbset: DBSet, products: Iterable<ProductUnit>): ArticleUnit {
+		try {
+			const productId: string = dbset.product_id;
+			const quantity: number = parseInt(dbset.quantity);
+			if (isNaN(quantity)) {
+				throw Error("Недопустимое значение для числа");
+			}
+			for (const p of products) {
+				if (p.id === productId) {
+					return new ArticleUnit(p, quantity);
+				}
+			}
+			throw Error(`Не найден продукт с id ${productId}.`);
+		} catch (err) {
+			console.error("Неудалось создать объект покупки из данных БД.", err);
+		}
 	}
 
 	get productId(): string {
