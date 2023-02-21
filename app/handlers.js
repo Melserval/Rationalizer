@@ -144,7 +144,7 @@ api.getBudgetPeriodById = (req, res) => {
 	const con = mysql.createConnection(config.mysql);
 
 	con.query("SELECT * FROM budget_period WHERE id = ?", [
-		req.body.id 
+		req.body.periodId
 	], (err, result, fields) => {
 			if (err) {
 				console.error(err);
@@ -234,7 +234,7 @@ api.getOrderById = (req, res) => {
 	const con = mysql.createConnection(config.mysql);
 
 	con.query(sql_get_order, [
-		req.body.listId
+		req.body.orderId
 	], (err, result) => {
 		if (err) {
 			console.error(err);
@@ -271,7 +271,7 @@ api.getPurshasesByOrderId = (req, res) => {
 	` SELECT * FROM purshase WHERE order_id IN (?) `:
 	` SELECT * FROM purshase WHERE order_id = ? `;
 	const con = mysql.createConnection(config.mysql);
-	con.query("",[
+	con.query(sql,[
 		req.body.orderId
 	], (err, result) => {
 		if (err) {
