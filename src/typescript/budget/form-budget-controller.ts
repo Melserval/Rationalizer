@@ -1,4 +1,9 @@
 // модуль назначения финансовых периодов и бюджета.
+//
+// Форма, создает объект финансового периода.
+// передает его в переданые клиентом колбэки.
+// предоставляет функцию для назначения этих 
+// обработчиков.
 
 import { BudgetPeriod } from "./BudgetPeriod";
 
@@ -70,8 +75,6 @@ form_BudgetSetting.addEventListener("reset", function(e) {
 	//HACK: Hmm... как то бы указать что вызывать ПОСЛЕ очистки.
 	setTimeout(() => input_StartPeriod.valueAsDate = new Date(), 10);
 });
-
-console.log("buget module is loaded.");
 
 /** Установщик колбэков получающих объект-финансовый период. */
 export default function(callback: (item: BudgetPeriod) => void) {
