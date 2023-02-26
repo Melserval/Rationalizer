@@ -12,27 +12,30 @@
 import { ArticleUnit } from "../units/article-item";
 import { ArticleOrderList, EventItem } from "../units/article-list";
 import { IArticleItem } from "../units/i-article-item";
-import { BudgetPeriod } from "./BudgetPeriod";
-// форма
-import FormCreateBudgetPeriod from "./form-budget-controller";
-// рендер
-import viewBudgetController from "./view-budget-info-display";
+import { BudgetPeriod, EventBudget } from "./BudgetPeriod";
 
 
-
-export const enum EventPeriod {
-	/** Добавлен новый период. */
-	add = "add"
+export const enum EventPeriodController {
+	/** В коллекцию добавлен период. */
+	add = "add",
+	/** период назначен активным. */
+	activate = "activate"
 };
+
 
 export type EventCallback = (item: BudgetPeriod) => void;
 
+
 class ControllerCollectorPeriodPurshase {
+
+	// обработчики собственных событий контроллера.
 	private _events: {[enventname:string]: Array<EventCallback>} = {
-		[EventPeriod.add] : new Array()
-	}
-	// текущий активный список закупок.
-	// что бы не пересчитывать все списки в коллекции.
+		[EventPeriodController.add] : new Array(),
+		[EventPeriodController.activate]: new Array()
+	};
+
+	// обработчики для событий на хранимых элементах.
+	private _events_of_item = new Map<EventBudget, Array<EventCallback>>();
 	
 	// идентификатор текущего выбранного финансового периода.
 	// значение "0" - для списков без определенного периода.
@@ -45,20 +48,51 @@ class ControllerCollectorPeriodPurshase {
 
 	constructor() {
 		this._activePeriodId = "0";
-		// FIX: (1)Разобраться с этим. Врядли это должно быть так прибито...
-		FormCreateBudgetPeriod(this.addPeriod.bind(this)); // создаст объект периода .
+		
+		// переброска обработчиков для активируемых элементов.
 	}
 
 	get activePeriodId(): string {
 		return this._activePeriodId;
 	}
 
-	/** Добавляет объект периода в контроллер */
-	addPeriod(period: BudgetPeriod) {
+	/** Вернет текущий активный финансовый период или Null если нет активного периода. */
+	get activePeriod(): BudgetPeriod | null {
+		return this.periodCollection.get(this._activePeriodId) ?? null;
+	}
+
+	/** Установит период из коллекции как активный по его Id. */
+	activatePeriodById(id: string): boolean {
+		if (this.periodCollection.has(id)) {
+			this.activatePeriod(this.periodCollection.get(id));
+			return true;
+		}
+		return false;
+	}
+	
+	// устанавливает переданный элемент как активный,
+	// вешает на него обработчики (для элементов),
+	// а с предыдущего активного периода - снимает.
+	private activatePeriod(period: BudgetPeriod) {
+		const prevPeriod = this.periodCollection.get(this._activePeriodId);
+		if (prevPeriod) {
+			this._events_of_item.forEach((callbacks, eventName) => callbacks.forEach(prevPeriod.off.bind(prevPeriod, eventName)));
+		}
 		this._activePeriodId = period.id;
+		this._events_of_item.forEach((callbacks, eventName) => callbacks.forEach(period.on.bind(period, eventName)));
+		this.dispatchEvent(EventPeriodController.activate, period);
+	}
+
+	/** 
+	 * Добавляет объект периода в контроллер
+	 * Этот период станет активным если установлен флаг.
+	 */
+	addPeriod(period: BudgetPeriod, activate?: boolean) {
 		this.periodCollection.set(period.id, period);
-		this.dispatchEvent(EventPeriod.add, period);
-		this.updateDisplayInfo(period);
+		this.dispatchEvent(EventPeriodController.add, period);
+		if (activate) {
+			this.activatePeriodById(period.id);
+		}
 	}
 
 	/** Действия при добавлении позиции в список покупок. */
@@ -72,7 +106,6 @@ class ControllerCollectorPeriodPurshase {
 
 		const bp: BudgetPeriod = this.periodCollection.get(this._activePeriodId) as BudgetPeriod;
 		bp.addReserve(item.total);
-		this.updateDisplayInfo(bp);
 	}
 
 	/** Действия при удалении позиции из списока покупок. */
@@ -86,7 +119,6 @@ class ControllerCollectorPeriodPurshase {
 		
 		const bp: BudgetPeriod = this.periodCollection.get(this._activePeriodId) as BudgetPeriod;
 		bp.addReserve(-(item.total));
-		this.updateDisplayInfo(bp);
 	}
 
 	/** Действие при добавлении нового списка покупок. */
@@ -98,13 +130,6 @@ class ControllerCollectorPeriodPurshase {
 	handleRemoveList(list: ArticleOrderList): void {
 		this.activePeriodListId.delete(list.created);
 	}
-
-	updateDisplayInfo(bp: BudgetPeriod): void {
-		// FIX: (2)Разобраться с этим. Врядли это должно быть так прибито...
-		viewBudgetController.freeMeans = bp.getAmount();
-		viewBudgetController.reserveMeans = bp.getReserve();
-	}
-
 
 	// установщики и щистильщики обработчиков событий на списках закупок.
 	// это нужно что бы не захламлять пямять висящими на всех списках
@@ -125,7 +150,7 @@ class ControllerCollectorPeriodPurshase {
 	}
 
 		/** Уставновка обработчика  */
-	on(eventName: EventPeriod, clb: EventCallback): void {
+	on(eventName: EventPeriodController, clb: EventCallback): void {
 		if (eventName in this._events) {
 			this._events[eventName].push(clb);
 		} else {
@@ -134,7 +159,7 @@ class ControllerCollectorPeriodPurshase {
 	}
 
 	/** удаление обработчиков */
-	off(eventName: EventPeriod, clb: EventCallback) {
+	off(eventName: EventPeriodController, clb: EventCallback) {
 		if (eventName in this._events) {
 			const callbacks = this._events[eventName];
 			for (let i = callbacks.length - 1; i >= 0; i--) {
@@ -147,12 +172,31 @@ class ControllerCollectorPeriodPurshase {
 		}
 	}
 
-	dispatchEvent(eventname: EventPeriod, item: BudgetPeriod): void {
+	dispatchEvent(eventname: EventPeriodController, item: BudgetPeriod): void {
 		this._events[eventname].forEach(clbc => clbc(item));
+	}
+
+	/** Установка обработчиков для дочерних элементов. */
+	onItem(eventName: EventBudget, callabck: (item: BudgetPeriod)=> void): void {
+		if (this._events_of_item.has(eventName)) {
+			this._events_of_item.get(eventName).push(callabck);
+		} else {
+			this._events_of_item.set(eventName, [callabck])
+		}
+	}
+
+	offItem(eventName: EventBudget, callabck: EventCallback): void {
+		if (this.activePeriod && this._events_of_item.has(eventName)) {
+			this.activePeriod.off(eventName, callabck);
+			const callbacks = this._events_of_item.get(eventName);
+			for (let i = callbacks.length - 1; i >= 0; i--) {
+				if (callbacks[i] === callabck) {
+					callbacks.splice(i, 1);
+				}
+			}
+		}
 	}
 }
 
-
-
 /** Экзэмпляр класса контроллера-коллектора финансовых периодов и списков закупок. */
-export default new ControllerCollectorPeriodPurshase();
+export const periodController = new ControllerCollectorPeriodPurshase();
