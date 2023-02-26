@@ -70,7 +70,7 @@ class BudgetPeriod {
 	addUtilize(value: number) {
 		if (value <= this._budgetReserved) {
 			this._budgetReserved -= value;
-			this.dispatchEvent(EventBudget.change, this);
+			this.dispatchEvent(EventBudget.change);
 		} else {
 			// NOTE: Реализовать выдачу предупреждений о перерасходе.
 			confirm("Невозможно списать больше чем есть!");
@@ -97,7 +97,7 @@ class BudgetPeriod {
 			this._budgetDeposit = this._budgetDeposit - value;
 			this._budgetReserved += value;
 		}
-		this.dispatchEvent(EventBudget.change, this);
+		this.dispatchEvent(EventBudget.change);
 	}
 
 	/** Получить общую сумму резерва. */
@@ -105,8 +105,8 @@ class BudgetPeriod {
 		return this._budgetReserved;
 	}
 
-	dispatchEvent(eventName: EventBudget, budget: BudgetPeriod) {
-		this._events.get(eventName)?.forEach(clbc => clbc(budget));
+	dispatchEvent(eventName: EventBudget): void {
+		this._events.get(eventName)?.forEach(clbc => clbc(this));
 	}
 
 	on(eventName: EventBudget, callback: EventCallback) {
