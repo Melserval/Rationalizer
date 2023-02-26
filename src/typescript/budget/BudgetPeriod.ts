@@ -115,7 +115,11 @@ class BudgetPeriod {
 
 	// вычисляет сколько дней осталось до конца периода.
 	getDaysToEnd(): number {
-		return ((this._startPeriod.getTime() - Date.now()) / 1000 / 60 / 60 / 24);
+		// если есть конечная дата - покажет сколько дней осталось до конца периода.
+		// если даты нет - покажет сколько дней прошло с начала периода (знак "-").
+		return this.getEndDate() != null ?    
+			(this.getEndDate().getTime() - Date.now()) / 1000 / 60 / 60 / 24:
+			(this.getStartDate().getTime() - Date.now()) / 1000 / 60 / 60 / 24;
 	}
 
 	dispatchEvent(eventName: EventBudget): void {
