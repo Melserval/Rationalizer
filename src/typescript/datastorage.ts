@@ -293,8 +293,7 @@ export function getOrdersByPeriodId(periodId: string): Promise<ArticleOrderList[
 		body:  JSON.stringify({periodId})
 	})
 	.then(result => result.ok ? result.json() : Promise.reject("Не удалось получить orders by period id"))
-	.then((dbset: DBSet[]) => dbset.length > 0 ? dbset : Promise.reject("БД вернула пустой ответ."))
-	.then(dbset => dbset.map(order => ArticleOrderList.createFromDBSet(order)));
+	.then((dbset: DBSet[]) => dbset.map(order => ArticleOrderList.createFromDBSet(order)));
 }
 
 /** Отправка на сервер: сохранить покупку. */
@@ -318,12 +317,11 @@ export function getPurshasesByOrderId(orderId: string): Promise<ArticleUnit[]> {
 		},
 		body:  JSON.stringify({orderId})
 	})
-	.then(result => result.ok ? result.json() : Promise.reject("Не удалось получить purshases by order id"))
-	.then((dbset: DBSet[]) => dbset.length > 0 ? dbset : Promise.reject("БД вернула пустой ответ"));
+	.then(result => result.ok ? result.json() : Promise.reject("Не удалось получить purshases by order id"));
 	
 	return Promise.all([productDataSet, purshaseDBSet])
 	.then(productAndDBset => {
 		const [products, purshases] = productAndDBset;
-		return purshases.map(dbset => ArticleUnit.createFromDBSet(dbset, products));
+		return purshases.map((dbset: DBSet) => ArticleUnit.createFromDBSet(dbset, products));
 	});
 }
