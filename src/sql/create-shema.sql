@@ -73,7 +73,7 @@ CREATE TABLE category_product (
 
 -- категории продукта
 CREATE TABLE product_categories (
-	product_id INT NOT NULL,
+	product_id CHAR(9) NOT NULL,
 	category_id INT NOT NULL,
 	CONSTRAINT product_categories_FK FOREIGN KEY (product_id) REFERENCES product (id),
 	CONSTRAINT category_categories_FK FOREIGN KEY (category_id) REFERENCES category_product (id)
