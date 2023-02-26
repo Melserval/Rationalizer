@@ -1,41 +1,57 @@
 
 #budget-info-display {
-	width: 200px;
+	width: 300px;
 	float: left;
 	margin-top: 10px;
+	margin-left: 10px;
 
-	div {
-		margin-left: 20px;
-		span:nth-child(1) {
-			font-family: Arial, Helvetica, sans-serif;
-			font-size: 14px;
-			width: 80px;
+	.date-info-set, .fin-info-set {
+		border-radius: 4px;
+		margin-bottom: 5px;
+		font-family: Arial, Helvetica, sans-serif;
+		span {
+			display: block;
+			margin: 3px;
+			&.title {
+				font-size: 12px;
+			}
+			&.value {
+				font-size: 14px;
+			}
 		}
-		span:nth-child(2) {
-			font-size: 16px;
-			font-weight: bolder;
+	}
+
+	// показ дат начала и окончания
+	.date-info-set {
+		background-color: #074648;
+		.remain-end, .remain-start, .remain-days {
+			width: 32%;
+			display: inline-block;
+			text-align: center;
+			color: #c8bb33;
 		}
 	}
 
-	span {
-		display: inline-block;
+	// показ состояния финансов
+	.fin-info-set {
+		background-color: #3f350f;
+		.free, .reserv, .utilize {
+			display: inline-block;
+			
+			margin-left: 20px;
+		}
+		.free {
+			color: #39dd39;
+		}
+		.reserv {
+			color: #ff7e00;
+		}
+		.utilize {
+			color: #6f6464;
+		}
 	}
 
-	.remain {
-		color: #807f81;
-	}
 
-	.free {
-		color: #39dd39;
-	}
-
-	.reserv {
-		color: yellow;
-	}
-
-	.utilize {
-		color: red;
-	}
 }
 
 // форма установки бюджета

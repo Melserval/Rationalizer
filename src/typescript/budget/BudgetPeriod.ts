@@ -105,6 +105,19 @@ class BudgetPeriod {
 		return this._budgetReserved;
 	}
 
+	getStartDate(): Date {
+		return this._startPeriod;
+	}
+
+	getEndDate(): Date | null {
+		return this._endPeriod ?? null;
+	}
+
+	// вычисляет сколько дней осталось до конца периода.
+	getDaysToEnd(): number {
+		return ((this._startPeriod.getTime() - Date.now()) / 1000 / 60 / 60 / 24);
+	}
+
 	dispatchEvent(eventName: EventBudget): void {
 		this._events.get(eventName)?.forEach(clbc => clbc(this));
 	}

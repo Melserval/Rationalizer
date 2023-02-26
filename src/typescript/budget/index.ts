@@ -1,8 +1,8 @@
 // иннициализация компонентов модуля.
-import { EventPeriodController, periodController }    from "./controller-budget-period";
-import  periodFormClbcSet                   from "./form-budget-controller";
+import { EventPeriodController, periodController } from "./controller-budget-period";
+import  periodFormClbcSet from "./form-budget-controller";
 import { getBudgetPeriodLast, addBudgetPeriod } from "../datastorage";
-import { viewBudgetInfoController }         from "./view-budget-info-display";
+import { viewBudgetInfoController } from "./view-budget-info-display";
 import { BudgetPeriod, EventBudget } from "./BudgetPeriod";
 
 
@@ -20,6 +20,9 @@ getBudgetPeriodLast()
 	.then(budget => periodController.addPeriod(budget, true), console.log);
 
 function setDisplayInfo(period: BudgetPeriod) {
+	viewBudgetInfoController.startRemain  = period.getStartDate().toLocaleDateString();
+	viewBudgetInfoController.endRemain    = period.getEndDate()?.toLocaleDateString() ?? "0";
+	viewBudgetInfoController.daysRemain   = period.getDaysToEnd();
 	viewBudgetInfoController.freeMeans    = period.getAmount();
 	viewBudgetInfoController.reserveMeans = period.getReserve();
 	viewBudgetInfoController.utilizeMeans = period.getUtilize();

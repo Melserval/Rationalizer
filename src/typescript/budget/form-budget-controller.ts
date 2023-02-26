@@ -23,7 +23,7 @@ const p_FormMessage        = document.getElementById("p-budget-message") as HTML
 const today = new Date();
 input_StartPeriod.valueAsDate = today;
 
-// установка инимально возможной конечной даты - на 1 день длиннее текущей.
+// установка минимально возможной конечной даты - на 1 день длиннее текущей.
 // для установки атрибута "min" требуется формат вида "2022-01-01".
 today.setDate(today.getDate() + 1);
 const month = today.getMonth() < 9 ? "0" + (today.getMonth() + 1): today.getMonth() + 1 + "";
