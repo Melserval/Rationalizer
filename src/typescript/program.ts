@@ -14,9 +14,7 @@ import { ArticleOrderList } from './units/article-list';
 // контроллеры
 import { ControllerOrderList, EventList } from './units/controller-order-list';
 import { ControllerArticleList } from './controller-article-list';
-import controllerPeriodPurshase, { EventPeriod } from "./budget/controller-period-purshase";
-
-
+import { periodController, EventPeriod } from './budget'
 
 
 /** контейнеры списков для покупок */
@@ -40,8 +38,7 @@ controllerArticleList.addList(mainAssortimentList, "assortiment", true);
 
 // ОБРАБОТЧИИК создание продукта главной формой.
 addHandlerForAssortimenUnitIsCreated(async (product) => {
-    console.log("главная форма сотворила предмет!", product);
-    await datastorage.addProductUnit(product);
+    datastorage.addProductUnit(product);
     mainAssortimentList.addItem(product);
 });
 
@@ -67,8 +64,13 @@ onOrderListCreated(function (arg) {
             term = `${arg} дн.`;
     }
     const al = new ArticleOrderList("Список необходимых приобритений", term);
-    datastorage.addOrderList(al);
     controllerOrderList.addList(al);
+    datastorage.addOrder(al)
+    .then(() => 
+        datastorage.associateOrderByPeriod(al.id, periodController.activePeriodId)
+        .then(console.log)
+    );
+    
 });
 
 // загрузка коллекции элементов ProducUnit.
@@ -84,12 +86,22 @@ datastorage.getProductCollection(function (error, dataset, info='') {
     }
 });
 
-// загрузка коллекции элементов списков закупок.
-datastorage.orderListDataSet.then(orders => {
-    orders.forEach(o => {
-        controllerOrderList.addList(o);
-    });
+// загрузка заказов активного фин. периода
+periodController.on(EventPeriod.activate, async (period) => {
+    // NOTE: Организовать уборку списков, при загрузке нового периода.
+    // TODO: Сделать что бы при создании НОВОГО периода не отправлялся запрос на получение списка заказов для него.
+    // WARNING: Помещать ордер в контроллер только ПОСЛЕ наполнения списка покупками.
+    // Иначе сработают события при добавлении покупок и они продублируются в БД.
+    const orders = await datastorage.getOrdersByPeriodId(period.id);
+    for (const order of orders) {
+        const purshases = await datastorage.getPurshasesByOrderId(order.id);
+        order.addItem(purshases);
+        // HACK: Обновление состояния финансов.
+        period.addReserve(order.total);
+        controllerOrderList.addList(order);
+    }
 });
+
 
 // test code: обкатка формы добавления позиции в список покупок.
 renderMainAssortimentList.on("requireitem", function (data: unknown) {
@@ -106,10 +118,10 @@ renderMainAssortimentList.on("requireitem", function (data: unknown) {
 });
 
 // обработка событий в списках покупок для учета фин-периодов.
-controllerOrderList.on(EventList.add, list => controllerPeriodPurshase.handleAddedList(list));
-controllerOrderList.on(EventList.remove, list => controllerPeriodPurshase.handleRemoveList(list));
-controllerOrderList.on(EventList.activate, i => controllerPeriodPurshase.setActiveList(i));
-controllerOrderList.on(EventList.deactivate, i => controllerPeriodPurshase.unsetActiveList(i));
+controllerOrderList.on(EventList.add, list => periodController.handleAddedList(list));
+controllerOrderList.on(EventList.remove, list => periodController.handleRemoveList(list));
+controllerOrderList.on(EventList.activate, i => periodController.setActiveList(i));
+controllerOrderList.on(EventList.deactivate, i => periodController.unsetActiveList(i));
 
 // обработка событий в списках покупок для рендеров.
 controllerOrderList.on(EventList.add, list => {
@@ -119,9 +131,6 @@ controllerOrderList.on(EventList.add, list => {
 
 // обработка событий в списках покупок для записи в БД
 controllerOrderList.onList(EventItem.add, datastorage.addPurshase);
-
-// обработка событий в списках периодов для записи в БД
-controllerPeriodPurshase.on(EventPeriod.add, datastorage.addBudgetPeriod);
 
 // --- обработка по перемещению и управлению списками клафишами ---
 
